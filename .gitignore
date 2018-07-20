@@ -1,0 +1,17 @@
+.DS_Store
+.atom/
+.idea
+.packages
+.pub/
+build/
+ios/.generated/
+packages
+pubspec.lock
+.flutter-plugins
+
+// Ignore Paw files for API testing
+*.paw
+
+.vscode/*
+
+lib/utilities/secrets.dart

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1060195745118",
+    "firebase_url": "https://ugo-2-analytics.firebaseio.com",
+    "project_id": "ugo-2-analytics",
+    "storage_bucket": "ugo-2-analytics.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1060195745118:android:08fc6374166eb322",
+        "android_client_info": {
+          "package_name": "com.ugollc.ugoflutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1060195745118-u00fdhm405g8g6bn8mbueafs9q63i6v0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVtmJd5NbdjgA98v_ZLNt2KTjUVWk7sTs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

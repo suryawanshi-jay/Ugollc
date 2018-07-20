@@ -1,0 +1,67 @@
+PODS:
+  - Firebase/Core (4.10.1):
+    - FirebaseAnalytics (= 4.1.0)
+    - FirebaseCore (= 4.0.17)
+  - firebase_analytics (0.0.1):
+    - Firebase/Core
+    - Flutter
+  - FirebaseAnalytics (4.1.0):
+    - FirebaseCore (~> 4.0)
+    - FirebaseInstanceID (~> 2.0)
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+    - nanopb (~> 0.3)
+  - FirebaseCore (4.0.17):
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+  - FirebaseInstanceID (2.0.9):
+    - FirebaseCore (~> 4.0)
+  - Flutter (1.0.0)
+  - flutter_webview_plugin (0.0.1):
+    - Flutter
+  - GoogleToolboxForMac/Defines (2.1.3)
+  - GoogleToolboxForMac/NSData+zlib (2.1.3):
+    - GoogleToolboxForMac/Defines (= 2.1.3)
+  - nanopb (0.3.8):
+    - nanopb/decode (= 0.3.8)
+    - nanopb/encode (= 0.3.8)
+  - nanopb/decode (0.3.8)
+  - nanopb/encode (0.3.8)
+  - shared_preferences (0.0.1):
+    - Flutter
+  - url_launcher (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - firebase_analytics (from `/Users/Taylor/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-0.3.0/ios`)
+  - Flutter (from `/Users/Taylor/DevDart/flutter/bin/cache/artifacts/engine/ios-release`)
+  - flutter_webview_plugin (from `/Users/Taylor/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.1.5/ios`)
+  - shared_preferences (from `/Users/Taylor/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.3.3/ios`)
+  - url_launcher (from `/Users/Taylor/.pub-cache/hosted/pub.dartlang.org/url_launcher-2.0.2/ios`)
+
+EXTERNAL SOURCES:
+  firebase_analytics:
+    :path: /Users/Taylor/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-0.3.0/ios
+  Flutter:
+    :path: /Users/Taylor/DevDart/flutter/bin/cache/artifacts/engine/ios-release
+  flutter_webview_plugin:
+    :path: /Users/Taylor/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.1.5/ios
+  shared_preferences:
+    :path: /Users/Taylor/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.3.3/ios
+  url_launcher:
+    :path: /Users/Taylor/.pub-cache/hosted/pub.dartlang.org/url_launcher-2.0.2/ios
+
+SPEC CHECKSUMS:
+  Firebase: 92c6ba593e32db0defde464a9adc981d5cb49f97
+  firebase_analytics: ad15e54404e21983408c8b0c24a9d11247be7f33
+  FirebaseAnalytics: 3dfae28d4a5e06f86c4fae830efc2ad3fadb19bc
+  FirebaseCore: 872307b001bbefda1dfa0dbfffa50a6919023d4a
+  FirebaseInstanceID: d2058a35e9bebda1b6dd42486b84917bde552a9d
+  Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
+  flutter_webview_plugin: 116575b48572029304775b768e9f15ebfc316274
+  GoogleToolboxForMac: 2501e2ad72a52eb3dfe7bd9aee7dad11b858bd20
+  nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
+  shared_preferences: 5a1d487c427ee18fcd3ea1f2a131569481834b53
+  url_launcher: 92b89c1029a0373879933c21642958c874539095
+
+PODFILE CHECKSUM: c6c865faff84807a5d35de69eb2cdbdc36b99e15
+
+COCOAPODS: 1.4.0
