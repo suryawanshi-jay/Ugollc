@@ -15,4 +15,4 @@ pubspec.lock
 .vscode/*
 
 lib/utilities/secrets.dart
-/android/key.properties
+android/key.properties
