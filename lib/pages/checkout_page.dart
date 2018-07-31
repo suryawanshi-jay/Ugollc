@@ -13,6 +13,7 @@ import 'package:ugo_flutter/pages/loading_screen.dart';
 import 'package:ugo_flutter/pages/order_confirm_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
+import 'package:flutter/foundation.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
@@ -29,6 +30,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _addressLoading = false;
   bool _ordering = false;
   double _orderProcess = 0.0;
+  bool _isCouponCodeValid = false;
+  double _couponCodeAmount = 0.0;
+  bool _isButtonDisabled;
+  String couponMessage = '';
 
   List<PaymentCard> _cards = [];
   String _selectedCard;
@@ -42,6 +47,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   TextEditingController _addressController = new TextEditingController();
   TextEditingController _zipController = new TextEditingController();
   TextEditingController _commentController = new TextEditingController();
+  TextEditingController _couponCodeController = new TextEditingController();
 
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
@@ -59,6 +65,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _shippingMethod = widget.shippingMethod;
     _cardLoading = true;
     _addressLoading = true;
+    _isButtonDisabled = false;
     _logCheckout();
     _getCards();
     _getAddresses();
@@ -376,6 +383,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
       shippingCost += shippingTax;
     }
+
     final double floatTotal = double.parse(cleanTotal) + shippingCost;
     return (floatTotal * 100.0).toInt();
   }
@@ -556,7 +564,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
-
+    if(type =="Total"){
+      addedAmount = -_couponCodeAmount;
+    }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
@@ -576,6 +586,47 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_shippingMethod.cost == 0) {
       text = "FREE DELIVERY!";
     }
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
+  void _isCouponValid() {
+    var couponCodeValue = _couponCodeController.text;
+    // Give call coupon code api and get validity and coupon value from it
+    ApiManager.request(
+        OCResources.POST_COUPON_DETAILS,
+            (json) {
+          String status = json["status"];
+          if(status == "valid"){
+            setState(() => _isCouponCodeValid = true);
+            setState(() => _couponCodeAmount = double.parse(json["discount"]));
+            setState(() => _isButtonDisabled = true);
+            setState(() => couponMessage = json["success"]);
+          }else{
+
+            setState(() => couponMessage = json["error"]);
+          }
+        },
+        params: {
+          "call_type": "api_call",
+          "coupon": couponCodeValue
+        },
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
+    );
+  }
+
+  Row _coupounCodeRow() {
+    if (_isCouponCodeValid == false) {
+      return new Row();
+    }
+    var text = "Coupon Value : -\$${_couponCodeAmount}";
+
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
@@ -608,7 +659,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_cardLoading || _addressLoading) {
       return new LoadingScreen();
     }
-
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Checkout"),
@@ -705,6 +755,43 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ),
                     new Container(
+                      padding: new EdgeInsets.only(bottom: 10.0),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          new Text("Use Coupon Code", style: titleStyle),
+                          new TextField(
+                            controller: _couponCodeController,
+                            decoration: new InputDecoration(
+                                labelText: 'Coupon Code'
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    new Container(
+                      padding: new EdgeInsets.only(bottom: 10.0),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          new RaisedButton(
+                            color: UgoGreen,
+                            child: new Text('Apply Coupon Code',style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                            onPressed: _isButtonDisabled ? null : _isCouponValid,
+                          ),
+                        ],
+                      ),
+                    ),
+                    new Container(
+                      padding: new EdgeInsets.only(bottom: 10.0),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          new Text(couponMessage, style: new TextStyle(fontSize: 11.0, color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                    new Container(
                       padding: new EdgeInsets.only(bottom: 20.0),
                       child: new Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -738,6 +825,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     _totalRow("Cart (Including Tip)", "Sub-Total"),
                     _totalRow("Low Order Fee", "Low Order Fee"),
                     _shippingRow(),
+                    _coupounCodeRow(),
                     _totalRow("Sales Tax", "Sales Tax", addedAmount: shippingTax),
                     _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
                   ],

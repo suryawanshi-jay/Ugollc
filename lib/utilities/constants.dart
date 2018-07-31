@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/secrets.dart';
 
-const String API_HOST = "ugollc.com";
-//const String API_HOST = "ugo.mattclark.guru";
+//const String API_HOST = "ugollc.com";
+const String API_HOST = "stage.ugollc.com";
 const String apiVersion = "api/v1/";
 const String basicAuthToken = "Basic VWdvQXV0aDMyMTY1NDpSVGdPQnN0QUJ4MjN4OTgxd3BvQQ==";
 
@@ -76,6 +76,8 @@ abstract class OCResources {
   static const GET_CONFIRM = "GET::$OPENCART_IDENTIFIER::checkout/confirm";
   static const GET_PAY = "GET::$OPENCART_IDENTIFIER::checkout/pay";
   static const GET_SUCCESS = "GET::$OPENCART_IDENTIFIER::checkout/success";
+  static const POST_COUPON_DETAILS = "POST::$OPENCART_IDENTIFIER::cart/coupon";
+
 }
 
 abstract class StripeResources {
