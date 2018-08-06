@@ -13,7 +13,7 @@ import 'package:ugo_flutter/pages/loading_screen.dart';
 import 'package:ugo_flutter/pages/order_confirm_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
-import 'package:flutter/foundation.dart';
+
 
 class CheckoutPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
@@ -427,7 +427,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _orderProcess = 0.8);
     ApiManager.request(
       OCResources.GET_CONFIRM,
-        (json) => _orderPaid(context),
+       // (json) => _orderPaid(context),
+       (json){
+         _orderPaid(context);
+         var orderId = json["order_id"];
+         updateCouponInfo(orderId);
+       },
       errorHandler: (error) {
         setState(() => _orderProcess = 0.0);
         setState(() => _ordering = false);
@@ -564,7 +569,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
-    if(type =="Total"){
+    if(type =="Total" && _isCouponCodeValid){
       addedAmount = -_couponCodeAmount;
     }
     return new Row(
@@ -607,7 +612,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             setState(() => _isButtonDisabled = true);
             setState(() => couponMessage = json["success"]);
           }else{
-
             setState(() => couponMessage = json["error"]);
           }
         },
@@ -619,6 +623,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ApiManager.defaultErrorHandler(error, context: context);
         }
     );
+  }
+
+  void updateCouponInfo(lastOrderId){
+    if(_isCouponCodeValid){
+    ApiManager.request(
+          OCResources.POST_UPDATE_COUPON_DETAILS,
+              (json) {
+          },
+          params: {
+            "order_id": "$lastOrderId",
+            "coupon_code": _couponCodeController.text,
+          },
+          errorHandler: (error) {
+            ApiManager.defaultErrorHandler(error, context: context);
+          }
+      );
+    }
+
   }
 
   Row _coupounCodeRow() {
