@@ -32,14 +32,12 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     var lastName = await PrefsManager.getString(PreferenceNames.USER_LAST_NAME);
     var email = await PrefsManager.getString(PreferenceNames.USER_EMAIL);
     var phone = await PrefsManager.getString(PreferenceNames.USER_TELEPHONE);
-    var fax = await PrefsManager.getString(PreferenceNames.USER_FAX);
 
     setState(() => _accountInfo = {
       "firstName": firstName,
       "lastName": lastName,
       "email": email,
-      "phone": phone,
-      "fax": fax
+      "phone": phone
     });
   }
 
@@ -48,8 +46,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "email": _accountInfo["email"].toLowerCase(),
       "firstname": _accountInfo["firstName"],
       "lastname": _accountInfo["lastName"],
-      "telephone": _accountInfo["phone"],
-      "fax": _accountInfo["fax"]
+      "telephone": _accountInfo["phone"]
     };
 
     ApiManager.request(
@@ -60,8 +57,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           PreferenceNames.USER_FIRST_NAME: account["firstname"],
           PreferenceNames.USER_LAST_NAME: account["lastname"],
           PreferenceNames.USER_EMAIL: account["email"],
-          PreferenceNames.USER_TELEPHONE: account["telephone"],
-          PreferenceNames.USER_FAX: account["fax"]
+          PreferenceNames.USER_TELEPHONE: account["telephone"]
         };
         PrefsManager.setStringGroup(prefGroup);
         Navigator.pop(context);
@@ -97,7 +93,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
         PrefsManager.clearPref(PreferenceNames.USER_LAST_NAME);
         PrefsManager.clearPref(PreferenceNames.USER_EMAIL);
         PrefsManager.clearPref(PreferenceNames.USER_TELEPHONE);
-        PrefsManager.clearPref(PreferenceNames.USER_FAX);
         PrefsManager.clearPref(PreferenceNames.USER_STRIPE_ID);
       }
     );
@@ -189,13 +184,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             ),
             controller: new TextEditingController(text: _accountInfo["phone"]),
             onChanged: (value) => setState(() => _accountInfo["phone"] = value)
-          ),
-          new TextField(
-              decoration: const InputDecoration(
-                  labelText: 'Fax'
-              ),
-              controller: new TextEditingController(text: _accountInfo["fax"]),
-              onChanged: (value) => setState(() => _accountInfo["fax"] = value)
           ),
           new Padding(padding: new EdgeInsets.only(top: 10.0),),
           new Row(

@@ -112,7 +112,6 @@ abstract class PreferenceNames {
   static const USER_LAST_NAME = "${API_HOST}_userLastName";
   static const USER_EMAIL = "${API_HOST}_userEmail";
   static const USER_TELEPHONE = "${API_HOST}_userTelephone";
-  static const USER_FAX = "${API_HOST}_userFax";
   static const USER_STRIPE_ID = "${API_HOST}_userStripeID";
   static const STRIPE_IDEM_KEY = "stripeIdempotencyKey";
   static const STRIPE_IDEM_KEY_EXPIRE = "stripeIdempotencyKeyExpire";
