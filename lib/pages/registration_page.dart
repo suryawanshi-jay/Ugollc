@@ -18,7 +18,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _password = "";
   String _confirmation = "";
   String _phone = "";
-  String _fax = "";
 
   bool _loading = false;
 
@@ -34,7 +33,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_FIRST_NAME, _firstName);
         prefs.setString(PreferenceNames.USER_LAST_NAME, _lastName);
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
-        prefs.setString(PreferenceNames.USER_FAX, _fax);
+
         await _analytics.logSignUp(signUpMethod: "form");
 
         _setupStripeCustomer(context);
@@ -46,7 +45,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "password": _password,
         "confirm": _confirmation,
         "telephone": _phone,
-        "fax": _fax,
         "company": STRIPE_STANDIN,
         "address_1": "NAA",
         "address_2": "NAA",
@@ -156,16 +154,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
                 onChanged: (value) {
                   setState(() => _lastName = value);
-                },
-                autocorrect: false,
-              ),
-              new TextField(
-                decoration: const InputDecoration(
-                    prefixIcon: const Icon(Icons.print),
-                    labelText: 'Fax'
-                ),
-                onChanged: (value) {
-                  setState(() => _fax = value);
                 },
                 autocorrect: false,
               ),
