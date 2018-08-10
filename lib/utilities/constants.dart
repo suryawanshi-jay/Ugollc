@@ -77,6 +77,7 @@ abstract class OCResources {
   static const GET_PAY = "GET::$OPENCART_IDENTIFIER::checkout/pay";
   static const GET_SUCCESS = "GET::$OPENCART_IDENTIFIER::checkout/success";
   static const POST_COUPON_DETAILS = "POST::$OPENCART_IDENTIFIER::cart/coupon";
+  static const POST_CLEAR_COUPON = "POST::$OPENCART_IDENTIFIER::cart/clear_coupon";
   static const POST_UPDATE_COUPON_DETAILS = "POST::$OPENCART_IDENTIFIER::checkout/coupon_confirm";
 
 }

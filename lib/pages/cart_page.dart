@@ -49,9 +49,9 @@ class _CartPageState extends State<CartPage> {
   _setup() {
     PrefsManager.getString(PreferenceNames.USER_EMAIL).then((value) =>
       setState(() => _loggedIn = (value != null && value != "")));
-
-    _getShippingMethods();
-    _getCart();
+    _iscouponApplied();
+    //_getShippingMethods();
+    //_getCart();
   }
 
   _getCart() {
@@ -203,6 +203,32 @@ class _CartPageState extends State<CartPage> {
       }
       setState(() => _shippingMethod = method);
     }
+  }
+
+  void _iscouponApplied(){
+    // Give call coupon code api and get validity and coupon value from it
+    ApiManager.request(
+        OCResources.GET_CART,
+            (json) {
+          var status = json["cart"]["coupon_status"];
+          if(status){
+            // Remove coupon details from cart
+            ApiManager.request(
+                OCResources.POST_CLEAR_COUPON,
+                    (json) {
+                      _getShippingMethods();
+                      _getCart();
+                },
+                errorHandler: (error) {
+                  ApiManager.defaultErrorHandler(error, context: context);
+                }
+            );
+          }
+        },
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
+    );
   }
 
   Scaffold _cartScaffold() {
