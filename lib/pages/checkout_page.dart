@@ -34,6 +34,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   double _couponCodeAmount = 0.0;
   bool _isButtonDisabled;
   String couponMessage = '';
+  String couponCodeType = '';
+  double couponValue = 0.0;
+
+
 
   List<PaymentCard> _cards = [];
   String _selectedCard;
@@ -569,8 +573,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
+
     if(type =="Total" && _isCouponCodeValid){
-      addedAmount = -_couponCodeAmount;
+        addedAmount = -_couponCodeAmount;
     }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -607,13 +612,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
             (json) {
           String status = json["status"];
           if(status == "valid"){
-            setState(() => _isCouponCodeValid = true);
             setState(() => _couponCodeAmount = double.parse(json["discount"]));
             setState(() => _isButtonDisabled = true);
             setState(() => couponMessage = json["success"]);
+            setState(() => couponCodeType = "percentage");
+            if(couponCodeType == "percentage"){
+              final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
+              final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
+              double reduceAmount = (double.parse(clnTotal) * _couponCodeAmount).round() / 100 ;
+              setState(() => _couponCodeAmount = reduceAmount);
+            }else{
+              setState(() => _couponCodeAmount = _couponCodeAmount);
+            }
           }else{
             setState(() => couponMessage = json["error"]);
           }
+          setState(() => _isCouponCodeValid = true);
         },
         params: {
           "call_type": "api_call",
@@ -647,7 +661,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_isCouponCodeValid == false) {
       return new Row();
     }
-    var text = "Coupon Value : -\$${_couponCodeAmount}";
+    var text = "Coupon Value : -\$$_couponCodeAmount";
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
