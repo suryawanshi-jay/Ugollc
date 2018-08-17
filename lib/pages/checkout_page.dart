@@ -615,8 +615,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
             setState(() => _couponCodeAmount = double.parse(json["discount"]));
             setState(() => _isButtonDisabled = true);
             setState(() => couponMessage = json["success"]);
-            setState(() => couponCodeType = "percentage");
-            if(couponCodeType == "percentage"){
+            setState(() => couponCodeType = json["type"]);
+            if(couponCodeType == "P"){
               final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
               final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
               double reduceAmount = (double.parse(clnTotal) * _couponCodeAmount).round() / 100 ;
