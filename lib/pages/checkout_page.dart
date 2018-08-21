@@ -620,10 +620,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
             if(couponCodeType == "P"){
               final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
               final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
-              var calcPercentage = ((double.parse(clnTotal) * _couponCodeAmount) / 100).toStringAsFixed(2);
-              setState(() => dCCAmount = calcPercentage);
+              double calcPercentage = ((double.parse(clnTotal) * _couponCodeAmount).round() / 100);
+              setState(() => _couponCodeAmount = calcPercentage);
             }else{
-              setState(() => dCCAmount = "$_couponCodeAmount");
+              setState(() => _couponCodeAmount = _couponCodeAmount);
             }
           }else{
             setState(() => couponMessage = json["error"]);
@@ -662,7 +662,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_isCouponCodeValid == false) {
       return new Row();
     }
-    var text = "Coupon Value : -\$$dCCAmount";
+    var text = "Coupon Value : -\$$_couponCodeAmount";
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
