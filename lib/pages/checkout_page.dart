@@ -36,8 +36,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String couponMessage = '';
   String couponCodeType = '';
   double couponValue = 0.0;
-
-
+  String dCCAmount = "0.0";
+  Color msgColor = Colors.red;
 
   List<PaymentCard> _cards = [];
   String _selectedCard;
@@ -612,6 +612,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             (json) {
           String status = json["status"];
           if(status == "valid"){
+            setState(() => msgColor = Colors.green);
             setState(() => _couponCodeAmount = double.parse(json["discount"]));
             setState(() => _isButtonDisabled = true);
             setState(() => couponMessage = json["success"]);
@@ -619,10 +620,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
             if(couponCodeType == "P"){
               final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
               final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
-              double reduceAmount = (double.parse(clnTotal) * _couponCodeAmount).round() / 100 ;
-              setState(() => _couponCodeAmount = reduceAmount);
+              var calcPercentage = ((double.parse(clnTotal) * _couponCodeAmount) / 100).toStringAsFixed(2);
+              setState(() => dCCAmount = calcPercentage);
             }else{
-              setState(() => _couponCodeAmount = _couponCodeAmount);
+              setState(() => dCCAmount = "$_couponCodeAmount");
             }
           }else{
             setState(() => couponMessage = json["error"]);
@@ -661,7 +662,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_isCouponCodeValid == false) {
       return new Row();
     }
-    var text = "Coupon Value : -\$$_couponCodeAmount";
+    var text = "Coupon Value : -\$$dCCAmount";
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -823,7 +824,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: new Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
-                          new Text(couponMessage, style: new TextStyle(fontSize: 11.0, color: Colors.red)),
+                          new Text(couponMessage, style: new TextStyle(fontSize: 11.0, color: msgColor)),
                         ],
                       ),
                     ),
