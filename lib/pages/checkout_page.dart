@@ -662,7 +662,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_isCouponCodeValid == false) {
       return new Row();
     }
-    var text = "Coupon Value : -\$$_couponCodeAmount";
+    var text = "Coupon Value : -\$${_couponCodeAmount.toStringAsFixed(2)}";
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
