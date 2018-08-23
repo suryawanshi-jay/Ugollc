@@ -575,7 +575,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
 
     if(type =="Total" && _isCouponCodeValid){
-        addedAmount = -_couponCodeAmount;
+        addedAmount = addedAmount -_couponCodeAmount;
     }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
