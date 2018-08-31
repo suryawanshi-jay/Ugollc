@@ -38,6 +38,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   double couponValue = 0.0;
   String dCCAmount = "0.0";
   Color msgColor = Colors.red;
+  double _couponTax = 0.0;
 
   List<PaymentCard> _cards = [];
   String _selectedCard;
@@ -575,7 +576,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
 
     if(type =="Total" && _isCouponCodeValid){
-        addedAmount = addedAmount -_couponCodeAmount;
+        addedAmount = addedAmount -(_couponCodeAmount + _couponTax) ;
     }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -606,6 +607,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   void _isCouponValid() {
     var couponCodeValue = _couponCodeController.text;
+
     // Give call coupon code api and get validity and coupon value from it
     ApiManager.request(
         OCResources.POST_COUPON_DETAILS,
@@ -617,12 +619,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
             setState(() => _isButtonDisabled = true);
             setState(() => couponMessage = json["success"]);
             setState(() => couponCodeType = json["type"]);
+
             if(couponCodeType == "P"){
               final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
               final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
               double calcPercentage = ((double.parse(clnTotal) * _couponCodeAmount).round() / 100);
               setState(() => _couponCodeAmount = calcPercentage);
+              // Calculate and reduce tax of coupon
+              final tempCouponTax = (calcPercentage * TAX_RATE);
+              setState(() => _couponTax = tempCouponTax);
             }else{
+              final tempCouponTax1 = ((_couponCodeAmount * TAX_RATE));
+              setState(() => _couponTax = tempCouponTax1);
               setState(() => _couponCodeAmount = _couponCodeAmount);
             }
           }else{
@@ -863,7 +871,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     _totalRow("Low Order Fee", "Low Order Fee"),
                     _shippingRow(),
                     _coupounCodeRow(),
-                    _totalRow("Sales Tax", "Sales Tax", addedAmount: shippingTax),
+                    _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
                     _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
                   ],
                 ),
