@@ -382,6 +382,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int _cartTotalForStripe() {
     final CartTotal total = _totals.where((total) => total.title == "Total").first;
     final String cleanTotal = total.text.replaceAll(PRICE_REGEXP, "");
+    double couponTotal = 0.0;
+    if(_isCouponCodeValid){ // If coupon code is applied
+      couponTotal = (_couponCodeAmount + _couponTax) ;
+    }
     double shippingCost = 0.0;
     if (_shippingMethod != null && _shippingMethod.cost != null) {
       shippingCost = _shippingMethod.cost.toDouble();
@@ -389,7 +393,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       shippingCost += shippingTax;
     }
 
-    final double floatTotal = double.parse(cleanTotal) + shippingCost;
+    final double floatTotal = (double.parse(cleanTotal) - couponTotal) + shippingCost;
     return (floatTotal * 100.0).toInt();
   }
 
