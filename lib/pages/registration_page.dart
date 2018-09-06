@@ -6,6 +6,8 @@ import 'package:ugo_flutter/pages/webview_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/models/gender.dart';
+import 'package:ugo_flutter/models/profile.dart';
+
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -24,15 +26,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _fax = "";
   // Gender
   Gender selectedGender;
-  String _gender;
+
   List<Gender> gender = <Gender>[const Gender(5,'Male'), const Gender(6,'Female'), const Gender(7,'Other')];
   bool _loading = false;
 
   final _analytics = new FirebaseAnalytics();
 
   void _submitRegistration(BuildContext context) {
-    var genderId = selectedGender.id ;
-    debugPrint("Selected Gender : $genderId");
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -59,6 +59,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "confirm": _confirmation,
         "telephone": _phone,
         "fax": _fax,
+        "custom_field[account][2]":selectedGender.id.toString(),
         "company": STRIPE_STANDIN,
         "address_1": _address1,
         "address_2": "NAA",
