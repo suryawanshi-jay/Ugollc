@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/secrets.dart';
 
-const String API_HOST = "ugollc.com";
-//const String API_HOST = "stage.ugollc.com";
+//const String API_HOST = "ugollc.com";
+const String API_HOST = "stage.ugollc.com";
 const String apiVersion = "api/v1/";
 const String basicAuthToken = "Basic VWdvQXV0aDMyMTY1NDpSVGdPQnN0QUJ4MjN4OTgxd3BvQQ==";
 
@@ -116,6 +116,9 @@ abstract class PreferenceNames {
   static const USER_LAST_NAME = "${API_HOST}_userLastName";
   static const USER_EMAIL = "${API_HOST}_userEmail";
   static const USER_TELEPHONE = "${API_HOST}_userTelephone";
+  static const USER_FAX = "${API_HOST}_userFax";
+  static const USER_ADDRESS1 = "${API_HOST}_userAddress1";
+  static const USER_CITY = "${API_HOST}_userCity";
   static const USER_STRIPE_ID = "${API_HOST}_userStripeID";
   static const STRIPE_IDEM_KEY = "stripeIdempotencyKey";
   static const STRIPE_IDEM_KEY_EXPIRE = "stripeIdempotencyKeyExpire";

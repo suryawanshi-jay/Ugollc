@@ -18,6 +18,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _password = "";
   String _confirmation = "";
   String _phone = "";
+  String _city = "";
+  String _address1 = "";
+  String _fax = "";
+
 
   bool _loading = false;
 
@@ -32,7 +36,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_EMAIL, _email.toLowerCase());
         prefs.setString(PreferenceNames.USER_FIRST_NAME, _firstName);
         prefs.setString(PreferenceNames.USER_LAST_NAME, _lastName);
+        prefs.setString(PreferenceNames.USER_GENDER, _gender);
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
+        prefs.setString(PreferenceNames.USER_FAX, _fax);
+        prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
+        prefs.setString(PreferenceNames.USER_CITY, _city);
+
 
         await _analytics.logSignUp(signUpMethod: "form");
 
@@ -45,13 +54,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "password": _password,
         "confirm": _confirmation,
         "telephone": _phone,
+        "fax": _fax,
         "company": STRIPE_STANDIN,
-        "address_1": "NAA",
+        "address_1": _address1,
         "address_2": "NAA",
-        "city": "Tuscaloosa",
+        "city": _city,
         "postcode": "35401",
         "country_id": "223",
-        "zone_id": "3613"
+        "zone_id": "3613",
+
       },
       errorHandler: (error) {
         setState(() => _loading = false);
@@ -91,7 +102,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       && _firstName.length > 0
       && _lastName.length > 0
       && _password.length > 0
-      && _password == _confirmation;
+      && _password == _confirmation
+      && _city.length > 0;
 
   String _buttonText() {
     if (_loading) return "Submitting...";
@@ -136,6 +148,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
+              new TextField(
+                decoration: new InputDecoration(
+                    prefixIcon: new Icon(phoneIcon),
+                    labelText: 'Fax'
+                ),
+                onChanged: (value) {
+                  setState(() => _fax = value);
+                },
+                autocorrect: false,
+              ),
               new Padding(padding: const EdgeInsets.only(top: 10.0)),
               new TextField(
                 decoration: const InputDecoration(
@@ -154,6 +176,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
                 onChanged: (value) {
                   setState(() => _lastName = value);
+                },
+                autocorrect: false,
+              ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.home),
+                    labelText: 'Address'
+                ),
+                onChanged: (value) {
+                  setState(() => _address1 = value);
+                },
+                autocorrect: false,
+              ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.location_city),
+                    labelText: 'City'
+                ),
+                onChanged: (value) {
+                  setState(() => _city = value);
                 },
                 autocorrect: false,
               ),
@@ -179,6 +221,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 obscureText: true,
                 autocorrect: false,
               ),
+
               new Padding(padding: new EdgeInsets.only(top: 20.0),),
               new Builder(
                 builder: (BuildContext context) {
