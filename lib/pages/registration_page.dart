@@ -5,6 +5,7 @@ import 'package:ugo_flutter/pages/home_page.dart';
 import 'package:ugo_flutter/pages/webview_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
+import 'package:ugo_flutter/models/gender.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -21,13 +22,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _city = "";
   String _address1 = "";
   String _fax = "";
-
-
+  // Gender
+  Gender selectedGender;
+  String _gender;
+  List<Gender> gender = <Gender>[const Gender(5,'Male'), const Gender(6,'Female'), const Gender(7,'Other')];
   bool _loading = false;
 
   final _analytics = new FirebaseAnalytics();
 
   void _submitRegistration(BuildContext context) {
+    var genderId = selectedGender.id ;
+    debugPrint("Selected Gender : $genderId");
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -36,7 +41,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_EMAIL, _email.toLowerCase());
         prefs.setString(PreferenceNames.USER_FIRST_NAME, _firstName);
         prefs.setString(PreferenceNames.USER_LAST_NAME, _lastName);
-        prefs.setString(PreferenceNames.USER_GENDER, _gender);
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
         prefs.setString(PreferenceNames.USER_FAX, _fax);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
@@ -179,6 +183,33 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
+              new InputDecorator(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.person),
+                    labelText: 'Gender'
+                ),
+                isEmpty: selectedGender == '',
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<Gender>(
+                    value: selectedGender,
+                    isDense: true,
+                    onChanged: (Gender newValue) {
+                      setState(() {
+                        selectedGender = newValue;
+                      });
+                    },
+                    items: gender.map((Gender gen) {
+                      return new DropdownMenuItem<Gender>(
+                        value: gen,
+                        child: new Text(
+                          gen.name
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              //new Text("selected user name is ${selectedGender.name} : and Id is : ${selectedGender.id}"),
               new TextField(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.home),
