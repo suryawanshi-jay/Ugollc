@@ -24,6 +24,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _city = "";
   String _address1 = "";
   String _fax = "";
+
+  //Profile
+  Profile selectedProfile;
+
+  List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
+
   // Gender
   Gender selectedGender;
 
@@ -60,6 +66,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "telephone": _phone,
         "fax": _fax,
         "custom_field[account][2]":selectedGender.id.toString(),
+        "custom_field[account][3]":selectedProfile.id.toString(),
         "company": STRIPE_STANDIN,
         "address_1": _address1,
         "address_2": "NAA",
@@ -204,6 +211,32 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         value: gen,
                         child: new Text(
                           gen.name
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              new InputDecorator(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.portrait),
+                    labelText: 'Customer Profile'
+                ),
+                isEmpty: selectedProfile == '',
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<Profile>(
+                    value: selectedProfile,
+                    isDense: true,
+                    onChanged: (Profile newValue) {
+                      setState(() {
+                        selectedProfile = newValue;
+                      });
+                    },
+                    items: profile.map((Profile pro) {
+                      return new DropdownMenuItem<Profile>(
+                        value: pro,
+                        child: new Text(
+                            pro.name
                         ),
                       );
                     }).toList(),
