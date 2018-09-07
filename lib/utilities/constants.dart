@@ -80,6 +80,8 @@ abstract class OCResources {
   static const POST_CLEAR_COUPON = "POST::$OPENCART_IDENTIFIER::cart/clear_coupon";
   static const POST_UPDATE_COUPON_DETAILS = "POST::$OPENCART_IDENTIFIER::checkout/coupon_confirm";
 
+  static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
+
 }
 
 abstract class StripeResources {

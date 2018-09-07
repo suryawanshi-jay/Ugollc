@@ -7,6 +7,10 @@ import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/models/gender.dart';
 import 'package:ugo_flutter/models/profile.dart';
+import 'package:ugo_flutter/models/country.dart';
+import 'package:flutter/src/widgets/editable_text.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
 
 
 class RegistrationPage extends StatefulWidget {
@@ -25,6 +29,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _address1 = "";
   String _fax = "";
 
+  List<Country> country = [];
+  Country _selectedCountry;
+  bool _countryLoading = false;
+
   //Profile
   Profile selectedProfile;
 
@@ -36,9 +44,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
   List<Gender> gender = <Gender>[const Gender(5,'Male'), const Gender(6,'Female'), const Gender(7,'Other')];
   bool _loading = false;
 
+
   final _analytics = new FirebaseAnalytics();
 
+
+  @override
+  initState() {
+    super.initState();
+    _countryLoading = true;
+    _getCountries();
+  }
+
   void _submitRegistration(BuildContext context) {
+    var test = _selectedCountry.id;
+    var test1 = _dob.text.toString();
+    debugPrint("print country : $test");
+    debugPrint("print date : $test1");
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -67,12 +88,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "fax": _fax,
         "custom_field[account][2]":selectedGender.id.toString(),
         "custom_field[account][3]":selectedProfile.id.toString(),
+        "custom_field[account][4]": _dob.toString(),
         "company": STRIPE_STANDIN,
         "address_1": _address1,
         "address_2": "NAA",
         "city": _city,
         "postcode": "35401",
-        "country_id": "223",
+        "country_id": _selectedCountry.id.toString(),
         "zone_id": "3613",
 
       },
@@ -80,6 +102,47 @@ class _RegistrationPageState extends State<RegistrationPage> {
         setState(() => _loading = false);
         ApiManager.defaultErrorHandler(error, context: context);
       }
+    );
+  }
+
+  final TextEditingController _dob = new TextEditingController();
+  Future _chooseDate(BuildContext context, String initialDateString) async {
+    var now = new DateTime.now();
+    var initialDate = convertToDate(initialDateString) ?? now;
+    initialDate = (initialDate.year >= 1900 && initialDate.isBefore(now) ? initialDate : now);
+
+    var result = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: new DateTime(1900),
+        lastDate: new DateTime.now());
+
+    if (result == null) return;
+
+    setState(() {
+      _dob.text = new DateFormat("yyyy-MM-dd").format(result);
+    });
+  }
+
+  DateTime convertToDate(String input) {
+    try
+    {
+      var d = new DateFormat.yMd().parseStrict(input);
+      return d;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  _getCountries() {
+    ApiManager.request(
+        OCResources.GET_COUNTRY,
+            (json) {
+          final countries = json["countries"].map((country) =>
+          new Country.fromJSON(country)).toList();
+          setState(() => country = countries);
+          setState(() => _countryLoading = false);
+        }
     );
   }
 
@@ -191,6 +254,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
+              new Row(children: <Widget>[
+                new Expanded(
+                    child: new TextFormField(
+                      decoration: new InputDecoration(
+                        icon: const Icon(Icons.calendar_today),
+                        labelText: 'Date of Birth',
+                      ),
+                      controller: _dob,
+                      keyboardType: TextInputType.datetime,
+                    )),
+                new IconButton(
+                  icon: new Icon(Icons.date_range),
+                  tooltip: 'Choose date',
+                  onPressed: (() {
+                    _chooseDate(context, _dob.text);
+                  }),
+                )
+              ]),
               new InputDecorator(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.person),
@@ -263,6 +344,32 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   setState(() => _city = value);
                 },
                 autocorrect: false,
+              ),
+              new InputDecorator(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.flag),
+                    labelText: 'Country'
+                ),
+                isEmpty: _selectedCountry == '',
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<Country>(
+                    value: _selectedCountry,
+                    isDense: true,
+                    onChanged: (Country newValue) {
+                      setState(() {
+                        _selectedCountry = newValue;
+                      });
+                    },
+                    items: country.map((Country country) {
+                      return new DropdownMenuItem<Country>(
+                        value: country,
+                        child: new Text(
+                            country.name
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
               new TextField(
                 decoration: const InputDecoration(
