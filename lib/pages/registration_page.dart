@@ -8,6 +8,7 @@ import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/models/gender.dart';
 import 'package:ugo_flutter/models/profile.dart';
 import 'package:ugo_flutter/models/country.dart';
+import 'package:ugo_flutter/models/zone.dart';
 import 'package:flutter/src/widgets/editable_text.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
@@ -28,10 +29,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _city = "";
   String _address1 = "";
   String _fax = "";
+  String _postCode = "";
 
   List<Country> country = [];
   Country _selectedCountry;
   bool _countryLoading = false;
+
+  List<Zone> zone;
+  Zone _selectedZone;
+  bool _zoneLoading = false;
 
   //Profile
   Profile selectedProfile;
@@ -53,13 +59,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.initState();
     _countryLoading = true;
     _getCountries();
+    _getZones();
   }
 
   void _submitRegistration(BuildContext context) {
     var test = _selectedCountry.id;
     var test1 = _dob.text.toString();
-    debugPrint("print country : $test");
-    debugPrint("print date : $test1");
+    var test2 = _dob.text.toString();
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -88,14 +94,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "fax": _fax,
         "custom_field[account][2]":selectedGender.id.toString(),
         "custom_field[account][3]":selectedProfile.id.toString(),
-        "custom_field[account][4]": _dob.toString(),
+        "custom_field[account][4]":  _dob.text.toString(),
         "company": STRIPE_STANDIN,
         "address_1": _address1,
         "address_2": "NAA",
         "city": _city,
-        "postcode": "35401",
+        "postcode": _postCode,
         "country_id": _selectedCountry.id.toString(),
-        "zone_id": "3613",
+        "zone_id": _selectedZone.id.toString(),
 
       },
       errorHandler: (error) {
@@ -142,9 +148,30 @@ class _RegistrationPageState extends State<RegistrationPage> {
           new Country.fromJSON(country)).toList();
           setState(() => country = countries);
           setState(() => _countryLoading = false);
+
         }
     );
   }
+
+  _getZones() {
+    var countryId = (_selectedCountry == null) ? 244 : _selectedCountry.id ;
+    ApiManager.request(
+      OCResources.POST_ZONE,
+          (json) {
+        if(json["zone"] != null) {
+          final zones = json["zone"].map((zone) =>
+          new Zone.fromJSON(zone)).toList();
+          setState(() => zone = zones);
+          setState(() => _zoneLoading = false);
+        }
+      },
+      params: {
+        "country_id":countryId.toString(),
+      },
+    );
+  }
+
+
 
   void _setupStripeCustomer(BuildContext context) {
     ApiManager.request(
@@ -190,7 +217,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     final phoneIcon = Theme.of(context).platform == TargetPlatform.iOS
       ? Icons.phone_iphone : Icons.phone_android;
-
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Sign Up"),
@@ -358,6 +384,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     onChanged: (Country newValue) {
                       setState(() {
                         _selectedCountry = newValue;
+                        _zoneLoading = true;
+                        _getZones();
                       });
                     },
                     items: country.map((Country country) {
@@ -370,6 +398,42 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     }).toList(),
                   ),
                 ),
+              ),
+              new InputDecorator(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.local_florist),
+                    labelText: 'Zone'
+                ),
+                isEmpty: _selectedZone == '',
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<Zone>(
+                    value: _selectedZone,
+                    isDense: true,
+                    onChanged: (Zone newValue) {
+                      setState(() {
+                        _selectedZone = newValue;
+                      });
+                    },
+                    items: zone?.map((Zone zone) {
+                      return new DropdownMenuItem<Zone>(
+                        value: zone,
+                        child: new Text(
+                            zone.name
+                        ),
+                      );
+                    })?.toList() ?? [],
+                  ),
+                ),
+              ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.dialpad),
+                    labelText: 'Post Code'
+                ),
+                onChanged: (value) {
+                  setState(() => _postCode = value);
+                },
+                autocorrect: false,
               ),
               new TextField(
                 decoration: const InputDecoration(
