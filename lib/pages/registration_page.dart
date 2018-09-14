@@ -366,6 +366,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.dialpad),
+                    labelText: 'Post Code'
+                ),
+                onChanged: (value) {
+                  setState(() => _postCode = value);
+                },
+                autocorrect: false,
+              ),
               new InputDecorator(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.flag),
@@ -419,16 +429,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     })?.toList() ?? [],
                   ),
                 ),
-              ),
-              new TextField(
-                decoration: const InputDecoration(
-                    prefixIcon: const Icon(Icons.dialpad),
-                    labelText: 'Post Code'
-                ),
-                onChanged: (value) {
-                  setState(() => _postCode = value);
-                },
-                autocorrect: false,
               ),
               new TextField(
                 decoration: const InputDecoration(

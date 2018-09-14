@@ -219,7 +219,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             "country_id":address[0]['country_id'],
             "country":address[0]['country'],
           });
-          debugPrint("address: $_accountAddress");
           _selectedCountry = new Country(address[0]['country_id'], _accountAddress['country']);
           _selectedZone = new Zone(address[0]['zone_id'], _accountAddress['zone']);
           _getZones();
@@ -240,9 +239,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   _getZones() {
-    debugPrint("address2 : $_accountAddress");
     var cid = _accountAddress["country_id"];
-    debugPrint("cid : $cid");
     var countryId = (_selectedCountry == null) ? cid : _selectedCountry.id ;
     ApiManager.request(
       OCResources.POST_ZONE,
