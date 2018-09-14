@@ -32,8 +32,12 @@ class _LoginPageState extends State<LoginPage> {
           "lastname": account["lastname"],
           "email": account["email"],
           "telephone": account["telephone"],
+          "fax":account["fax"],
+          "custom_field[account][4]" : account['custom_fields'][0]['value'],
+          "custom_field[account][2]" : account['custom_fields'][1]['value'],
+          "custom_field[account][3]" : account['custom_fields'][2]['value']
         };
-
+       debugPrint("accountInfo : $accountData");
         final List customFields = account["custom_fields"];
         customFields.forEach((field) {
           if (field["name"] == "stripe_id") {
@@ -88,6 +92,10 @@ class _LoginPageState extends State<LoginPage> {
         "lastname": accountData["lastname"],
         "email": accountData["email"],
         "telephone": accountData["telephone"],
+        "fax": accountData["fax"],
+        "custom_field[account][4]": accountData["custom_field[account][4]"],
+        "custom_field[account][2]": accountData["custom_field[account][2]"],
+        "custom_field[account][3]": accountData["custom_field[account][3]"],
         "custom_field[${accountData["stripe_field_id"]}]": accountData["stripe_id"].toString(),
         "custom_field[${accountData["addr_field_id"]}]": accountData["payment_address_id"].toString(),
       },
@@ -105,6 +113,10 @@ class _LoginPageState extends State<LoginPage> {
     prefs.setString(PreferenceNames.USER_LAST_NAME, accountData["lastname"]);
     prefs.setString(PreferenceNames.USER_EMAIL, accountData["email"]);
     prefs.setString(PreferenceNames.USER_TELEPHONE, accountData["telephone"]);
+    prefs.setString(PreferenceNames.USER_FAX, accountData["fax"]);
+    prefs.setString(PreferenceNames.USER_DATE_OF_BIRTH, accountData["custom_field[account][4]"]);
+    prefs.setString(PreferenceNames.USER_GENDER, accountData["custom_field[account][2]"]);
+    prefs.setString(PreferenceNames.USER_PROFILE, accountData["custom_field[account][3]"]);
     prefs.setString(PreferenceNames.USER_STRIPE_ID, accountData["stripe_id"]);
 //    prefs.setString(PreferenceNames.USER_PAYMENT_ADDR_ID, accountData["payment_address_id"].toString());
     setState(() => _loading = false);

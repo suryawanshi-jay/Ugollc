@@ -5,6 +5,13 @@ import 'package:ugo_flutter/pages/order_history_page.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
+import 'package:ugo_flutter/models/gender.dart';
+import 'package:ugo_flutter/models/profile.dart';
+import 'package:ugo_flutter/models/country.dart';
+import 'package:ugo_flutter/models/zone.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
+
 
 class AccountPage extends StatefulWidget {
   final Function() updateCart;
@@ -17,47 +24,142 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> with SingleTickerProviderStateMixin {
   Map<String, String> _accountInfo = {};
-
+  Map<String, String> _accountAddress = {};
   TabController _tabController;
+
+
+  List<Country> country = [];
+  Country _selectedCountry;
+  bool _countryLoading = false;
+
+  List<Zone> zone;
+  Zone _selectedZone;
+  Zone fetchedZone;
+  bool _zoneLoading = false;
+
 
   @override
   initState() {
     super.initState();
     _tabController = new TabController(length: 3, vsync: this);
     _getAccountInfo();
+    _getAddresses();
+    _getCountries();
   }
+
+  Gender selectedGender;
+  Gender fetchedGender;
+  List<Gender> gender = <Gender>[ new Gender(5,'Male'), new Gender(6,'Female'), new Gender(7,'Other')];
+  bool _loading = false;
+
+  Profile selectedProfile;
+  Profile fetchedProfile;
+  List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
 
   _getAccountInfo() async {
     var firstName = await PrefsManager.getString(PreferenceNames.USER_FIRST_NAME);
     var lastName = await PrefsManager.getString(PreferenceNames.USER_LAST_NAME);
     var email = await PrefsManager.getString(PreferenceNames.USER_EMAIL);
     var phone = await PrefsManager.getString(PreferenceNames.USER_TELEPHONE);
+    var fax = await PrefsManager.getString(PreferenceNames.USER_FAX);
+    var dateOfBirth = await PrefsManager.getString(PreferenceNames.USER_DATE_OF_BIRTH);
+    var selGender = await PrefsManager.getString(PreferenceNames.USER_GENDER);
+    var profile = await PrefsManager.getString(PreferenceNames.USER_PROFILE);
 
     setState(() => _accountInfo = {
       "firstName": firstName,
       "lastName": lastName,
       "email": email,
-      "phone": phone
+      "phone": phone,
+      "fax" : fax,
+      "dateOfBirth":dateOfBirth,
+      "gender": selGender,
+      "profile": profile
+    });
+
+    if(_accountInfo['gender']  == '5'){
+      fetchedGender = new Gender(5, "Male");
+    }else if(_accountInfo['gender']  == '6'){
+      fetchedGender = new Gender(6, "Female");
+    }else if(_accountInfo['gender']  == '7'){
+      fetchedGender = new Gender(7, "Other");
+    }
+
+    if(_accountInfo['profile']  == '8'){
+      fetchedProfile = new Profile(8, "Student");
+    }else if(_accountInfo['profile']  == '9'){
+      fetchedProfile = new Profile(9, "Non-Student");
+    }else if(_accountInfo['profile']  == '10'){
+      fetchedProfile = new Profile(10, "Student-Greek");
+    }else if(_accountInfo['profile']  == '11'){
+      fetchedProfile = new Profile(11, "Parent");
+    }else if(_accountInfo['profile']  == '12'){
+      fetchedProfile = new Profile(12, "Faculty");
+    }
+  }
+
+  // Get new account information
+  final TextEditingController _dob = new TextEditingController();
+  Future _chooseDate(BuildContext context, String initialDateString) async {
+    var now = new DateTime.now();
+    var fetchDate = _accountInfo['dateOfBirth'].toString();
+    var initialDate = convertToDate(initialDateString) ?? now;
+    initialDate = (initialDate.year >= 1900 && initialDate.isBefore(now) ? initialDate : now);
+
+    var result = await showDatePicker(
+        context: context,
+        initialDate :DateTime.parse(fetchDate),
+        firstDate: new DateTime(1900),
+        lastDate: new DateTime.now());
+
+    if (result == null) return;
+
+    setState(() {
+      _dob.text = new DateFormat("yyyy-MM-dd").format(result);
     });
   }
 
+  DateTime convertToDate(String input) {
+    try
+    {
+      var d = new DateFormat.yMd().parseStrict(input);
+      return d;
+    } catch (e) {
+      return null;
+    }
+  }
+
   _updateAccount(BuildContext context) {
+    debugPrint("hello");
+    var test = fetchedGender.id;
+    debugPrint("Gender : $test");
+    var test1 = fetchedProfile.id;
+    debugPrint("Gender : $test1");
+
     final params = {
       "email": _accountInfo["email"].toLowerCase(),
       "firstname": _accountInfo["firstName"],
       "lastname": _accountInfo["lastName"],
-      "telephone": _accountInfo["phone"]
+      "telephone": _accountInfo["phone"],
+      "fax": _accountInfo["fax"],
+      "custom_fields[1][value]":fetchedGender.id.toString(),
+      "custom_fields[2][value]":fetchedProfile.id.toString(),
     };
-
+     debugPrint("param : $params");
     ApiManager.request(
       OCResources.PUT_ACCOUNT,
       (json) {
         final account = json["account"];
+        debugPrint("accont: $account");
         final prefGroup = {
           PreferenceNames.USER_FIRST_NAME: account["firstname"],
           PreferenceNames.USER_LAST_NAME: account["lastname"],
           PreferenceNames.USER_EMAIL: account["email"],
-          PreferenceNames.USER_TELEPHONE: account["telephone"]
+          PreferenceNames.USER_TELEPHONE: account["telephone"],
+          PreferenceNames.USER_FAX: account["fax"],
+          PreferenceNames.USER_DATE_OF_BIRTH:  account["custom_fields"][0]['value'],
+          PreferenceNames.USER_GENDER:  account["custom_fields"][1]['value'],
+          PreferenceNames.USER_PROFILE:  account["custom_field"][2]['value'],
         };
         PrefsManager.setStringGroup(prefGroup);
         Navigator.pop(context);
@@ -93,8 +195,68 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
         PrefsManager.clearPref(PreferenceNames.USER_LAST_NAME);
         PrefsManager.clearPref(PreferenceNames.USER_EMAIL);
         PrefsManager.clearPref(PreferenceNames.USER_TELEPHONE);
+        PrefsManager.clearPref(PreferenceNames.USER_FAX);
+        PrefsManager.clearPref(PreferenceNames.USER_DATE_OF_BIRTH);
+        PrefsManager.clearPref(PreferenceNames.USER_GENDER);
+        PrefsManager.clearPref(PreferenceNames.USER_PROFILE);
         PrefsManager.clearPref(PreferenceNames.USER_STRIPE_ID);
       }
+    );
+  }
+
+
+  _getAddresses() {
+    ApiManager.request(
+        OCResources.GET_ADDRESSES,
+            (json) {
+          final address = json['addresses'];
+          setState(() => _accountAddress = {
+            "address_1": address[0]['address_1'],
+            "postcode": address[0]['postcode'],
+            "city": address[0]['city'],
+            "zone_id": address[0]['zone_id'],
+            "zone":address[0]['zone'],
+            "country_id":address[0]['country_id'],
+            "country":address[0]['country'],
+          });
+          debugPrint("address: $_accountAddress");
+          _selectedCountry = new Country(address[0]['country_id'], _accountAddress['country']);
+          _selectedZone = new Zone(address[0]['zone_id'], _accountAddress['zone']);
+          _getZones();
+        }
+    );
+  }
+
+  _getCountries() {
+    ApiManager.request(
+        OCResources.GET_COUNTRY,
+            (json) {
+          final countries = json["countries"].map((country) =>
+          new Country.fromJSON(country)).toList();
+          setState(() => country = countries);
+          setState(() => _countryLoading = false);
+        }
+    );
+  }
+
+  _getZones() {
+    debugPrint("address2 : $_accountAddress");
+    var cid = _accountAddress["country_id"];
+    debugPrint("cid : $cid");
+    var countryId = (_selectedCountry == null) ? cid : _selectedCountry.id ;
+    ApiManager.request(
+      OCResources.POST_ZONE,
+          (json) {
+        if(json["zone"] != null) {
+          final zones = json["zone"].map((zone) =>
+          new Zone.fromJSON(zone)).toList();
+          setState(() => zone = zones);
+          setState(() => _zoneLoading = false);
+        }
+      },
+      params: {
+        "country_id":countryId.toString(),
+      },
     );
   }
 
@@ -185,6 +347,82 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             controller: new TextEditingController(text: _accountInfo["phone"]),
             onChanged: (value) => setState(() => _accountInfo["phone"] = value)
           ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'Fax'
+              ),
+              controller: new TextEditingController(text: _accountInfo["fax"]),
+              onChanged: (value) => setState(() => _accountInfo["fax"] = value)
+          ),
+          new Row(children: <Widget>[
+            new Expanded(
+                child: new TextFormField(
+                  decoration: new InputDecoration(
+                    labelText: 'Date of Birth',
+                  ),
+                  controller: new TextEditingController(text: _accountInfo["dateOfBirth"]),
+                  keyboardType: TextInputType.datetime,
+                )),
+            new IconButton(
+              icon: new Icon(Icons.date_range),
+              tooltip: 'Choose date',
+              onPressed: (() {
+                _chooseDate(context,_dob.text);
+              }),
+            )
+          ]),
+          new InputDecorator(
+            decoration: const InputDecoration(
+                labelText: 'Gender'
+            ),
+            isEmpty: selectedGender == '',
+            child: new DropdownButtonHideUnderline(
+              child: new DropdownButton<Gender>(
+                value: fetchedGender,
+                isDense: true,
+                onChanged: (Gender newValue) {
+                  setState(() {
+                    fetchedGender = newValue;
+                  });
+                },
+                items: gender.map((Gender gen) {
+                  return new DropdownMenuItem<Gender>(
+                    value: gen,
+                    child: new Text(
+                        gen.name
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+
+          new InputDecorator(
+            decoration: const InputDecoration(
+                labelText: 'Customer Profile'
+            ),
+            isEmpty: selectedProfile == '',
+            child: new DropdownButtonHideUnderline(
+              child: new DropdownButton<Profile>(
+                value: fetchedProfile,
+                isDense: true,
+                onChanged: (Profile newValue) {
+                  setState(() {
+                    fetchedProfile = newValue;
+
+                  });
+                },
+                items: profile.map((Profile pro) {
+                  return new DropdownMenuItem<Profile>(
+                    value: pro,
+                    child: new Text(
+                        pro.name
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
           new Padding(padding: new EdgeInsets.only(top: 10.0),),
           new Row(
             children: <Widget>[
@@ -248,6 +486,103 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               ],
             ),
           ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'Address'
+              ),
+              controller: new TextEditingController(text: _accountAddress["address_1"]),
+              onChanged: (value) => setState(() => _accountAddress["address_1"] = value)
+          ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'City'
+              ),
+              controller: new TextEditingController(text: _accountAddress["city"]),
+              onChanged: (value) => setState(() => _accountAddress["city"] = value)
+          ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'Post Code'
+              ),
+              controller: new TextEditingController(text: _accountAddress["postcode"]),
+              onChanged: (value) => setState(() => _accountAddress["postcode"] = value)
+          ),
+          new InputDecorator(
+            decoration: const InputDecoration(
+                prefixIcon: const Icon(Icons.flag),
+                labelText: 'Country'
+            ),
+            isEmpty: _selectedCountry == '',
+            child: new DropdownButtonHideUnderline(
+              child: new DropdownButton<Country>(
+                value: _selectedCountry,
+                isDense: true,
+                onChanged: (Country newValue) {
+                  setState(() {
+                    _selectedCountry = newValue;
+                    _zoneLoading = true;
+                    //_getZones();
+                  });
+                },
+                items: country.map((Country country) {
+                  return new DropdownMenuItem<Country>(
+                    value: country,
+                    child: new Text(
+                        country.name
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          new InputDecorator(
+            decoration: const InputDecoration(
+                prefixIcon: const Icon(Icons.local_florist),
+                labelText: 'Zone'
+            ),
+            isEmpty: _selectedZone == '',
+            child: new DropdownButtonHideUnderline(
+              child: new DropdownButton<Zone>(
+                value: _selectedZone,
+                isDense: true,
+                onChanged: (Zone newValue) {
+                  setState(() {
+                    _selectedZone = newValue;
+                  });
+                },
+                items: zone?.map((Zone zone) {
+                  return new DropdownMenuItem<Zone>(
+                    value: zone,
+                    child: new Text(
+                        zone.name
+                    ),
+                  );
+                })?.toList() ?? [],
+              ),
+            ),
+          ),
+          new Padding(padding: new EdgeInsets.only(top: 10.0),),
+          new Row(
+            children: <Widget>[
+              new Expanded(
+                child: new RaisedButton(
+                    color: UgoGreen,
+                    onPressed: _formValid()
+                        ? () => _updateAccount(context)
+                        : null,
+                    child: new Text(
+                      _formValid()
+                          ? "Update Address"
+                          : "Enter Address to Update",
+                      style: new TextStyle(
+                          fontSize: 18.0,
+                          color: Colors.white
+                      ),
+                    )
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -303,8 +638,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             ],
             controller: _tabController,
           );
-        },
-//        child:
+        }, //child:
       )
     );
   }

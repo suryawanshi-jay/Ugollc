@@ -3,4 +3,8 @@ class Profile {
 
   final String name;
   final int id;
+
+  int get hashCode => name.hashCode;
+
+  bool operator==(Object other) => other is Profile && other.name == name;
 }

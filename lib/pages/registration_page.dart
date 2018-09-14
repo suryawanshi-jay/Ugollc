@@ -63,9 +63,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _submitRegistration(BuildContext context) {
-    var test = _selectedCountry.id;
-    var test1 = _dob.text.toString();
-    var test2 = _dob.text.toString();
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -78,7 +75,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_FAX, _fax);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
         prefs.setString(PreferenceNames.USER_CITY, _city);
-
 
         await _analytics.logSignUp(signUpMethod: "form");
 
@@ -148,7 +144,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
           new Country.fromJSON(country)).toList();
           setState(() => country = countries);
           setState(() => _countryLoading = false);
-
         }
     );
   }
