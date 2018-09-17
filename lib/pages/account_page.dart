@@ -9,6 +9,7 @@ import 'package:ugo_flutter/models/gender.dart';
 import 'package:ugo_flutter/models/profile.dart';
 import 'package:ugo_flutter/models/country.dart';
 import 'package:ugo_flutter/models/zone.dart';
+import 'package:flutter/src/widgets/editable_text.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
@@ -45,6 +46,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     _getAccountInfo();
     _getAddresses();
     _getCountries();
+
   }
 
   Gender selectedGender;
@@ -76,6 +78,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "gender": selGender,
       "profile": profile
     });
+
+   // debugPrint("Accoutn Info => $_accountInfo");
 
     if(_accountInfo['gender']  == '5'){
       fetchedGender = new Gender(5, "Male");
@@ -116,6 +120,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
     setState(() {
       _dob.text = new DateFormat("yyyy-MM-dd").format(result);
+
     });
   }
 
@@ -130,11 +135,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   _updateAccount(BuildContext context) {
-    debugPrint("hello");
+   // debugPrint("hello");
     var test = fetchedGender.id;
-    debugPrint("Gender : $test");
+   // debugPrint("Gender : $test");
     var test1 = fetchedProfile.id;
-    debugPrint("Gender : $test1");
+   // debugPrint("Gender : $test1");
 
     final params = {
       "email": _accountInfo["email"].toLowerCase(),
@@ -145,12 +150,12 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "custom_fields[1][value]":fetchedGender.id.toString(),
       "custom_fields[2][value]":fetchedProfile.id.toString(),
     };
-     debugPrint("param : $params");
+     //debugPrint("param : $params");
     ApiManager.request(
       OCResources.PUT_ACCOUNT,
       (json) {
         final account = json["account"];
-        debugPrint("accont: $account");
+        //debugPrint("accont: $account");
         final prefGroup = {
           PreferenceNames.USER_FIRST_NAME: account["firstname"],
           PreferenceNames.USER_LAST_NAME: account["lastname"],
@@ -167,6 +172,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       params: params
     );
   }
+
+
 
   _updatePassword(BuildContext context) {
     ApiManager.request(
@@ -357,7 +364,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   decoration: new InputDecoration(
                     labelText: 'Date of Birth',
                   ),
-                  controller: new TextEditingController(text: _accountInfo["dateOfBirth"]),
+                  controller: new TextEditingController(text: _dob.text),
                   keyboardType: TextInputType.datetime,
                 )),
             new IconButton(
