@@ -75,6 +75,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_FAX, _fax);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
         prefs.setString(PreferenceNames.USER_CITY, _city);
+        prefs.setString(PreferenceNames.USER_GENDER, selectedGender.id.toString());
+        prefs.setString(PreferenceNames.USER_PROFILE, selectedProfile.id.toString());
+        prefs.setString(PreferenceNames.USER_DATE_OF_BIRTH, _dob.text.toString());
 
         await _analytics.logSignUp(signUpMethod: "form");
 
@@ -244,16 +247,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
-              new TextField(
-                decoration: new InputDecoration(
-                    prefixIcon: new Icon(phoneIcon),
-                    labelText: 'Fax'
-                ),
-                onChanged: (value) {
-                  setState(() => _fax = value);
-                },
-                autocorrect: false,
-              ),
               new Padding(padding: const EdgeInsets.only(top: 10.0)),
               new TextField(
                 decoration: const InputDecoration(
@@ -272,6 +265,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
                 onChanged: (value) {
                   setState(() => _lastName = value);
+                },
+                autocorrect: false,
+              ),
+              new TextField(
+                decoration: new InputDecoration(
+                    prefixIcon: new Icon(phoneIcon),
+                    labelText: 'Fax'
+                ),
+                onChanged: (value) {
+                  setState(() => _fax = value);
                 },
                 autocorrect: false,
               ),
