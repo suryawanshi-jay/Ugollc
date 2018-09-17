@@ -82,23 +82,23 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
    // debugPrint("Accoutn Info => $_accountInfo");
 
     if(_accountInfo['gender']  == '5'){
-      fetchedGender = new Gender(5, "Male");
+      selectedGender = new Gender(5, "Male");
     }else if(_accountInfo['gender']  == '6'){
-      fetchedGender = new Gender(6, "Female");
+      selectedGender = new Gender(6, "Female");
     }else if(_accountInfo['gender']  == '7'){
-      fetchedGender = new Gender(7, "Other");
+      selectedGender = new Gender(7, "Other");
     }
 
     if(_accountInfo['profile']  == '8'){
-      fetchedProfile = new Profile(8, "Student");
+      selectedProfile = new Profile(8, "Student");
     }else if(_accountInfo['profile']  == '9'){
-      fetchedProfile = new Profile(9, "Non-Student");
+      selectedProfile = new Profile(9, "Non-Student");
     }else if(_accountInfo['profile']  == '10'){
-      fetchedProfile = new Profile(10, "Student-Greek");
+      selectedProfile = new Profile(10, "Student-Greek");
     }else if(_accountInfo['profile']  == '11'){
-      fetchedProfile = new Profile(11, "Parent");
+      selectedProfile = new Profile(11, "Parent");
     }else if(_accountInfo['profile']  == '12'){
-      fetchedProfile = new Profile(12, "Faculty");
+      selectedProfile = new Profile(12, "Faculty");
     }
   }
 
@@ -135,11 +135,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   _updateAccount(BuildContext context) {
-   // debugPrint("hello");
-    var test = fetchedGender.id;
-   // debugPrint("Gender : $test");
-    var test1 = fetchedProfile.id;
-   // debugPrint("Gender : $test1");
 
     final params = {
       "email": _accountInfo["email"].toLowerCase(),
@@ -147,33 +142,34 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "lastname": _accountInfo["lastName"],
       "telephone": _accountInfo["phone"],
       "fax": _accountInfo["fax"],
-      "custom_fields[1][value]":fetchedGender.id.toString(),
-      "custom_fields[2][value]":fetchedProfile.id.toString(),
+      "custom_field[2]":selectedGender.id.toString(),
+      "custom_field[3]":selectedProfile.id.toString(),
+      "custom_field[4]": _dob.text.toString(),
     };
      //debugPrint("param : $params");
     ApiManager.request(
       OCResources.PUT_ACCOUNT,
       (json) {
+        //debugPrint('$json');
         final account = json["account"];
-        //debugPrint("accont: $account");
+        debugPrint('account: $account');
         final prefGroup = {
           PreferenceNames.USER_FIRST_NAME: account["firstname"],
           PreferenceNames.USER_LAST_NAME: account["lastname"],
           PreferenceNames.USER_EMAIL: account["email"],
           PreferenceNames.USER_TELEPHONE: account["telephone"],
           PreferenceNames.USER_FAX: account["fax"],
-          PreferenceNames.USER_DATE_OF_BIRTH:  account["custom_fields"][0]['value'],
-          PreferenceNames.USER_GENDER:  account["custom_fields"][1]['value'],
-          PreferenceNames.USER_PROFILE:  account["custom_field"][2]['value'],
+          PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][0]['value'],
+          PreferenceNames.USER_GENDER:  account['custom_fields'][1]['value'],
+          PreferenceNames.USER_PROFILE:  account['custom_fields'][2]['value'],
         };
         PrefsManager.setStringGroup(prefGroup);
         Navigator.pop(context);
       },
       params: params
+
     );
   }
-
-
 
   _updatePassword(BuildContext context) {
     ApiManager.request(
@@ -278,7 +274,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       },
     );
   }
-  
+
   bool _phoneValid() {
     final phone = _accountInfo["phone"];
     if (phone != null) {
@@ -296,7 +292,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     }
     return false;
   }
-  
+
   bool _formValid() {
     if (_accountInfo["firstName"] != null && _accountInfo["lastName"] != null) {
       return _accountInfo["firstName"].length > 0
@@ -382,11 +378,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             isEmpty: selectedGender == '',
             child: new DropdownButtonHideUnderline(
               child: new DropdownButton<Gender>(
-                value: fetchedGender,
+                value: selectedGender,
                 isDense: true,
                 onChanged: (Gender newValue) {
                   setState(() {
-                    fetchedGender = newValue;
+                    selectedGender = newValue;
                   });
                 },
                 items: gender.map((Gender gen) {
@@ -408,11 +404,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             isEmpty: selectedProfile == '',
             child: new DropdownButtonHideUnderline(
               child: new DropdownButton<Profile>(
-                value: fetchedProfile,
+                value: selectedProfile,
                 isDense: true,
                 onChanged: (Profile newValue) {
                   setState(() {
-                    fetchedProfile = newValue;
+                    selectedProfile = newValue;
 
                   });
                 },

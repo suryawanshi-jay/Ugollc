@@ -53,6 +53,7 @@ abstract class OCResources {
   static const GET_ADDRESSES = "GET::$OPENCART_IDENTIFIER::account/address";
   static const GET_ADDRESS = "GET::$OPENCART_IDENTIFIER::account/address/{id}";
   static const ADD_ADDRESS = "POST::$OPENCART_IDENTIFIER::account/address";
+  static const PUT_ADDRESS = "PUT::$OPENCART_IDENTIFIER::account/address";
   static const GET_ORDERS = "GET::$OPENCART_IDENTIFIER::account/order";
   static const GET_ORDER = "GET::$OPENCART_IDENTIFIER::account/order/{id}";
   static const REORDER_ORDER = "GET::$OPENCART_IDENTIFIER::account/order/{id}/reorder";

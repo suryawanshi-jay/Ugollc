@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
           "custom_field[account][2]" : account['custom_fields'][1]['value'],
           "custom_field[account][3]" : account['custom_fields'][2]['value']
         };
-       debugPrint("accountInfo : $accountData");
+
         final List customFields = account["custom_fields"];
         customFields.forEach((field) {
           if (field["name"] == "stripe_id") {
@@ -93,9 +93,9 @@ class _LoginPageState extends State<LoginPage> {
         "email": accountData["email"],
         "telephone": accountData["telephone"],
         "fax": accountData["fax"],
-        "custom_field[account][4]": accountData["custom_field[account][4]"],
-        "custom_field[account][2]": accountData["custom_field[account][2]"],
-        "custom_field[account][3]": accountData["custom_field[account][3]"],
+        "custom_field[account][4]": accountData['custom_field']['account'][4],
+        "custom_field[account][2]": accountData['custom_field']['account'][2],
+        "custom_field[account][3]": accountData['custom_field']['account'][3],
         "custom_field[${accountData["stripe_field_id"]}]": accountData["stripe_id"].toString(),
         "custom_field[${accountData["addr_field_id"]}]": accountData["payment_address_id"].toString(),
       },
