@@ -79,8 +79,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "profile": profile
     });
 
-   // debugPrint("Accoutn Info => $_accountInfo");
-
     if(_accountInfo['gender']  == '5'){
       selectedGender = new Gender(5, "Male");
     }else if(_accountInfo['gender']  == '6'){
@@ -146,13 +144,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "custom_field[3]":selectedProfile.id.toString(),
       "custom_field[4]": _dob.text.toString(),
     };
-     //debugPrint("param : $params");
+
     ApiManager.request(
       OCResources.PUT_ACCOUNT,
       (json) {
-        //debugPrint('$json');
+
         final account = json["account"];
-        debugPrint('account: $account');
+
         final prefGroup = {
           PreferenceNames.USER_FIRST_NAME: account["firstname"],
           PreferenceNames.USER_LAST_NAME: account["lastname"],
@@ -168,6 +166,37 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       },
       params: params
 
+    );
+  }
+
+
+  _updateAddress(BuildContext context) {    final params = {
+    "firstname":_accountInfo["firstName"],
+    "lastname" : _accountInfo["lastName"],
+    "address_1": _accountAddress["address_1"],
+    "city": _accountAddress["city"],
+    "postcode": _accountAddress["postcode"],
+    "country_id": _selectedCountry.id.toString(),
+    "zone_id":_selectedZone.id.toString()
+  };
+
+  ApiManager.request(
+      OCResources.PUT_ADDRESS,
+          (json) {
+        final address = json["address"];
+
+        final prefGroup = {
+          PreferenceNames.USER_ADDRESS1: address["address_1"],
+          PreferenceNames.USER_CITY: address["city"],
+          PreferenceNames.USER_POSTCODE: address["postcode"],
+          PreferenceNames.USER_COUNTRY: address["country_id"],
+          PreferenceNames.USER_ZONE: address["zone_id"]
+        };
+        PrefsManager.setStringGroup(prefGroup);
+        Navigator.pop(context);
+      },
+       params: params,
+       resourceID: _accountAddress['address_id'].toString()
     );
   }
 
@@ -214,6 +243,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             (json) {
           final address = json['addresses'];
           setState(() => _accountAddress = {
+            "address_id" : address[0]['address_id'],
             "address_1": address[0]['address_1'],
             "postcode": address[0]['postcode'],
             "city": address[0]['city'],
@@ -248,6 +278,29 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       OCResources.POST_ZONE,
           (json) {
         if(json["zone"] != null) {
+
+          final zones = json["zone"].map((zone) =>
+          new Zone.fromJSON(zone)).toList();
+          setState(() => zone = zones);
+          setState(() => _zoneLoading = false);
+        }
+      },
+      params: {
+        "country_id":countryId.toString(),
+      },
+    );
+  }
+
+
+  _refreshZones() {
+    var cid = _accountAddress["country_id"];
+    var countryId = (_selectedCountry == null) ? cid : _selectedCountry.id ;
+    ApiManager.request(
+      OCResources.POST_ZONE,
+          (json) {
+        _selectedZone = new Zone(int.parse(json['zone'][0]['zone_id']), json['zone'][0]['name']);
+        if(json["zone"] != null) {
+
           final zones = json["zone"].map((zone) =>
           new Zone.fromJSON(zone)).toList();
           setState(() => zone = zones);
@@ -521,7 +574,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   setState(() {
                     _selectedCountry = newValue;
                     _zoneLoading = true;
-                    //_getZones();
+                    _refreshZones();
                   });
                 },
                 items: country.map((Country country) {
@@ -568,7 +621,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 child: new RaisedButton(
                     color: UgoGreen,
                     onPressed: _formValid()
-                        ? () => _updateAccount(context)
+                        ? () => _updateAddress(context)
                         : null,
                     child: new Text(
                       _formValid()

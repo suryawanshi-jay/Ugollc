@@ -75,6 +75,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_FAX, _fax);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
         prefs.setString(PreferenceNames.USER_CITY, _city);
+        prefs.setString(PreferenceNames.USER_POSTCODE, _postCode);
+        prefs.setString(PreferenceNames.USER_COUNTRY, _selectedCountry.id.toString());
+        prefs.setString(PreferenceNames.USER_ZONE, _selectedZone.id.toString());
         prefs.setString(PreferenceNames.USER_GENDER, selectedGender.id.toString());
         prefs.setString(PreferenceNames.USER_PROFILE, selectedProfile.id.toString());
         prefs.setString(PreferenceNames.USER_DATE_OF_BIRTH, _dob.text.toString());

@@ -53,7 +53,7 @@ abstract class OCResources {
   static const GET_ADDRESSES = "GET::$OPENCART_IDENTIFIER::account/address";
   static const GET_ADDRESS = "GET::$OPENCART_IDENTIFIER::account/address/{id}";
   static const ADD_ADDRESS = "POST::$OPENCART_IDENTIFIER::account/address";
-  static const PUT_ADDRESS = "PUT::$OPENCART_IDENTIFIER::account/address";
+  static const PUT_ADDRESS = "PUT::$OPENCART_IDENTIFIER::account/address/{id}";
   static const GET_ORDERS = "GET::$OPENCART_IDENTIFIER::account/order";
   static const GET_ORDER = "GET::$OPENCART_IDENTIFIER::account/order/{id}";
   static const REORDER_ORDER = "GET::$OPENCART_IDENTIFIER::account/order/{id}/reorder";
@@ -126,6 +126,9 @@ abstract class PreferenceNames {
   static const USER_PROFILE = "${API_HOST}_userProfile";
   static const USER_ADDRESS1 = "${API_HOST}_userAddress1";
   static const USER_CITY = "${API_HOST}_userCity";
+  static const USER_POSTCODE =  "${API_HOST}_userPostCode";
+  static const USER_COUNTRY =  "${API_HOST}_userCountry";
+  static const USER_ZONE =  "${API_HOST}_userZone";
   static const USER_STRIPE_ID = "${API_HOST}_userStripeID";
   static const STRIPE_IDEM_KEY = "stripeIdempotencyKey";
   static const STRIPE_IDEM_KEY_EXPIRE = "stripeIdempotencyKeyExpire";
