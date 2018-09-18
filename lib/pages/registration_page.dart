@@ -9,6 +9,7 @@ import 'package:ugo_flutter/models/gender.dart';
 import 'package:ugo_flutter/models/profile.dart';
 import 'package:ugo_flutter/models/country.dart';
 import 'package:ugo_flutter/models/zone.dart';
+import 'package:ugo_flutter/models/addressType.dart';
 import 'package:flutter/src/widgets/editable_text.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
@@ -27,7 +28,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _confirmation = "";
   String _phone = "";
   String _city = "";
+  String apartmentaName = "";
   String _address1 = "";
+  String _address2 = "";
   String _fax = "";
   String _postCode = "";
 
@@ -41,14 +44,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   //Profile
   Profile selectedProfile;
-
   List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
 
   // Gender
   Gender selectedGender;
-
   List<Gender> gender = <Gender>[const Gender(5,'Male'), const Gender(6,'Female'), const Gender(7,'Other')];
   bool _loading = false;
+
+
+  AddressType selectedAddressType;
+  List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
+  bool _typeloading = false;
 
 
   final _analytics = new FirebaseAnalytics();
@@ -63,6 +69,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _submitRegistration(BuildContext context) {
+     var test = selectedAddressType.id;
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -73,7 +80,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_LAST_NAME, _lastName);
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
         prefs.setString(PreferenceNames.USER_FAX, _fax);
+        prefs.setString(PreferenceNames.USER_ADDRESS_TYPE, selectedAddressType.id.toString());
+        prefs.setString(PreferenceNames.USER_APARTMENT_NAME, apartmentaName);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
+        prefs.setString(PreferenceNames.USER_ADDRESS2, _address2);
         prefs.setString(PreferenceNames.USER_CITY, _city);
         prefs.setString(PreferenceNames.USER_POSTCODE, _postCode);
         prefs.setString(PreferenceNames.USER_COUNTRY, _selectedCountry.id.toString());
@@ -98,8 +108,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "custom_field[account][3]":selectedProfile.id.toString(),
         "custom_field[account][4]":  _dob.text.toString(),
         "company": STRIPE_STANDIN,
+        "custom_field[address][5]":selectedAddressType.id.toString(),
+        "custom_field[address][6]": apartmentaName,
         "address_1": _address1,
-        "address_2": "NAA",
+        "address_2": _address2,
         "city": _city,
         "postcode": _postCode,
         "country_id": _selectedCountry.id.toString(),
@@ -352,13 +364,59 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
               ),
               //new Text("selected user name is ${selectedGender.name} : and Id is : ${selectedGender.id}"),
+              new InputDecorator(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.merge_type),
+                    labelText: 'Address Type'
+                ),
+                isEmpty: selectedAddressType == '',
+                child: new DropdownButtonHideUnderline(
+                  child: new DropdownButton<AddressType>(
+                    value: selectedAddressType,
+                    isDense: true,
+                    onChanged: (AddressType newValue) {
+                      setState(() {
+                        selectedAddressType = newValue;
+                      });
+                    },
+                    items: addressType.map((AddressType at) {
+                      return new DropdownMenuItem<AddressType>(
+                        value: at,
+                        child: new Text(
+                            at.name
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.business),
+                    labelText: 'Apartment Name'
+                ),
+                onChanged: (value) {
+                  setState(() => apartmentaName = value);
+                },
+                autocorrect: false,
+              ),
               new TextField(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.home),
-                    labelText: 'Address'
+                    labelText: 'Street Address'
                 ),
                 onChanged: (value) {
                   setState(() => _address1 = value);
+                },
+                autocorrect: false,
+              ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.home),
+                    labelText: 'Suite/Apt #'
+                ),
+                onChanged: (value) {
+                  setState(() => _address2 = value);
                 },
                 autocorrect: false,
               ),

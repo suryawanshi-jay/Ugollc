@@ -9,6 +9,7 @@ import 'package:ugo_flutter/models/gender.dart';
 import 'package:ugo_flutter/models/profile.dart';
 import 'package:ugo_flutter/models/country.dart';
 import 'package:ugo_flutter/models/zone.dart';
+import 'package:ugo_flutter/models/addressType.dart';
 import 'package:flutter/src/widgets/editable_text.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -57,6 +58,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   Profile selectedProfile;
   Profile fetchedProfile;
   List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
+
+  AddressType selectedAddressType;
+  AddressType fetchedAddressType;
+  List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
+
 
   _getAccountInfo() async {
     var firstName = await PrefsManager.getString(PreferenceNames.USER_FIRST_NAME);
@@ -133,7 +139,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   _updateAccount(BuildContext context) {
-
     final params = {
       "email": _accountInfo["email"].toLowerCase(),
       "firstname": _accountInfo["firstName"],
@@ -170,22 +175,26 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
 
-  _updateAddress(BuildContext context) {    final params = {
-    "firstname":_accountInfo["firstName"],
-    "lastname" : _accountInfo["lastName"],
-    "address_1": _accountAddress["address_1"],
-    "city": _accountAddress["city"],
-    "postcode": _accountAddress["postcode"],
-    "country_id": _selectedCountry.id.toString(),
-    "zone_id":_selectedZone.id.toString()
+  _updateAddress(BuildContext context) {
+    final params = {
+      "firstname":_accountInfo["firstName"],
+      "lastname" : _accountInfo["lastName"],
+      "custom_field[5]":selectedAddressType.id.toString(),
+      "custom_field[6]":_accountAddress["apartmentName"],
+      "address_1": _accountAddress["address_1"],
+      "address_2": _accountAddress["address_2"],
+      "city": _accountAddress["city"],
+      "postcode": _accountAddress["postcode"],
+      "country_id": _selectedCountry.id.toString(),
+      "zone_id":_selectedZone.id.toString()
   };
-
   ApiManager.request(
       OCResources.PUT_ADDRESS,
           (json) {
         final address = json["address"];
-
         final prefGroup = {
+          PreferenceNames.USER_ADDRESS_TYPE: address['custom_fields'][0]['value'],
+          PreferenceNames.USER_APARTMENT_NAME: address['custom_fields'][1]['value'],
           PreferenceNames.USER_ADDRESS1: address["address_1"],
           PreferenceNames.USER_CITY: address["city"],
           PreferenceNames.USER_POSTCODE: address["postcode"],
@@ -244,7 +253,10 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           final address = json['addresses'];
           setState(() => _accountAddress = {
             "address_id" : address[0]['address_id'],
+            "addressType" :address[0]['custom_field']['5'],
+            "apartmentName" : address[0]['custom_field']['6'],
             "address_1": address[0]['address_1'],
+            "address_2": address[0]['address_2'],
             "postcode": address[0]['postcode'],
             "city": address[0]['city'],
             "zone_id": address[0]['zone_id'],
@@ -252,6 +264,12 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             "country_id":address[0]['country_id'],
             "country":address[0]['country'],
           });
+          if(_accountAddress['addressType']  == 13){
+            selectedAddressType = new AddressType(13, "House");
+          }else if(_accountAddress['addressType']  == 14){
+            selectedAddressType = new AddressType(14, "Apartment");
+          }
+          var sel = selectedAddressType.id;
           _selectedCountry = new Country(address[0]['country_id'], _accountAddress['country']);
           _selectedZone = new Zone(address[0]['zone_id'], _accountAddress['zone']);
           _getZones();
@@ -539,12 +557,52 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               ],
             ),
           ),
+          new InputDecorator(
+            decoration: const InputDecoration(
+                prefixIcon: const Icon(Icons.merge_type),
+                labelText: 'Address Type'
+            ),
+            isEmpty: selectedAddressType == '',
+            child: new DropdownButtonHideUnderline(
+              child: new DropdownButton<AddressType>(
+                value: selectedAddressType,
+                isDense: true,
+                onChanged: (AddressType newValue) {
+                  setState(() {
+                    selectedAddressType = newValue;
+                  });
+                },
+                items: addressType.map((AddressType at) {
+                  return new DropdownMenuItem<AddressType>(
+                    value: at,
+                    child: new Text(
+                        at.name
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
           new TextField(
               decoration: const InputDecoration(
-                  labelText: 'Address'
+                  labelText: 'Apartment Name'
+              ),
+              controller: new TextEditingController(text: _accountAddress["apartmentName"]),
+              onChanged: (value) => setState(() => _accountAddress["apartmentName"] = value)
+          ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'Street Address'
               ),
               controller: new TextEditingController(text: _accountAddress["address_1"]),
               onChanged: (value) => setState(() => _accountAddress["address_1"] = value)
+          ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'Suite/Apt #'
+              ),
+              controller: new TextEditingController(text: _accountAddress["address_2"]),
+              onChanged: (value) => setState(() => _accountAddress["address_2"] = value)
           ),
           new TextField(
               decoration: const InputDecoration(

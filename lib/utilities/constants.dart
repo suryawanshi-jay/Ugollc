@@ -124,7 +124,10 @@ abstract class PreferenceNames {
   static const USER_DATE_OF_BIRTH = "${API_HOST}_userDateOfBirth";
   static const USER_GENDER = "${API_HOST}_userGender";
   static const USER_PROFILE = "${API_HOST}_userProfile";
+  static const USER_ADDRESS_TYPE = "${API_HOST}_userAddressType";
+  static const USER_APARTMENT_NAME = "${API_HOST}_userAddressName";
   static const USER_ADDRESS1 = "${API_HOST}_userAddress1";
+  static const USER_ADDRESS2 = "${API_HOST}_userAddress2";
   static const USER_CITY = "${API_HOST}_userCity";
   static const USER_POSTCODE =  "${API_HOST}_userPostCode";
   static const USER_COUNTRY =  "${API_HOST}_userCountry";
