@@ -39,6 +39,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   Zone fetchedZone;
   bool _zoneLoading = false;
 
+  bool showApartment = false;
 
   @override
   initState() {
@@ -268,8 +269,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             selectedAddressType = new AddressType(13, "House");
           }else if(_accountAddress['addressType']  == 14){
             selectedAddressType = new AddressType(14, "Apartment");
+            showApartment = true;
           }
-          var sel = selectedAddressType.id;
+
           _selectedCountry = new Country(address[0]['country_id'], _accountAddress['country']);
           _selectedZone = new Zone(address[0]['zone_id'], _accountAddress['zone']);
           _getZones();
@@ -570,6 +572,12 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 onChanged: (AddressType newValue) {
                   setState(() {
                     selectedAddressType = newValue;
+                    if(selectedAddressType.id == 14){
+                      showApartment = true;
+                    }else if(selectedAddressType.id == 13){
+                      showApartment = false;
+                      _accountAddress["apartmentName"]="";
+                    }
                   });
                 },
                 items: addressType.map((AddressType at) {
@@ -583,13 +591,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               ),
             ),
           ),
-          new TextField(
+          showApartment ? new TextField(
               decoration: const InputDecoration(
                   labelText: 'Apartment Name'
               ),
               controller: new TextEditingController(text: _accountAddress["apartmentName"]),
               onChanged: (value) => setState(() => _accountAddress["apartmentName"] = value)
-          ),
+          ): new Container(),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'Street Address'

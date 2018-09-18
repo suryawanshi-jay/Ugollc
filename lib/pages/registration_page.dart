@@ -28,7 +28,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _confirmation = "";
   String _phone = "";
   String _city = "";
-  String apartmentaName = "";
+  String apartmentName = "";
   String _address1 = "";
   String _address2 = "";
   String _fax = "";
@@ -41,6 +41,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   List<Zone> zone;
   Zone _selectedZone;
   bool _zoneLoading = false;
+
+  bool showApartment = false;
 
   //Profile
   Profile selectedProfile;
@@ -81,7 +83,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
         prefs.setString(PreferenceNames.USER_FAX, _fax);
         prefs.setString(PreferenceNames.USER_ADDRESS_TYPE, selectedAddressType.id.toString());
-        prefs.setString(PreferenceNames.USER_APARTMENT_NAME, apartmentaName);
+        prefs.setString(PreferenceNames.USER_APARTMENT_NAME, apartmentName);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
         prefs.setString(PreferenceNames.USER_ADDRESS2, _address2);
         prefs.setString(PreferenceNames.USER_CITY, _city);
@@ -109,7 +111,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "custom_field[account][4]":  _dob.text.toString(),
         "company": STRIPE_STANDIN,
         "custom_field[address][5]":selectedAddressType.id.toString(),
-        "custom_field[address][6]": apartmentaName,
+        "custom_field[address][6]": apartmentName,
         "address_1": _address1,
         "address_2": _address2,
         "city": _city,
@@ -377,6 +379,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     onChanged: (AddressType newValue) {
                       setState(() {
                         selectedAddressType = newValue;
+                        if(selectedAddressType.id == 14){
+                          showApartment = true;
+                        }else if(selectedAddressType.id == 13){
+                          showApartment = false;
+                        }
                       });
                     },
                     items: addressType.map((AddressType at) {
@@ -390,16 +397,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                 ),
               ),
-              new TextField(
+              showApartment ? new TextField(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.business),
                     labelText: 'Apartment Name'
                 ),
                 onChanged: (value) {
-                  setState(() => apartmentaName = value);
+                  setState(() => apartmentName = value);
                 },
                 autocorrect: false,
-              ),
+              ): new Container(),
               new TextField(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.home),
