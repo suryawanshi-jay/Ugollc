@@ -41,6 +41,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
   bool showApartment = false;
 
+  bool showDob = true;
+
   @override
   initState() {
     super.initState();
@@ -48,7 +50,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     _getAccountInfo();
     _getAddresses();
     _getCountries();
-
   }
 
   Gender selectedGender;
@@ -105,16 +106,18 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     }else if(_accountInfo['profile']  == '12'){
       selectedProfile = new Profile(12, "Faculty");
     }
+
+
+
   }
 
   // Get new account information
-  final TextEditingController _dob = new TextEditingController();
+  TextEditingController _dob = new TextEditingController();
   Future _chooseDate(BuildContext context, String initialDateString) async {
     var now = new DateTime.now();
     var fetchDate = _accountInfo['dateOfBirth'].toString();
     var initialDate = convertToDate(initialDateString) ?? now;
     initialDate = (initialDate.year >= 1900 && initialDate.isBefore(now) ? initialDate : now);
-
     var result = await showDatePicker(
         context: context,
         initialDate :DateTime.parse(fetchDate),
@@ -148,7 +151,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "fax": _accountInfo["fax"],
       "custom_field[2]":selectedGender.id.toString(),
       "custom_field[3]":selectedProfile.id.toString(),
-      "custom_field[4]": _dob.text.toString(),
+      "custom_field[4]":showDob ?_accountInfo['dateOfBirth']: _dob.text.toString(),
     };
 
     ApiManager.request(
@@ -429,17 +432,18 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           ),
           new Row(children: <Widget>[
             new Expanded(
-                child: new TextFormField(
-                  decoration: new InputDecoration(
-                    labelText: 'Date of Birth',
+                child: new TextField(
+                  decoration: const InputDecoration(
+                      labelText: 'Date of Birth'
                   ),
-                  controller: new TextEditingController(text: _dob.text),
+                  controller: new TextEditingController(text: showDob ? _accountInfo["dateOfBirth"]: _dob.text),
                   keyboardType: TextInputType.datetime,
                 )),
             new IconButton(
               icon: new Icon(Icons.date_range),
               tooltip: 'Choose date',
               onPressed: (() {
+                showDob = false;
                 _chooseDate(context,_dob.text);
               }),
             )
