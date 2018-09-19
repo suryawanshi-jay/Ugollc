@@ -41,7 +41,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
   bool showApartment = false;
 
-  bool showDob = true;
+  bool showDob;
 
   @override
   initState() {
@@ -86,6 +86,12 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "gender": selGender,
       "profile": profile
     });
+
+    if(_accountInfo['dateOfBirth'] == ''){
+      showDob = false;
+    }else {
+      showDob = true;
+    }
 
     if(_accountInfo['gender']  == '5'){
       selectedGender = new Gender(5, "Male");
