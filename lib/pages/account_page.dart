@@ -64,7 +64,21 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   AddressType selectedAddressType;
   AddressType fetchedAddressType;
   List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
+
   TextEditingController firstNamecntrl = new TextEditingController();
+  TextEditingController lastNamecntrl = new TextEditingController();
+  TextEditingController emailcntrl = new TextEditingController();
+  TextEditingController telephonecntrl = new TextEditingController();
+  TextEditingController faxtcntrl = new TextEditingController();
+
+  TextEditingController apartmentNamecntrl = new TextEditingController();
+  TextEditingController streetAddresscntrl = new TextEditingController();
+  TextEditingController suitecntrl = new TextEditingController();
+  TextEditingController citycntrl = new TextEditingController();
+  TextEditingController postcodecntrl = new TextEditingController();
+
+
+
 
   _getAccountInfo() async {
     var firstName = await PrefsManager.getString(PreferenceNames.USER_FIRST_NAME);
@@ -86,7 +100,14 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "gender": selGender,
       "profile": profile
     });
+
     firstNamecntrl.text = firstName;
+    lastNamecntrl.text = lastName;
+    emailcntrl.text = email;
+    telephonecntrl.text = phone;
+    faxtcntrl.text = fax;
+
+
     if(_accountInfo['dateOfBirth'] == ''){
       showDob = false;
     }else {
@@ -275,6 +296,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             "country_id":address[0]['country_id'],
             "country":address[0]['country'],
           });
+
+          apartmentNamecntrl.text = address[0]['custom_field']['6'];
+          streetAddresscntrl.text =  address[0]['address_1'];
+          suitecntrl.text = address[0]['address_2'];
+          citycntrl.text = address[0]['city'];
+          postcodecntrl.text = address[0]['postcode'];
+
           if(_accountAddress['addressType']  == 13){
             selectedAddressType = new AddressType(13, "House");
           }else if(_accountAddress['addressType']  == 14){
@@ -414,28 +442,28 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             decoration: const InputDecoration(
               labelText: 'Last Name'
             ),
-            controller: new TextEditingController(text: _accountInfo["lastName"]),
+            controller: lastNamecntrl,
             onChanged: (value) => setState(() => _accountInfo["lastName"] = value)
           ),
           new TextField(
             decoration: const InputDecoration(
               labelText: 'Email'
             ),
-            controller: new TextEditingController(text: _accountInfo["email"]),
+            controller: emailcntrl,
             onChanged: (value) => setState(() => _accountInfo["email"] = value)
           ),
           new TextField(
             decoration: const InputDecoration(
               labelText: 'Phone'
             ),
-            controller: new TextEditingController(text: _accountInfo["phone"]),
+            controller: telephonecntrl,
             onChanged: (value) => setState(() => _accountInfo["phone"] = value)
           ),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'Fax'
               ),
-              controller: new TextEditingController(text: _accountInfo["fax"]),
+              controller: faxtcntrl,
               onChanged: (value) => setState(() => _accountInfo["fax"] = value)
           ),
           new Row(children: <Widget>[
@@ -607,35 +635,35 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               decoration: const InputDecoration(
                   labelText: 'Apartment Name'
               ),
-              controller: new TextEditingController(text: _accountAddress["apartmentName"]),
+              controller: apartmentNamecntrl,
               onChanged: (value) => setState(() => _accountAddress["apartmentName"] = value)
           ): new Container(),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'Street Address'
               ),
-              controller: new TextEditingController(text: _accountAddress["address_1"]),
+              controller: streetAddresscntrl,
               onChanged: (value) => setState(() => _accountAddress["address_1"] = value)
           ),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'Suite/Apt #'
               ),
-              controller: new TextEditingController(text: _accountAddress["address_2"]),
+              controller:suitecntrl,
               onChanged: (value) => setState(() => _accountAddress["address_2"] = value)
           ),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'City'
               ),
-              controller: new TextEditingController(text: _accountAddress["city"]),
+              controller: citycntrl,
               onChanged: (value) => setState(() => _accountAddress["city"] = value)
           ),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'Post Code'
               ),
-              controller: new TextEditingController(text: _accountAddress["postcode"]),
+              controller: postcodecntrl,
               onChanged: (value) => setState(() => _accountAddress["postcode"] = value)
           ),
           new InputDecorator(
