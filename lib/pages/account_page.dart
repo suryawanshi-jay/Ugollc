@@ -64,7 +64,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   AddressType selectedAddressType;
   AddressType fetchedAddressType;
   List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
-
+  TextEditingController firstNamecntrl = new TextEditingController();
 
   _getAccountInfo() async {
     var firstName = await PrefsManager.getString(PreferenceNames.USER_FIRST_NAME);
@@ -86,7 +86,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "gender": selGender,
       "profile": profile
     });
-
+    firstNamecntrl.text = firstName;
     if(_accountInfo['dateOfBirth'] == ''){
       showDob = false;
     }else {
@@ -119,6 +119,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
   // Get new account information
   TextEditingController _dob = new TextEditingController();
+
   Future _chooseDate(BuildContext context, String initialDateString) async {
     var now = new DateTime.now();
     var fetchDate = _accountInfo['dateOfBirth'].toString();
@@ -405,7 +406,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             decoration: const InputDecoration(
               labelText: 'First Name'
             ),
-            controller: new TextEditingController(text: _accountInfo["firstName"]),
+            //controller: new TextEditingController(text: _accountInfo["firstName"]),
+              controller: firstNamecntrl,
             onChanged: (value) => setState(() => _accountInfo["firstName"] = value)
           ),
           new TextField(
