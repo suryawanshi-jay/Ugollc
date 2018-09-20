@@ -438,13 +438,17 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           && _emailValid();
     }
     return false;
-  }  bool _addressformValid() =>
-      _accountAddress['address_1'].length >0
+  }
+  bool _addressformValid() {
+    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null) {
+      return _accountAddress['address_1'].length >0
           && _accountAddress['city'].length >0
           && _accountAddress['postcode'].length >0
           && _selectedCountry != null
           && _selectedZone !=  null;
-
+    }
+    return false;
+  }
   bool _passwordUpdateValid() =>
     _accountInfo["password"] != null
     && _accountInfo["confirm"] != null
