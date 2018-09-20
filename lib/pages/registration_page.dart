@@ -37,26 +37,36 @@ class _RegistrationPageState extends State<RegistrationPage> {
   List<Country> country = [];
   Country _selectedCountry;
   bool _countryLoading = false;
+  bool loadCountry = false;
+  String optedCountry = '';
 
   List<Zone> zone;
   Zone _selectedZone;
   bool _zoneLoading = false;
+  bool loadZone = false;
+  String optedZone = '';
 
   bool showApartment = false;
 
   //Profile
   Profile selectedProfile;
   List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
-
+  bool loadProfile = false;
+  String optedProfile = '';
   // Gender
   Gender selectedGender;
   List<Gender> gender = <Gender>[const Gender(5,'Male'), const Gender(6,'Female'), const Gender(7,'Other')];
+  bool loadGender = false;
+  String optedGender = '';
+
   bool _loading = false;
 
 
   AddressType selectedAddressType;
   List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
   bool _typeloading = false;
+  bool loadAddressType = false;
+  String optedAddressType = '';
 
 
   final _analytics = new FirebaseAnalytics();
@@ -71,7 +81,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _submitRegistration(BuildContext context) {
-     var test = selectedAddressType.id;
+    optedGender = (loadGender == true) ? selectedGender.id.toString() : '';
+    optedProfile = (loadProfile == true) ? selectedProfile.id.toString() : '';
+    optedCountry = (loadCountry == true) ? _selectedCountry.id.toString() : '';
+    optedZone = (loadZone == true) ? _selectedZone.id.toString() : '';
+    optedAddressType = (loadAddressType == true) ? selectedAddressType.id.toString() : '';
     setState(() => _loading = true);
     ApiManager.request(
       OCResources.REGISTER,
@@ -106,20 +120,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "confirm": _confirmation,
         "telephone": _phone,
         "fax": _fax,
-        "custom_field[account][2]":selectedGender.id.toString(),
-        "custom_field[account][3]":selectedProfile.id.toString(),
+        "custom_field[account][2]":optedGender,
+        "custom_field[account][3]":optedProfile,
         "custom_field[account][4]":  _dob.text.toString(),
         "company": STRIPE_STANDIN,
-        "custom_field[address][5]":selectedAddressType.id.toString(),
+        "custom_field[address][5]":optedAddressType,
         "custom_field[address][6]": apartmentName,
         "address_1": _address1,
         "address_2": _address2,
         "city": _city,
         "postcode": _postCode,
-        "country_id": _selectedCountry.id.toString(),
-        "zone_id": _selectedZone.id.toString(),
+        "country_id":optedCountry,
+        "zone_id": optedZone,
+
 
       },
+
       errorHandler: (error) {
         setState(() => _loading = false);
         ApiManager.defaultErrorHandler(error, context: context);
@@ -216,11 +232,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
       && _email.length > 4
       && _phone.replaceAll(PHONE_LENGTH_REGEXP, "").length > 9
       && _phone.replaceAll(PHONE_REGEXP, "").length == _phone.length
-      && _firstName.length > 0
-      && _lastName.length > 0
+      && _firstName.length > 1
+      && _lastName.length > 1
       && _password.length > 0
       && _password == _confirmation
-      && _city.length > 0;
+      && _address1.length >0
+      && _postCode.length > 3
+      && _city.length > 0
+      && _selectedCountry != null
+      && _selectedZone !=  null;
 
   String _buttonText() {
     if (_loading) return "Submitting...";
@@ -325,6 +345,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     isDense: true,
                     onChanged: (Gender newValue) {
                       setState(() {
+                        loadGender = true;
                         selectedGender = newValue;
                       });
                     },
@@ -351,6 +372,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     isDense: true,
                     onChanged: (Profile newValue) {
                       setState(() {
+                        loadProfile = true;
                         selectedProfile = newValue;
                       });
                     },
@@ -379,10 +401,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     onChanged: (AddressType newValue) {
                       setState(() {
                         selectedAddressType = newValue;
-                        if(selectedAddressType.id == 14){
-                          showApartment = true;
-                        }else if(selectedAddressType.id == 13){
-                          showApartment = false;
+                        loadAddressType = true;
+                        if (selectedAddressType.id != null)
+                        {
+                          if (selectedAddressType.id == 14) {
+                            showApartment = true;
+                          } else if (selectedAddressType.id == 13) {
+                            showApartment = false;
+                          }
                         }
                       });
                     },
@@ -459,6 +485,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     isDense: true,
                     onChanged: (Country newValue) {
                       setState(() {
+                        loadCountry = true;
                         _selectedCountry = newValue;
                         _zoneLoading = true;
                         _getZones();
@@ -487,6 +514,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     isDense: true,
                     onChanged: (Zone newValue) {
                       setState(() {
+                        loadZone = true;
                         _selectedZone = newValue;
                       });
                     },
