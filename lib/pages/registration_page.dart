@@ -96,16 +96,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_LAST_NAME, _lastName);
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
         prefs.setString(PreferenceNames.USER_FAX, _fax);
-        prefs.setString(PreferenceNames.USER_ADDRESS_TYPE, selectedAddressType.id.toString());
+        prefs.setString(PreferenceNames.USER_ADDRESS_TYPE, optedAddressType);
         prefs.setString(PreferenceNames.USER_APARTMENT_NAME, apartmentName);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
         prefs.setString(PreferenceNames.USER_ADDRESS2, _address2);
         prefs.setString(PreferenceNames.USER_CITY, _city);
         prefs.setString(PreferenceNames.USER_POSTCODE, _postCode);
-        prefs.setString(PreferenceNames.USER_COUNTRY, _selectedCountry.id.toString());
-        prefs.setString(PreferenceNames.USER_ZONE, _selectedZone.id.toString());
-        prefs.setString(PreferenceNames.USER_GENDER, selectedGender.id.toString());
-        prefs.setString(PreferenceNames.USER_PROFILE, selectedProfile.id.toString());
+        prefs.setString(PreferenceNames.USER_COUNTRY, optedCountry);
+        prefs.setString(PreferenceNames.USER_ZONE, optedZone);
+        prefs.setString(PreferenceNames.USER_GENDER, optedZone);
+        prefs.setString(PreferenceNames.USER_PROFILE, optedProfile);
         prefs.setString(PreferenceNames.USER_DATE_OF_BIRTH, _dob.text.toString());
 
         await _analytics.logSignUp(signUpMethod: "form");
