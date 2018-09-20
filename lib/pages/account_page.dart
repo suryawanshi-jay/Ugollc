@@ -46,6 +46,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   bool showApartment = false;
 
   bool showDob;
+  bool blankDob = false;
 
   @override
   initState() {
@@ -118,9 +119,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     telephonecntrl.text = phone;
     faxtcntrl.text = fax;
 
-
-    if(_accountInfo['dateOfBirth'] == ''){
+    if(_accountInfo['dateOfBirth'] == '' || dateOfBirth == null ){
       showDob = false;
+      blankDob = true;
     }else {
       showDob = true;
     }
@@ -160,7 +161,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     initialDate = (initialDate.year >= 1900 && initialDate.isBefore(now) ? initialDate : now);
     var result = await showDatePicker(
         context: context,
-        initialDate :DateTime.parse(fetchDate),
+        initialDate : blankDob ? initialDate : DateTime.parse(fetchDate),
         firstDate: new DateTime(1900),
         lastDate: new DateTime.now());
 
@@ -507,14 +508,14 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                   decoration: const InputDecoration(
                       labelText: 'Date of Birth'
                   ),
-                  controller: new TextEditingController(text: showDob ? _accountInfo["dateOfBirth"]: _dob.text),
+                  controller: blankDob ? _dob : new TextEditingController(text: showDob ? _accountInfo["dateOfBirth"]: _dob.text),
                   keyboardType: TextInputType.datetime,
                 )),
             new IconButton(
               icon: new Icon(Icons.date_range),
               tooltip: 'Choose date',
-              onPressed: (() {
-                showDob = false;
+              onPressed:(() {
+                showDob =  false;
                 _chooseDate(context,_dob.text);
               }),
             )
