@@ -33,11 +33,15 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   List<Country> country = [];
   Country _selectedCountry;
   bool _countryLoading = false;
+  bool loadCountry =true;
+  String optedCountry = '';
 
   List<Zone> zone;
   Zone _selectedZone;
   Zone fetchedZone;
   bool _zoneLoading = false;
+  bool loadZone =true;
+  String optedZone = '';
 
   bool showApartment = false;
 
@@ -56,14 +60,21 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   Gender fetchedGender;
   List<Gender> gender = <Gender>[ new Gender(5,'Male'), new Gender(6,'Female'), new Gender(7,'Other')];
   bool _loading = false;
+  bool loadGender = true;
+  String optedGender = '';
 
   Profile selectedProfile;
   Profile fetchedProfile;
   List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
+  bool loadProfile = true;
+  String optedProfile = '';
+
 
   AddressType selectedAddressType;
   AddressType fetchedAddressType;
   List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
+  bool loadAddressType = true;
+  String optedAddressType = '';
 
   TextEditingController firstNamecntrl = new TextEditingController();
   TextEditingController lastNamecntrl = new TextEditingController();
@@ -120,6 +131,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       selectedGender = new Gender(6, "Female");
     }else if(_accountInfo['gender']  == '7'){
       selectedGender = new Gender(7, "Other");
+    }else{
+      loadGender = false;
     }
 
     if(_accountInfo['profile']  == '8'){
@@ -132,10 +145,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       selectedProfile = new Profile(11, "Parent");
     }else if(_accountInfo['profile']  == '12'){
       selectedProfile = new Profile(12, "Faculty");
+    }else{
+      loadProfile = false;
     }
-
-
-
   }
 
   // Get new account information
@@ -171,23 +183,23 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   _updateAccount(BuildContext context) {
+    optedGender = (loadGender == true) ? selectedGender.id.toString() : '';
+    optedProfile = (loadProfile == true) ? selectedProfile.id.toString() : '';
     final params = {
       "email": _accountInfo["email"].toLowerCase(),
       "firstname": _accountInfo["firstName"],
       "lastname": _accountInfo["lastName"],
       "telephone": _accountInfo["phone"],
       "fax": _accountInfo["fax"],
-      "custom_field[2]":selectedGender.id.toString(),
-      "custom_field[3]":selectedProfile.id.toString(),
+      "custom_field[2]":optedGender,
+      "custom_field[3]":optedProfile,
       "custom_field[4]":showDob ?_accountInfo['dateOfBirth']: _dob.text.toString(),
     };
 
     ApiManager.request(
       OCResources.PUT_ACCOUNT,
       (json) {
-
         final account = json["account"];
-
         final prefGroup = {
           PreferenceNames.USER_FIRST_NAME: account["firstname"],
           PreferenceNames.USER_LAST_NAME: account["lastname"],
@@ -208,17 +220,20 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
 
   _updateAddress(BuildContext context) {
+    optedCountry = (loadCountry == true) ? _selectedCountry.id.toString() : '';
+    optedZone = (loadZone == true) ? _selectedZone.id.toString() : '';
+    optedAddressType = (loadAddressType == true) ? selectedAddressType.id.toString() : '';
     final params = {
       "firstname":_accountInfo["firstName"],
       "lastname" : _accountInfo["lastName"],
-      "custom_field[5]":selectedAddressType.id.toString(),
+      "custom_field[5]":optedAddressType,
       "custom_field[6]":_accountAddress["apartmentName"],
       "address_1": _accountAddress["address_1"],
       "address_2": _accountAddress["address_2"],
       "city": _accountAddress["city"],
       "postcode": _accountAddress["postcode"],
-      "country_id": _selectedCountry.id.toString(),
-      "zone_id":_selectedZone.id.toString()
+      "country_id": optedCountry,
+      "zone_id":optedZone
   };
   ApiManager.request(
       OCResources.PUT_ADDRESS,
@@ -308,11 +323,22 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           }else if(_accountAddress['addressType']  == 14){
             selectedAddressType = new AddressType(14, "Apartment");
             showApartment = true;
+          }else{
+            loadAddressType = false;
           }
 
-          _selectedCountry = new Country(address[0]['country_id'], _accountAddress['country']);
-          _selectedZone = new Zone(address[0]['zone_id'], _accountAddress['zone']);
-          _getZones();
+          if(_accountAddress["country_id"] != null) {
+            _selectedCountry = new Country(address[0]['country_id'], _accountAddress['country']);
+          }else {
+            loadCountry = false;
+          }
+
+          if(_accountAddress["country_id"] != null) {
+            _selectedZone = new Zone(address[0]['zone_id'], _accountAddress['zone']);
+            _getZones();
+          }else{
+            loadZone = false;
+          }
         }
     );
   }
@@ -407,12 +433,17 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   bool _formValid() {
     if (_accountInfo["firstName"] != null && _accountInfo["lastName"] != null) {
       return _accountInfo["firstName"].length > 0
-        && _accountInfo["lastName"].length > 0
-        && _phoneValid()
-        && _emailValid();
+          && _accountInfo["lastName"].length > 0
+          && _phoneValid()
+          && _emailValid();
     }
     return false;
-  }
+  }  bool _addressformValid() =>
+      _accountAddress['address_1'].length >0
+          && _accountAddress['city'].length >0
+          && _accountAddress['postcode'].length >0
+          && _selectedCountry != null
+          && _selectedZone !=  null;
 
   bool _passwordUpdateValid() =>
     _accountInfo["password"] != null
@@ -495,6 +526,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 isDense: true,
                 onChanged: (Gender newValue) {
                   setState(() {
+                    loadGender  = true;
                     selectedGender = newValue;
                   });
                 },
@@ -521,6 +553,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 isDense: true,
                 onChanged: (Profile newValue) {
                   setState(() {
+                    loadProfile  = true;
                     selectedProfile = newValue;
 
                   });
@@ -611,6 +644,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 isDense: true,
                 onChanged: (AddressType newValue) {
                   setState(() {
+                    loadAddressType = true;
                     selectedAddressType = newValue;
                     if(selectedAddressType.id == 14){
                       showApartment = true;
@@ -678,6 +712,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 isDense: true,
                 onChanged: (Country newValue) {
                   setState(() {
+                    loadCountry = true;
                     _selectedCountry = newValue;
                     _zoneLoading = true;
                     _refreshZones();
@@ -706,6 +741,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 isDense: true,
                 onChanged: (Zone newValue) {
                   setState(() {
+                    loadZone = true;
                     _selectedZone = newValue;
                   });
                 },
@@ -726,11 +762,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               new Expanded(
                 child: new RaisedButton(
                     color: UgoGreen,
-                    onPressed: _formValid()
+                    onPressed: _addressformValid()
                         ? () => _updateAddress(context)
                         : null,
                     child: new Text(
-                      _formValid()
+                      _addressformValid()
                           ? "Update Address"
                           : "Enter Address to Update",
                       style: new TextStyle(
