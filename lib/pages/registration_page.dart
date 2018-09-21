@@ -104,7 +104,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_POSTCODE, _postCode);
         prefs.setString(PreferenceNames.USER_COUNTRY, optedCountry);
         prefs.setString(PreferenceNames.USER_ZONE, optedZone);
-        prefs.setString(PreferenceNames.USER_GENDER, optedZone);
+        prefs.setString(PreferenceNames.USER_GENDER, optedGender);
         prefs.setString(PreferenceNames.USER_PROFILE, optedProfile);
         prefs.setString(PreferenceNames.USER_DATE_OF_BIRTH, _dob.text.toString());
 
@@ -189,6 +189,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     ApiManager.request(
       OCResources.POST_ZONE,
           (json) {
+        _selectedZone = new Zone(int.parse(json['zone'][0]['zone_id']), json['zone'][0]['name']);
         if(json["zone"] != null) {
           final zones = json["zone"].map((zone) =>
           new Zone.fromJSON(zone)).toList();

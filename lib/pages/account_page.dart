@@ -89,7 +89,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   TextEditingController citycntrl = new TextEditingController();
   TextEditingController postcodecntrl = new TextEditingController();
 
-
+  TextEditingController passwordcntrl = new TextEditingController();
+  TextEditingController cnfpasswordcntrl = new TextEditingController();
 
 
   _getAccountInfo() async {
@@ -600,9 +601,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           new TextField(
             obscureText: true,
             decoration: const InputDecoration(
-              labelText: 'Password',
+              labelText: 'New Password',
             ),
-            controller: new TextEditingController(text: _accountInfo["password"]),
+            controller: passwordcntrl,
             onChanged: (value) {
               setState(() => _accountInfo["password"] = value);
             }
@@ -612,7 +613,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             decoration: const InputDecoration(
               labelText: 'Confirm Password',
             ),
-            controller: new TextEditingController(text: _accountInfo["confirm"]),
+            controller: cnfpasswordcntrl,
             onChanged: (value) => setState(() => _accountInfo["confirm"] = value)
           ),
           new Padding(
