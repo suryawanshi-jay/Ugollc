@@ -495,9 +495,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     items: country.map((Country country) {
                       return new DropdownMenuItem<Country>(
                         value: country,
-                        child: new Text(
-                            country.name
-                        ),
+                        child: new SizedBox(width: 200.0, child: new Text(country.name)),
+//                        child: new Text(
+//                            country.name
+//                        ),
                       );
                     }).toList(),
                   ),
@@ -521,10 +522,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     },
                     items: zone?.map((Zone zone) {
                       return new DropdownMenuItem<Zone>(
-                        value: zone,
-                        child: new Text(
-                            zone.name
-                        ),
+                          value: zone,
+                          child: new SizedBox(width: 200.0, child: new Text(zone.name))
                       );
                     })?.toList() ?? [],
                   ),
