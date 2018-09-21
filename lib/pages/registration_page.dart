@@ -496,9 +496,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       return new DropdownMenuItem<Country>(
                         value: country,
                         child: new SizedBox(width: 200.0, child: new Text(country.name)),
-//                        child: new Text(
-//                            country.name
-//                        ),
                       );
                     }).toList(),
                   ),

@@ -727,9 +727,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 items: country.map((Country country) {
                   return new DropdownMenuItem<Country>(
                     value: country,
-                    child: new Text(
-                        country.name
-                    ),
+                    child: new SizedBox(width: 200.0, child: new Text(country.name))
                   );
                 }).toList(),
               ),
@@ -754,9 +752,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 items: zone?.map((Zone zone) {
                   return new DropdownMenuItem<Zone>(
                     value: zone,
-                    child: new Text(
-                        zone.name
-                    ),
+                    child: new SizedBox(width: 200.0, child: new Text(zone.name))
                   );
                 })?.toList() ?? [],
               ),
