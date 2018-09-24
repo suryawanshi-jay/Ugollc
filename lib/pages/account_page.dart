@@ -81,7 +81,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   TextEditingController lastNamecntrl = new TextEditingController();
   TextEditingController emailcntrl = new TextEditingController();
   TextEditingController telephonecntrl = new TextEditingController();
-  TextEditingController faxtcntrl = new TextEditingController();
+  //TextEditingController faxtcntrl = new TextEditingController();
 
   TextEditingController apartmentNamecntrl = new TextEditingController();
   TextEditingController streetAddresscntrl = new TextEditingController();
@@ -98,7 +98,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     var lastName = await PrefsManager.getString(PreferenceNames.USER_LAST_NAME);
     var email = await PrefsManager.getString(PreferenceNames.USER_EMAIL);
     var phone = await PrefsManager.getString(PreferenceNames.USER_TELEPHONE);
-    var fax = await PrefsManager.getString(PreferenceNames.USER_FAX);
+    //var fax = await PrefsManager.getString(PreferenceNames.USER_FAX);
     var dateOfBirth = await PrefsManager.getString(PreferenceNames.USER_DATE_OF_BIRTH);
     var selGender = await PrefsManager.getString(PreferenceNames.USER_GENDER);
     var profile = await PrefsManager.getString(PreferenceNames.USER_PROFILE);
@@ -108,7 +108,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "lastName": lastName,
       "email": email,
       "phone": phone,
-      "fax" : fax,
+      //"fax" : fax,
       "dateOfBirth":dateOfBirth,
       "gender": selGender,
       "profile": profile
@@ -118,7 +118,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     lastNamecntrl.text = lastName;
     emailcntrl.text = email;
     telephonecntrl.text = phone;
-    faxtcntrl.text = fax;
+    //faxtcntrl.text = fax;
 
     if(_accountInfo['dateOfBirth'] == '' || dateOfBirth == null ){
       showDob = false;
@@ -192,7 +192,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "firstname": _accountInfo["firstName"],
       "lastname": _accountInfo["lastName"],
       "telephone": _accountInfo["phone"],
-      "fax": _accountInfo["fax"],
+      //"fax": _accountInfo["fax"],
       "custom_field[2]":optedGender,
       "custom_field[3]":optedProfile,
       "custom_field[4]":showDob ?_accountInfo['dateOfBirth']: _dob.text.toString(),
@@ -207,7 +207,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           PreferenceNames.USER_LAST_NAME: account["lastname"],
           PreferenceNames.USER_EMAIL: account["email"],
           PreferenceNames.USER_TELEPHONE: account["telephone"],
-          PreferenceNames.USER_FAX: account["fax"],
+          //PreferenceNames.USER_FAX: account["fax"],
           PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][0]['value'],
           PreferenceNames.USER_GENDER:  account['custom_fields'][1]['value'],
           PreferenceNames.USER_PROFILE:  account['custom_fields'][2]['value'],
@@ -285,7 +285,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
         PrefsManager.clearPref(PreferenceNames.USER_LAST_NAME);
         PrefsManager.clearPref(PreferenceNames.USER_EMAIL);
         PrefsManager.clearPref(PreferenceNames.USER_TELEPHONE);
-        PrefsManager.clearPref(PreferenceNames.USER_FAX);
+        //PrefsManager.clearPref(PreferenceNames.USER_FAX);
         PrefsManager.clearPref(PreferenceNames.USER_DATE_OF_BIRTH);
         PrefsManager.clearPref(PreferenceNames.USER_GENDER);
         PrefsManager.clearPref(PreferenceNames.USER_PROFILE);
@@ -496,13 +496,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             controller: telephonecntrl,
             onChanged: (value) => setState(() => _accountInfo["phone"] = value)
           ),
-          new TextField(
-              decoration: const InputDecoration(
-                  labelText: 'Fax'
-              ),
-              controller: faxtcntrl,
-              onChanged: (value) => setState(() => _accountInfo["fax"] = value)
-          ),
+          //new TextField(
+          //    decoration: const InputDecoration(
+          //       labelText: 'Fax'
+          //   ),
+          //   controller: faxtcntrl,
+          //   onChanged: (value) => setState(() => _accountInfo["fax"] = value)
+          //),
           new Row(children: <Widget>[
             new Expanded(
                 child: new TextField(

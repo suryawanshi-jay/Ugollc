@@ -31,7 +31,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String apartmentName = "";
   String _address1 = "";
   String _address2 = "";
-  String _fax = "";
+  //String _fax = "";
   String _postCode = "";
 
   List<Country> country = [];
@@ -95,7 +95,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         prefs.setString(PreferenceNames.USER_FIRST_NAME, _firstName);
         prefs.setString(PreferenceNames.USER_LAST_NAME, _lastName);
         prefs.setString(PreferenceNames.USER_TELEPHONE, _phone);
-        prefs.setString(PreferenceNames.USER_FAX, _fax);
+        //prefs.setString(PreferenceNames.USER_FAX, _fax);
         prefs.setString(PreferenceNames.USER_ADDRESS_TYPE, optedAddressType);
         prefs.setString(PreferenceNames.USER_APARTMENT_NAME, apartmentName);
         prefs.setString(PreferenceNames.USER_ADDRESS1, _address1);
@@ -119,7 +119,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "password": _password,
         "confirm": _confirmation,
         "telephone": _phone,
-        "fax": _fax,
+        //"fax": _fax,
         "custom_field[account][2]":optedGender,
         "custom_field[account][3]":optedProfile,
         "custom_field[account][4]":  _dob.text.toString(),
@@ -306,16 +306,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
-              new TextField(
-                decoration: new InputDecoration(
-                    prefixIcon: new Icon(phoneIcon),
-                    labelText: 'Fax'
-                ),
-                onChanged: (value) {
-                  setState(() => _fax = value);
-                },
-                autocorrect: false,
-              ),
+              //new TextField(
+              //  decoration: new InputDecoration(
+              //      prefixIcon: new Icon(phoneIcon),
+              //      labelText: 'Fax'
+              //  ),
+              //  onChanged: (value) {
+              //    setState(() => _fax = value);
+              //  },
+              //  autocorrect: false,
+              //),
               new Row(children: <Widget>[
                 new Expanded(
                     child: new TextFormField(
