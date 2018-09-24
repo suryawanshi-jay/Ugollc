@@ -451,10 +451,21 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           && _selectedCountry != null
           && _selectedZone !=  null
           && selectedAddressType != null
-          && _accountAddress['address_2'].length >0;
+          && _accountAddress['address_2'].length >0
+          && _apartmentNameValid();
     }
     return false;
   }
+
+  bool _apartmentNameValid() {
+    if(selectedAddressType.id == 14) {
+      return _accountAddress['apartmentName'].length >0;
+    }else if(selectedAddressType.id == 13)
+      {
+        return true;
+      }
+  }
+
   bool _passwordUpdateValid() =>
     _accountInfo["password"] != null
     && _accountInfo["confirm"] != null

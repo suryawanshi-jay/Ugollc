@@ -228,6 +228,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+  bool _apartmentNameValid() {
+    if(selectedAddressType.id == 14) {
+      return apartmentName.length >0;
+    }else if(selectedAddressType.id == 13)
+    {
+      return true;
+    }
+  }
+
   bool _formValid() =>
     _email.trim().toLowerCase().replaceAll(EMAIL_REGEXP, "").length == 0
       && _email.length > 4
@@ -245,7 +254,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       && selectedGender != null
       && selectedProfile != null
       && selectedAddressType != null
-      && _address2 .length >0;
+      && _address2 .length >0
+      && _apartmentNameValid() ;
 
   String _buttonText() {
     if (_loading) return "Submitting...";
