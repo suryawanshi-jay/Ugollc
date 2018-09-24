@@ -241,7 +241,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
       && _postCode.length > 3
       && _city.length > 0
       && _selectedCountry != null
-      && _selectedZone !=  null;
+      && _selectedZone !=  null
+      && selectedGender != null
+      && selectedProfile != null
+      && selectedAddressType != null
+      && _address2 .length >0;
 
   String _buttonText() {
     if (_loading) return "Submitting...";

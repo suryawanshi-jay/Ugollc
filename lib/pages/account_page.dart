@@ -437,17 +437,21 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       return _accountInfo["firstName"].length > 0
           && _accountInfo["lastName"].length > 0
           && _phoneValid()
-          && _emailValid();
+          && _emailValid()
+          && selectedGender != null
+          && selectedProfile != null;
     }
     return false;
   }
   bool _addressformValid() {
-    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null) {
+    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null && _accountAddress["address_2"] != null) {
       return _accountAddress['address_1'].length >0
           && _accountAddress['city'].length >0
           && _accountAddress['postcode'].length >0
           && _selectedCountry != null
-          && _selectedZone !=  null;
+          && _selectedZone !=  null
+          && selectedAddressType != null
+          && _accountAddress['address_2'].length >0;
     }
     return false;
   }
