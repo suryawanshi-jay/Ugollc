@@ -438,6 +438,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           && _accountInfo["lastName"].length > 0
           && _phoneValid()
           && _emailValid()
+          && isValidDob()
           && selectedGender != null
           && selectedProfile != null;
     }
@@ -464,6 +465,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       {
         return true;
       }
+  }
+
+  bool isValidDob() {
+    final dob =showDob ? _accountInfo["dateOfBirth"]: _dob.text;
+    return dob.isNotEmpty;
   }
 
   bool _passwordUpdateValid() =>

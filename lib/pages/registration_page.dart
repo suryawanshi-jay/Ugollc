@@ -237,6 +237,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
+  bool isValidDob(String dob) {
+    return dob.isNotEmpty;
+  }
+
   bool _formValid() =>
     _email.trim().toLowerCase().replaceAll(EMAIL_REGEXP, "").length == 0
       && _email.length > 4
@@ -255,7 +259,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       && selectedProfile != null
       && selectedAddressType != null
       && _address2 .length >0
-      && _apartmentNameValid() ;
+      && _apartmentNameValid()
+      && isValidDob(_dob.text);
 
   String _buttonText() {
     if (_loading) return "Submitting...";
