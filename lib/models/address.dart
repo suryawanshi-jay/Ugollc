@@ -15,6 +15,8 @@ class Address {
   String isoCode2;
   String isoCode3;
   String addressFormat;
+  int addressType;
+  String apartmentName;
 
   Address.fromJSON(Map json) {
     id = json["address_id"];
@@ -33,5 +35,7 @@ class Address {
     isoCode2 = json["iso_code_2"];
     isoCode3 = json["iso_code_3"];
     addressFormat = json["address_format"];
+    addressType = json["custom_field"]["5"];
+    apartmentName = json["custom_field"]["6"];
   }
 }

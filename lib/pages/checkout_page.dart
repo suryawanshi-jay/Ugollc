@@ -13,6 +13,7 @@ import 'package:ugo_flutter/pages/loading_screen.dart';
 import 'package:ugo_flutter/pages/order_confirm_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
+import 'package:ugo_flutter/models/addressType.dart';
 
 
 class CheckoutPage extends StatefulWidget {
@@ -39,20 +40,40 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String dCCAmount = "0.0";
   Color msgColor = Colors.red;
   double _couponTax = 0.0;
+  bool updateUser = false;
+
 
   List<PaymentCard> _cards = [];
   String _selectedCard;
+
+  AddressType selectedAddressType;
+  AddressType fetchedAddressType;
+  List<AddressType> addressType = <AddressType>[const AddressType(13,'House'), const AddressType(14,'Apartment')];
+  bool loadAddressType = true;
+  String optedAddressType = '';
+
+  bool showApartment = false;
 
   List<Address> _addresses = [];
   int _selectedAddress;
 
   String _address1;
+  String _address2;
+  String _city;
   String _zip;
+  String _apartmentName;
+  String firstName;
+  String lastName;
+  int countryID;
+  int zoneID;
 
   TextEditingController _addressController = new TextEditingController();
   TextEditingController _zipController = new TextEditingController();
   TextEditingController _commentController = new TextEditingController();
   TextEditingController _couponCodeController = new TextEditingController();
+  TextEditingController _address2Controller = new TextEditingController();
+  TextEditingController _cityController = new TextEditingController();
+  TextEditingController _apartmentNameController = new TextEditingController();
 
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
@@ -168,11 +189,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   _submitExistingShippingAddress(BuildContext context) {
     setState(() => _orderProcess = 0.3);
+    var addID = _selectedAddress.toString();
+
+    //Update existing user
+    if(updateUser == true){
+      final params = {
+        "firstname": firstName,
+        "lastname" : lastName,
+        "custom_field[5]":selectedAddressType.id.toString(),
+        "custom_field[6]":_apartmentName,
+        "address_1": _address1,
+        "address_2": _address2,
+        "city": _city,
+        "postcode": _zip,
+        "country_id": countryID.toString(),
+        "zone_id":zoneID.toString()
+      };
+      debugPrint("$params");
+      ApiManager.request(
+          OCResources.PUT_ADDRESS,
+              (json) {
+            final address = json["address"];
+          },
+          params: params,
+          resourceID: addID
+      );
+    }//Update existing user end
+
     ApiManager.request(
       OCResources.POST_SHIPPING_ADDRESS,
       (json) {
         _submitShippingMethod(context);
       },
+
       params: { "shipping_address": "existing", "address_id": _selectedAddress.toString()},
       errorHandler: (error) {
         setState(() => _orderProcess = 0.0);
@@ -236,11 +285,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
         final ocAddr = {
           "firstname": prefs.getString(PreferenceNames.USER_FIRST_NAME),
           "lastname": prefs.getString(PreferenceNames.USER_LAST_NAME),
-          "address_1": "${addressComponents["street_number"]} ${addressComponents["route"]}",
-          "city": addressComponents["locality"],
-          "postcode": addressComponents["postal_code"],
-          "country_id": "223",
-          "zone_id": "3613",
+          "custom_field[5]":selectedAddressType.id.toString(),
+          "custom_field[6]":_apartmentName,
+          "address_1": _address1,
+          "address_2" : _address2,
+          "city": _city,
+          "postcode": _zip,
+          "country_id": countryID.toString(),
+          "zone_id": zoneID.toString(),
           "shipping_address": "new"
         };
 
@@ -549,10 +601,32 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final pickedAddr = _addresses.where((addr) => addr.id == addressID).first;
     _addressController.text = pickedAddr.address1;
     _zipController.text = pickedAddr.zip;
+    _cityController.text = pickedAddr.city;
+    _address2Controller.text = pickedAddr.address2;
+    _apartmentNameController.text = pickedAddr.apartmentName;
+    firstName =  pickedAddr.firstName;
+    lastName =  pickedAddr.lastName;
+    countryID = pickedAddr.countryID;
+    zoneID =  pickedAddr.zoneID;
+    if(pickedAddr.addressType == 13) {
+      selectedAddressType = new AddressType(13, "House");
+    }else if(pickedAddr.addressType == 14){
+      selectedAddressType = new AddressType(14, "Apartment");
+      showApartment = true;
+    }else{
+      loadAddressType = false;
+      updateUser = true;
+    }
+
+
     setState(() {
       _selectedAddress = addressID;
+      _address2 = pickedAddr.address2;
+      _city = pickedAddr.city;
       _address1 = pickedAddr.address1;
       _zip = pickedAddr.zip;
+      _apartmentName = pickedAddr.apartmentName;
+      selectedAddressType = selectedAddressType;
     });
   }
 
@@ -686,13 +760,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   bool _isFormValid() {
     bool addressValid = _address1 != null && _address1.length > 0;
+    bool addressTypeValid = selectedAddressType!= null;
+    bool _address2Valid = _address2 != null && _address2.length > 0;
+    bool cityValid = _city != null && _city.length >0;
     final nondigitRegExp = new RegExp(r"\D");
     bool zipValid = _zip != null
       && _zip.length == _zip.replaceAll(nondigitRegExp, "").length;
     bool cardValid = _selectedCard != null;
-    return addressValid && zipValid && cardValid;
+    bool _apartmentValid = _apartmentNameValid();
+    return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid;
   }
 
+  bool _apartmentNameValid() {
+    if(selectedAddressType != null) {
+      if (selectedAddressType.id == 14) {
+        return _apartmentName.length > 0;
+      } else if (selectedAddressType.id == 13) {
+        return true;
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final titleStyle = new TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
@@ -735,6 +822,51 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             value: _selectedAddress,
                           ),
                           new Text("- OR -\nEnter New Address", style: titleStyle),
+                          new InputDecorator(
+                            decoration: const InputDecoration(
+                                labelText: 'Address Type'
+                            ),
+                            isEmpty: selectedAddressType == '',
+                            child: new DropdownButtonHideUnderline(
+                              child: new DropdownButton<AddressType>(
+                                value: selectedAddressType,
+                                isDense: true,
+                                onChanged: (AddressType newValue) {
+                                  setState(() {
+                                    loadAddressType = true;
+                                    selectedAddressType = newValue;
+                                    if(selectedAddressType.id == 14){
+                                      showApartment = true;
+                                      debugPrint("$showApartment");
+                                    }else if(selectedAddressType.id == 13){
+                                      showApartment = false;
+                                      _apartmentName="";
+                                    }
+                                  });
+                                },
+                                items: addressType.map((AddressType at) {
+                                  return new DropdownMenuItem<AddressType>(
+                                    value: at,
+                                    child: new Text(
+                                        at.name
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                          showApartment ? new TextField(
+                            controller: _apartmentNameController,
+                            decoration: new InputDecoration(
+                                labelText: 'Apartment Name'
+                            ),
+                            onChanged: (value) => setState(() {
+                              _apartmentName = value;
+                              if(updateUser == false) {
+                                _selectedAddress = null;
+                              }
+                            }),
+                          ): new Container(),
                           new TextField(
                             controller: _addressController,
                             decoration: new InputDecoration(
@@ -742,7 +874,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                             onChanged: (value) => setState(() {
                               _address1 = value;
-                              _selectedAddress = null;
+                              if(updateUser == false) {
+                                _selectedAddress = null;
+                              }
+                            }),
+                          ),
+                          new TextField(
+                            controller: _address2Controller,
+                            decoration: new InputDecoration(
+                                labelText: 'Suite/Apt #'
+                            ),
+                            onChanged: (value) => setState(() {
+                              _address2 = value;
+                              debugPrint("$updateUser");
+                              if(updateUser == false) {
+                                _selectedAddress = null;
+                              }
+                            }),
+                          ),
+                          new TextField(
+                            controller: _cityController,
+                            decoration: new InputDecoration(
+                                labelText: 'City'
+                            ),
+                            onChanged: (value) => setState(() {
+                              _city = value;
+                              if(updateUser == false) {
+                                _selectedAddress = null;
+                              }
                             }),
                           ),
                         ],
@@ -759,7 +918,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             decoration: new InputDecoration(
                               labelText: 'Zip'
                             ),
-                            onChanged: (value) => setState(() => _zip = value),
+                            onChanged: (value) => setState(() {
+                              _zip = value;
+                              if(updateUser == false) {
+                                _selectedAddress = null;
+                              }
+                            })
                           ),
                         ],
                       ),
