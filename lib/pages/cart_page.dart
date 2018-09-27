@@ -28,6 +28,9 @@ class _CartPageState extends State<CartPage> {
   bool _loggedIn = false;
   Timer _timer;
   String _cartError;
+  bool showShippingMsg = false;
+  double buyMoreAmt;
+  double _min_free_shipping_amt;
 
   final _analytics = new FirebaseAnalytics();
 
@@ -36,6 +39,7 @@ class _CartPageState extends State<CartPage> {
     super.initState();
     _tip = 0.0;
     _setup();
+    _getMinShippingAmt();
   }
 
   @override
@@ -194,15 +198,29 @@ class _CartPageState extends State<CartPage> {
     if (_timer == null || !_timer.isActive) {
       ShippingMethod method;
       if (_shippingMethods != null && _shippingMethods.length > 0) {
-        if ((_subtotal() - _tip) > MIN_FREE_SHIPPING) {
+        if ((_subtotal() - _tip) > _min_free_shipping_amt) {
           method =
             _shippingMethods["free.free"] ?? _shippingMethods["flat.flat"];
+          showShippingMsg = false;
         } else {
           method = _shippingMethods["flat.flat"] ?? null;
+          showShippingMsg = true;
+          buyMoreAmt = _min_free_shipping_amt - _subtotal();
         }
       }
       setState(() => _shippingMethod = method);
+      setState(() => showShippingMsg);
+      setState(() => buyMoreAmt);
     }
+  }
+
+  _getMinShippingAmt() {
+    ApiManager.request(
+        OCResources.GET_MIN_SHIPPING_AMT,
+            (json) {
+              setState(() => _min_free_shipping_amt = double.parse(json["min_free_shipping_amnt"]));
+        }
+    );
   }
 
   void _iscouponApplied(){
@@ -268,7 +286,7 @@ class _CartPageState extends State<CartPage> {
                 children: _productList,
               ),
             ),
-            new CartTotalRow(_totals, _tip, updateTip, _shippingMethod, _setup, loggedIn: _loggedIn,)
+            new CartTotalRow(_totals, _tip, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn)
           ],
         ),
       )
@@ -431,6 +449,8 @@ class CartTotalRow extends StatelessWidget {
   final Function() setupCart;
   final ShippingMethod shippingMethod;
   final bool loggedIn;
+  final double buyMoreAmt;
+  bool showShippingMsg;
 
   CartTotalRow(
     this.cartTotals,
@@ -438,7 +458,9 @@ class CartTotalRow extends StatelessWidget {
     this.onChangeTip,
     this.shippingMethod,
     this.setupCart,
+    this.showShippingMsg,
     {
+      this.buyMoreAmt,
       this.loggedIn: false
     }
   );
@@ -525,6 +547,13 @@ class CartTotalRow extends StatelessWidget {
       child: new Column(
         children: <Widget>[
           new Divider(color: Colors.black, height: 0.0,),
+          showShippingMsg ? new Container(
+            padding: new EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+            child:new Row(
+                children: <Widget>[
+              new Text("You are only \$${buyMoreAmt.toStringAsFixed(2)} away from \nfree delivery" ,textAlign: TextAlign.left, style: new TextStyle(fontSize: 15.0,fontWeight: FontWeight.bold,color:Colors.blue ),),
+            ])
+          ): new Container(),
           new Container(
             padding: new EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
             child: new Row(

@@ -27,7 +27,7 @@ const String UGO_PHONE_NUMBER = "205-632-3307";
 
 const String DRIVER_TIP_ID = "860";
 const String DRIVER_TIP_NAME = "UGODRIVERTIP";
-const double MIN_FREE_SHIPPING = 20.0;
+const double MIN_FREE_SHIPPING = 35.0;
 
 final RegExp EMAIL_REGEXP = new RegExp(r"^([a-z0-9_+\.-]+\@[\da-z\.-]+\.[a-z\.]{2,6})$");
 final RegExp PHONE_REGEXP = new RegExp(r"[^0-9.\s\(\)-]");
@@ -80,6 +80,7 @@ abstract class OCResources {
   static const POST_COUPON_DETAILS = "POST::$OPENCART_IDENTIFIER::cart/coupon";
   static const POST_CLEAR_COUPON = "POST::$OPENCART_IDENTIFIER::cart/clear_coupon";
   static const POST_UPDATE_COUPON_DETAILS = "POST::$OPENCART_IDENTIFIER::checkout/coupon_confirm";
+  static const GET_MIN_SHIPPING_AMT = "GET::$OPENCART_IDENTIFIER::cart/get_free_shipping";
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";
