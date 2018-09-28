@@ -198,7 +198,7 @@ class _CartPageState extends State<CartPage> {
     if (_timer == null || !_timer.isActive) {
       ShippingMethod method;
       if (_shippingMethods != null && _shippingMethods.length > 0) {
-        if ((_subtotal() - _tip) > _min_free_shipping_amt) {
+        if ((_subtotal() - _tip) >= _min_free_shipping_amt) {
           method =
             _shippingMethods["free.free"] ?? _shippingMethods["flat.flat"];
           showShippingMsg = false;
