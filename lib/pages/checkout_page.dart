@@ -837,10 +837,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                     selectedAddressType = newValue;
                                     if(selectedAddressType.id == 14){
                                       showApartment = true;
-                                      debugPrint("$showApartment");
                                     }else if(selectedAddressType.id == 13){
                                       showApartment = false;
                                       _apartmentName="";
+                                    }
+                                    if(updateUser == false) {
+                                      _selectedAddress = null;
                                     }
                                   });
                                 },
