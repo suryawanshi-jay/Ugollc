@@ -204,8 +204,8 @@ class _CartPageState extends State<CartPage> {
           showShippingMsg = false;
         } else {
           method = _shippingMethods["flat.flat"] ?? null;
+          buyMoreAmt = _min_free_shipping_amt - (_subtotal() - _tip);
           showShippingMsg = true;
-          buyMoreAmt = _min_free_shipping_amt - _subtotal();
         }
       }
       setState(() => _shippingMethod = method);
