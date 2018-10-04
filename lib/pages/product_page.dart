@@ -23,6 +23,8 @@ class _ProductPageState extends State<ProductPage> {
   int _quantity = 1;
   Cart _cart;
   bool _adding = false;
+  String restrictionMsg;
+  bool showRestrictionMsg = false;
 
   final _analytics = new FirebaseAnalytics();
 
@@ -84,6 +86,8 @@ class _ProductPageState extends State<ProductPage> {
       errorHandler: (error) {
         ApiManager.defaultErrorHandler(error);
         setState(() => _adding = false);
+        setState(() => restrictionMsg = error['errors'][0]['message']);
+        setState(() => showRestrictionMsg =true);
       },
       context: context
     );
@@ -184,6 +188,19 @@ class _ProductPageState extends State<ProductPage> {
     list.add(_quantityRow());
 
     if (_product.stockStatus > 0) {
+      showRestrictionMsg ? list.add(new Row(
+        children: <Widget>[
+          new Padding(padding: new EdgeInsets.symmetric(horizontal: 0.0, vertical: 4.0)),
+          new Text(
+            restrictionMsg,
+            textAlign: TextAlign.left,
+            style: new TextStyle(
+                fontSize: 12.0,
+                color:Colors.red
+            ),
+          ),
+        ],
+      )):list.add(new Container());
       list.add(new Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
