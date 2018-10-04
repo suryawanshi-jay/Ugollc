@@ -208,9 +208,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           PreferenceNames.USER_EMAIL: account["email"],
           PreferenceNames.USER_TELEPHONE: account["telephone"],
           //PreferenceNames.USER_FAX: account["fax"],
-          PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][0]['value'],
-          PreferenceNames.USER_GENDER:  account['custom_fields'][1]['value'],
-          PreferenceNames.USER_PROFILE:  account['custom_fields'][2]['value'],
+          PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][1]['value'],
+          PreferenceNames.USER_GENDER:  account['custom_fields'][2]['value'],
+          PreferenceNames.USER_PROFILE:  account['custom_fields'][3]['value'],
         };
         PrefsManager.setStringGroup(prefGroup);
         Navigator.pop(context);
