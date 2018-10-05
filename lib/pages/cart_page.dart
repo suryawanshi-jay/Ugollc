@@ -31,6 +31,8 @@ class _CartPageState extends State<CartPage> {
   bool showShippingMsg = false;
   double buyMoreAmt;
   double _min_free_shipping_amt;
+  bool showRestrictMsg =false;
+  String restrictMsg;
 
   final _analytics = new FirebaseAnalytics();
 
@@ -244,8 +246,11 @@ class _CartPageState extends State<CartPage> {
           }
         },
         errorHandler: (error) {
-          ApiManager.defaultErrorHandler(error, context: context);
-        }
+          ApiManager.defaultErrorHandler(error);
+          setState(() => showRestrictMsg = true);
+          setState(() => restrictMsg = error['errors'][0]['message']);
+        },
+        context: context
     );
   }
 
@@ -273,6 +278,7 @@ class _CartPageState extends State<CartPage> {
       ));
     }
 
+
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Cart"),
@@ -286,7 +292,17 @@ class _CartPageState extends State<CartPage> {
                 children: _productList,
               ),
             ),
-            new CartTotalRow(_totals, _tip, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn)
+        showRestrictMsg ?
+        new SizedBox(width: 300.0,height: 400.0, child :
+            new  Text(
+              restrictMsg,
+              style: new TextStyle(
+                  fontSize: 30.0,
+                  color:Colors.red
+              ),
+              textAlign: TextAlign.center,
+        )):new Container(),
+            new CartTotalRow(_totals, _tip, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn, showRestrictMsg : showRestrictMsg)
           ],
         ),
       )
@@ -451,6 +467,7 @@ class CartTotalRow extends StatelessWidget {
   final bool loggedIn;
   final double buyMoreAmt;
   bool showShippingMsg;
+  bool showRestrictMsg;
 
   CartTotalRow(
     this.cartTotals,
@@ -461,7 +478,8 @@ class CartTotalRow extends StatelessWidget {
     this.showShippingMsg,
     {
       this.buyMoreAmt,
-      this.loggedIn: false
+      this.loggedIn: false,
+      this.showRestrictMsg
     }
   );
 
@@ -543,7 +561,7 @@ class CartTotalRow extends StatelessWidget {
       tipIcon = Icons.sentiment_satisfied;
     }
 
-    return new Container(
+    return showRestrictMsg ? new Container() : new Container(
       child: new Column(
         children: <Widget>[
           new Divider(color: Colors.black, height: 0.0,),

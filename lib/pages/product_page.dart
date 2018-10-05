@@ -190,7 +190,7 @@ class _ProductPageState extends State<ProductPage> {
     if (_product.stockStatus > 0) {
       showRestrictionMsg ? list.add(new Row(
         children: <Widget>[
-          new Padding(padding: new EdgeInsets.symmetric(horizontal: 0.0, vertical: 4.0)),
+          new SizedBox(width: 300.0, height:50.0, child :
           new Text(
             restrictionMsg,
             textAlign: TextAlign.left,
@@ -198,7 +198,7 @@ class _ProductPageState extends State<ProductPage> {
                 fontSize: 12.0,
                 color:Colors.red
             ),
-          ),
+          )),
         ],
       )):list.add(new Container());
       list.add(new Row(
