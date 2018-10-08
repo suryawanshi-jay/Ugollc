@@ -196,8 +196,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final params = {
         "firstname": firstName,
         "lastname" : lastName,
-        "custom_field[5]":selectedAddressType.id.toString(),
-        "custom_field[6]":_apartmentName,
+        "custom_field[6]":selectedAddressType.id.toString(),
+        "custom_field[7]":_apartmentName,
         "address_1": _address1,
         "address_2": _address2,
         "city": _city,
@@ -285,8 +285,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         final ocAddr = {
           "firstname": prefs.getString(PreferenceNames.USER_FIRST_NAME),
           "lastname": prefs.getString(PreferenceNames.USER_LAST_NAME),
-          "custom_field[5]":selectedAddressType.id.toString(),
-          "custom_field[6]":_apartmentName,
+          "custom_field[6]":selectedAddressType.id.toString(),
+          "custom_field[7]":_apartmentName,
           "address_1": _address1,
           "address_2" : _address2,
           "city": _city,

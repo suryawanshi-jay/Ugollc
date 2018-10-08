@@ -35,7 +35,7 @@ class Address {
     isoCode2 = json["iso_code_2"];
     isoCode3 = json["iso_code_3"];
     addressFormat = json["address_format"];
-    addressType = json["custom_field"]["5"];
-    apartmentName = json["custom_field"]["6"];
+    addressType = json["custom_field"]["6"];
+    apartmentName = json["custom_field"]["7"];
   }
 }
