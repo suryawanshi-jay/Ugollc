@@ -33,9 +33,9 @@ class _LoginPageState extends State<LoginPage> {
           "email": account["email"],
           "telephone": account["telephone"],
           "fax":account["fax"],
-          "custom_field[account][4]" : account['custom_fields'][1]['value'],
-          "custom_field[account][2]" : account['custom_fields'][2]['value'],
-          "custom_field[account][3]" : account['custom_fields'][3]['value']
+          "custom_field[account][4]" : account['custom_fields'][0]['value'],
+          "custom_field[account][2]" : account['custom_fields'][1]['value'],
+          "custom_field[account][3]" : account['custom_fields'][2]['value']
         };
 
         final List customFields = account["custom_fields"];

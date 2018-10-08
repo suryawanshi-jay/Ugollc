@@ -124,8 +124,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "custom_field[account][3]":optedProfile,
         "custom_field[account][4]":  _dob.text.toString(),
         "company": STRIPE_STANDIN,
-        "custom_field[address][5]":optedAddressType,
-        "custom_field[address][6]": apartmentName,
+        "custom_field[address][6]":optedAddressType,
+        "custom_field[address][7]": apartmentName,
         "address_1": _address1,
         "address_2": _address2,
         "city": _city,
@@ -428,6 +428,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             showApartment = true;
                           } else if (selectedAddressType.id == 13) {
                             showApartment = false;
+                            apartmentName = "";
                           }
                         }
                       });

@@ -208,9 +208,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           PreferenceNames.USER_EMAIL: account["email"],
           PreferenceNames.USER_TELEPHONE: account["telephone"],
           //PreferenceNames.USER_FAX: account["fax"],
-          PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][1]['value'],
-          PreferenceNames.USER_GENDER:  account['custom_fields'][2]['value'],
-          PreferenceNames.USER_PROFILE:  account['custom_fields'][3]['value'],
+          PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][0]['value'],
+          PreferenceNames.USER_GENDER:  account['custom_fields'][1]['value'],
+          PreferenceNames.USER_PROFILE:  account['custom_fields'][2]['value'],
         };
         PrefsManager.setStringGroup(prefGroup);
         Navigator.pop(context);
@@ -228,8 +228,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     final params = {
       "firstname":_accountInfo["firstName"],
       "lastname" : _accountInfo["lastName"],
-      "custom_field[5]":optedAddressType,
-      "custom_field[6]":_accountAddress["apartmentName"],
+      "custom_field[6]":optedAddressType,
+      "custom_field[7]":_accountAddress["apartmentName"],
       "address_1": _accountAddress["address_1"],
       "address_2": _accountAddress["address_2"],
       "city": _accountAddress["city"],
@@ -302,8 +302,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           final address = json['addresses'];
           setState(() => _accountAddress = {
             "address_id" : address[0]['address_id'],
-            "addressType" :address[0]['custom_field']['5'],
-            "apartmentName" : address[0]['custom_field']['6'],
+            "addressType" :address[0]['custom_field']['6'],
+            "apartmentName" : address[0]['custom_field']['7'],
             "address_1": address[0]['address_1'],
             "address_2": address[0]['address_2'],
             "postcode": address[0]['postcode'],
@@ -314,15 +314,15 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             "country":address[0]['country'],
           });
 
-          apartmentNamecntrl.text = address[0]['custom_field']['6'];
+          apartmentNamecntrl.text = address[0]['custom_field']['7'];
           streetAddresscntrl.text =  address[0]['address_1'];
           suitecntrl.text = address[0]['address_2'];
           citycntrl.text = address[0]['city'];
           postcodecntrl.text = address[0]['postcode'];
 
-          if(_accountAddress['addressType']  == 13){
+          if(_accountAddress['addressType'] == '13'){
             selectedAddressType = new AddressType(13, "House");
-          }else if(_accountAddress['addressType']  == 14){
+          }else if(_accountAddress['addressType'] =='14'){
             selectedAddressType = new AddressType(14, "Apartment");
             showApartment = true;
           }else{
