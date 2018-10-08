@@ -320,9 +320,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           citycntrl.text = address[0]['city'];
           postcodecntrl.text = address[0]['postcode'];
 
-          if(_accountAddress['addressType'] == '13'){
+          if(_accountAddress['addressType'] == 13){
             selectedAddressType = new AddressType(13, "House");
-          }else if(_accountAddress['addressType'] =='14'){
+          }else if(_accountAddress['addressType'] ==14){
             selectedAddressType = new AddressType(14, "Apartment");
             showApartment = true;
           }else{
