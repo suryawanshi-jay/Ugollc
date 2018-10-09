@@ -195,6 +195,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
           new Zone.fromJSON(zone)).toList();
           setState(() => zone = zones);
           setState(() => _zoneLoading = false);
+          setState(() => loadZone = true);
+
         }
       },
       params: {
@@ -533,7 +535,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     isDense: true,
                     onChanged: (Zone newValue) {
                       setState(() {
-                        loadZone = true;
                         _selectedZone = newValue;
                       });
                     },

@@ -586,13 +586,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   List<DropdownMenuItem> _addressList() {
     var addrList = [new DropdownMenuItem(child: new Text("Select Address"))];
     _addresses.forEach((Address addr) {
-      if (addr.address1 != "NAA" && addr.company != STRIPE_STANDIN) {
+      //if (addr.address1 != "NAA" && addr.company != STRIPE_STANDIN) {
         var addr1 = addr.address1.length > 16 ? addr.address1.substring(0, 16) : addr.address1;
         addrList.add(new DropdownMenuItem(
           child: new Text("${addr1}, ${addr.zip}"),
           value: addr.id,
         ));
-      }
+      //}
     });
     return addrList;
   }
