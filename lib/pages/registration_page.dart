@@ -83,7 +83,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void _submitRegistration(BuildContext context) {
     optedGender = (loadGender == true) ? selectedGender.id.toString() : '';
     optedProfile = (loadProfile == true) ? selectedProfile.id.toString() : '';
-    optedCountry = (loadCountry == true) ? _selectedCountry.id.toString() : '';
+    optedCountry = '223';
     optedZone = (loadZone == true) ? _selectedZone.id.toString() : '';
     optedAddressType = (loadAddressType == true) ? selectedAddressType.id.toString() : '';
     setState(() => _loading = true);
@@ -185,7 +185,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   _getZones() {
-    var countryId = (_selectedCountry == null) ? 244 : _selectedCountry.id ;
+    //var countryId = (_selectedCountry == null) ? 223 : _selectedCountry.id ;
+    var countryId =223;
     ApiManager.request(
       OCResources.POST_ZONE,
           (json) {
@@ -239,6 +240,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
+  bool _address2Valid() {
+    if(selectedAddressType.id == 14) {
+      return _address2.length >0;
+    }else if(selectedAddressType.id == 13)
+    {
+      return true;
+    }
+  }
+
   bool isValidDob(String dob) {
     return dob.isNotEmpty;
   }
@@ -255,12 +265,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
       && _address1.length >0
       && _postCode.length > 3
       && _city.length > 0
-      && _selectedCountry != null
+      //&& _selectedCountry != null
       && _selectedZone !=  null
       && selectedGender != null
       && selectedProfile != null
       && selectedAddressType != null
-      && _address2 .length >0
+      && _address2Valid()
       && _apartmentNameValid()
       && isValidDob(_dob.text);
 
@@ -431,6 +441,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           } else if (selectedAddressType.id == 13) {
                             showApartment = false;
                             apartmentName = "";
+                            _address2 = "";
                           }
                         }
                       });
@@ -466,7 +477,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
-              new TextField(
+              showApartment ? new TextField(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.home),
                     labelText: 'Suite/Apt #'
@@ -475,7 +486,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   setState(() => _address2 = value);
                 },
                 autocorrect: false,
-              ),
+              ): new Container(),
               new TextField(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.location_city),
@@ -486,47 +497,37 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 },
                 autocorrect: false,
               ),
-              new TextField(
-                decoration: const InputDecoration(
-                    prefixIcon: const Icon(Icons.dialpad),
-                    labelText: 'Post Code'
-                ),
-                onChanged: (value) {
-                  setState(() => _postCode = value);
-                },
-                autocorrect: false,
-              ),
-              new InputDecorator(
-                decoration: const InputDecoration(
-                    prefixIcon: const Icon(Icons.flag),
-                    labelText: 'Country'
-                ),
-                isEmpty: _selectedCountry == '',
-                child: new DropdownButtonHideUnderline(
-                  child: new DropdownButton<Country>(
-                    value: _selectedCountry,
-                    isDense: true,
-                    onChanged: (Country newValue) {
-                      setState(() {
-                        loadCountry = true;
-                        _selectedCountry = newValue;
-                        _zoneLoading = true;
-                        _getZones();
-                      });
-                    },
-                    items: country.map((Country country) {
-                      return new DropdownMenuItem<Country>(
-                        value: country,
-                        child: new SizedBox(width: 200.0, child: new Text(country.name)),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
+              //new InputDecorator(
+              //  decoration: const InputDecoration(
+              //      prefixIcon: const Icon(Icons.flag),
+              //      labelText: 'Country'
+              //  ),
+              //  isEmpty: _selectedCountry == '',
+              //  child: new DropdownButtonHideUnderline(
+              //    child: new DropdownButton<Country>(
+              //      value: _selectedCountry,
+              //      isDense: true,
+              //      onChanged: (Country newValue) {
+              //        setState(() {
+              //          loadCountry = true;
+              //          _selectedCountry = newValue;
+              //          _zoneLoading = true;
+              //          _getZones();
+              //        });
+              //      },
+              //      items: country.map((Country country) {
+              //        return new DropdownMenuItem<Country>(
+              //          value: country,
+              //          child: new SizedBox(width: 200.0, child: new Text(country.name)),
+              //        );
+              //      }).toList(),
+              //    ),
+              //  ),
+              //),
               new InputDecorator(
                 decoration: const InputDecoration(
                     prefixIcon: const Icon(Icons.local_florist),
-                    labelText: 'Zone'
+                    labelText: 'State'
                 ),
                 isEmpty: _selectedZone == '',
                 child: new DropdownButtonHideUnderline(
@@ -546,6 +547,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     })?.toList() ?? [],
                   ),
                 ),
+              ),
+              new TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: const Icon(Icons.dialpad),
+                    labelText: 'Zip Code'
+                ),
+                onChanged: (value) {
+                  setState(() => _postCode = value);
+                },
+                autocorrect: false,
               ),
               new TextField(
                 decoration: const InputDecoration(

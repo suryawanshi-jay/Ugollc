@@ -445,15 +445,16 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     return false;
   }
   bool _addressformValid() {
-    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null && _accountAddress["address_2"] != null) {
+    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null ) {
       return _accountAddress['address_1'].length >0
           && _accountAddress['city'].length >0
           && _accountAddress['postcode'].length >0
-          && _selectedCountry != null
+          //&& _selectedCountry != null
           && _selectedZone !=  null
           && selectedAddressType != null
-          && _accountAddress['address_2'].length >0
-          && _apartmentNameValid();
+          //&& _accountAddress['address_2'].length >0
+          && _apartmentNameValid()
+          && _address2Valid();
     }
     return false;
   }
@@ -465,6 +466,14 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       {
         return true;
       }
+  }
+  bool _address2Valid() {
+    if(selectedAddressType.id == 14) {
+      return _accountAddress['address2'].length >0;
+    }else if(selectedAddressType.id == 13)
+    {
+      return true;
+    }
   }
 
   bool isValidDob() {
@@ -678,6 +687,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     }else if(selectedAddressType.id == 13){
                       showApartment = false;
                       _accountAddress["apartmentName"]="";
+                      _accountAddress["address_2"]="";
                     }
                   });
                 },
@@ -706,13 +716,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               controller: streetAddresscntrl,
               onChanged: (value) => setState(() => _accountAddress["address_1"] = value)
           ),
-          new TextField(
+          showApartment ? new TextField(
               decoration: const InputDecoration(
                   labelText: 'Suite/Apt #'
               ),
               controller:suitecntrl,
               onChanged: (value) => setState(() => _accountAddress["address_2"] = value)
-          ),
+          ):new Container(),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'City'
@@ -720,44 +730,37 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               controller: citycntrl,
               onChanged: (value) => setState(() => _accountAddress["city"] = value)
           ),
-          new TextField(
-              decoration: const InputDecoration(
-                  labelText: 'Post Code'
-              ),
-              controller: postcodecntrl,
-              onChanged: (value) => setState(() => _accountAddress["postcode"] = value)
-          ),
-          new InputDecorator(
-            decoration: const InputDecoration(
-                prefixIcon: const Icon(Icons.flag),
-                labelText: 'Country'
-            ),
-            isEmpty: _selectedCountry == '',
-            child: new DropdownButtonHideUnderline(
-              child: new DropdownButton<Country>(
-                value: _selectedCountry,
-                isDense: true,
-                onChanged: (Country newValue) {
-                  setState(() {
-                    loadCountry = true;
-                    _selectedCountry = newValue;
-                    _zoneLoading = true;
-                    _refreshZones();
-                  });
-                },
-                items: country.map((Country country) {
-                  return new DropdownMenuItem<Country>(
-                    value: country,
-                    child: new SizedBox(width: 200.0, child: new Text(country.name))
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
+          //new InputDecorator(
+          //  decoration: const InputDecoration(
+          //      prefixIcon: const Icon(Icons.flag),
+          //      labelText: 'Country'
+          //  ),
+          //  isEmpty: _selectedCountry == '',
+          //  child: new DropdownButtonHideUnderline(
+          //    child: new DropdownButton<Country>(
+          //      value: _selectedCountry,
+          //      isDense: true,
+          //      onChanged: (Country newValue) {
+          //        setState(() {
+          //          loadCountry = true;
+          //          _selectedCountry = newValue;
+          //          _zoneLoading = true;
+          //          _refreshZones();
+          //        });
+          //      },
+          //      items: country.map((Country country) {
+          //        return new DropdownMenuItem<Country>(
+          //          value: country,
+          //          child: new SizedBox(width: 200.0, child: new Text(country.name))
+          //        );
+          //      }).toList(),
+          //    ),
+          //  ),
+          //),
           new InputDecorator(
             decoration: const InputDecoration(
                 prefixIcon: const Icon(Icons.local_florist),
-                labelText: 'Zone'
+                labelText: 'State'
             ),
             isEmpty: _selectedZone == '',
             child: new DropdownButtonHideUnderline(
@@ -778,6 +781,13 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 })?.toList() ?? [],
               ),
             ),
+          ),
+          new TextField(
+              decoration: const InputDecoration(
+                  labelText: 'Zip Code'
+              ),
+              controller: postcodecntrl,
+              onChanged: (value) => setState(() => _accountAddress["postcode"] = value)
           ),
           new Padding(padding: new EdgeInsets.only(top: 10.0),),
           new Row(
