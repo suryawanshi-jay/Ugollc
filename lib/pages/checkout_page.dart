@@ -761,7 +761,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _isFormValid() {
     bool addressValid = _address1 != null && _address1.length > 0;
     bool addressTypeValid = selectedAddressType!= null;
-    bool _address2Valid = _address2 != null && _address2.length > 0;
+    bool _address2Valid = _address2valueValid();
     bool cityValid = _city != null && _city.length >0;
     final nondigitRegExp = new RegExp(r"\D");
     bool zipValid = _zip != null
@@ -780,6 +780,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     }
   }
+
+  bool _address2valueValid() {
+    if(selectedAddressType != null) {
+      if (selectedAddressType.id == 14) {
+        return _address2.length > 0;
+      } else if (selectedAddressType.id == 13) {
+        return true;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleStyle = new TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
@@ -840,6 +851,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                     }else if(selectedAddressType.id == 13){
                                       showApartment = false;
                                       _apartmentName="";
+                                      _address2 ="";
+
                                     }
                                     if(updateUser == false) {
                                       _selectedAddress = null;
@@ -881,7 +894,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               }
                             }),
                           ),
-                          new TextField(
+                          showApartment ? new TextField(
                             controller: _address2Controller,
                             decoration: new InputDecoration(
                                 labelText: 'Suite/Apt #'
@@ -893,7 +906,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 _selectedAddress = null;
                               }
                             }),
-                          ),
+                          ): new Container(),
                           new TextField(
                             controller: _cityController,
                             decoration: new InputDecoration(
@@ -918,7 +931,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             controller: _zipController,
                             keyboardType: TextInputType.number,
                             decoration: new InputDecoration(
-                              labelText: 'Zip'
+                              labelText: 'Zip Code'
                             ),
                             onChanged: (value) => setState(() {
                               _zip = value;
