@@ -338,7 +338,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           _pickPaymentMethod(context);
         },
         params: {
-          "shipping_method": _shippingMethod.id.toString()
+          "shipping_method": (_shippingMethod == null ? 'flat.flat' : _shippingMethod.id.toString())
         },
         errorHandler: (error) {
           setState(() => _orderProcess = 0.0);
@@ -773,7 +773,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _apartmentNameValid() {
     if(selectedAddressType != null) {
       if (selectedAddressType.id == 14) {
-        return _apartmentName.length > 0;
+        if(_apartmentName !=null){
+          return _apartmentName.length > 0;
+        }
       } else if (selectedAddressType.id == 13) {
         return true;
       }
@@ -783,7 +785,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _address2valueValid() {
     if(selectedAddressType != null) {
       if (selectedAddressType.id == 14) {
-        return _address2.length > 0;
+        if(_address2 !=null) {
+          return _address2.length > 0;
+        }
       } else if (selectedAddressType.id == 13) {
         return true;
       }
