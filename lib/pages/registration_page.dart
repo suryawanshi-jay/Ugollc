@@ -123,7 +123,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "custom_field[account][2]":optedGender,
         "custom_field[account][3]":optedProfile,
         "custom_field[account][4]":  _dob.text.toString(),
-        "company": STRIPE_STANDIN,
+        /*"company": STRIPE_STANDIN,*/
+        "company": '',
         "custom_field[address][6]":optedAddressType,
         "custom_field[address][7]": apartmentName,
         "address_1": _address1,
