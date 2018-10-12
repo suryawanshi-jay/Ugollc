@@ -199,30 +199,30 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     };
 
     ApiManager.request(
-      OCResources.PUT_ACCOUNT,
-      (json) {
-        final account = json["account"];
-        final prefGroup = {
-          PreferenceNames.USER_FIRST_NAME: account["firstname"],
-          PreferenceNames.USER_LAST_NAME: account["lastname"],
-          PreferenceNames.USER_EMAIL: account["email"],
-          PreferenceNames.USER_TELEPHONE: account["telephone"],
-          //PreferenceNames.USER_FAX: account["fax"],
-          PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][0]['value'],
-          PreferenceNames.USER_GENDER:  account['custom_fields'][1]['value'],
-          PreferenceNames.USER_PROFILE:  account['custom_fields'][2]['value'],
-        };
-        PrefsManager.setStringGroup(prefGroup);
-        Navigator.pop(context);
-      },
-      params: params
+        OCResources.PUT_ACCOUNT,
+            (json) {
+          final account = json["account"];
+          final prefGroup = {
+            PreferenceNames.USER_FIRST_NAME: account["firstname"],
+            PreferenceNames.USER_LAST_NAME: account["lastname"],
+            PreferenceNames.USER_EMAIL: account["email"],
+            PreferenceNames.USER_TELEPHONE: account["telephone"],
+            //PreferenceNames.USER_FAX: account["fax"],
+            PreferenceNames.USER_DATE_OF_BIRTH:  account['custom_fields'][0]['value'],
+            PreferenceNames.USER_GENDER:  account['custom_fields'][1]['value'],
+            PreferenceNames.USER_PROFILE:  account['custom_fields'][2]['value'],
+          };
+          PrefsManager.setStringGroup(prefGroup);
+          Navigator.pop(context);
+        },
+        params: params
 
     );
   }
 
 
   _updateAddress(BuildContext context) {
-    optedCountry = (loadCountry == true) ? _selectedCountry.id.toString() : '';
+    optedCountry = '223';
     optedZone = (loadZone == true) ? _selectedZone.id.toString() : '';
     optedAddressType = (loadAddressType == true) ? selectedAddressType.id.toString() : '';
     final params = {
@@ -236,61 +236,61 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       "postcode": _accountAddress["postcode"],
       "country_id": optedCountry,
       "zone_id":optedZone
-  };
-  ApiManager.request(
-      OCResources.PUT_ADDRESS,
-          (json) {
-        final address = json["address"];
-        final prefGroup = {
-          PreferenceNames.USER_ADDRESS_TYPE: address['custom_fields'][0]['value'],
-          PreferenceNames.USER_APARTMENT_NAME: address['custom_fields'][1]['value'],
-          PreferenceNames.USER_ADDRESS1: address["address_1"],
-          PreferenceNames.USER_CITY: address["city"],
-          PreferenceNames.USER_POSTCODE: address["postcode"],
-          PreferenceNames.USER_COUNTRY: address["country_id"],
-          PreferenceNames.USER_ZONE: address["zone_id"]
-        };
-        PrefsManager.setStringGroup(prefGroup);
-        Navigator.pop(context);
-      },
-       params: params,
-       resourceID: _accountAddress['address_id'].toString()
+    };
+    ApiManager.request(
+        OCResources.PUT_ADDRESS,
+            (json) {
+          final address = json["address"];
+          final prefGroup = {
+            PreferenceNames.USER_ADDRESS_TYPE: address['custom_fields'][0]['value'],
+            PreferenceNames.USER_APARTMENT_NAME: address['custom_fields'][1]['value'],
+            PreferenceNames.USER_ADDRESS1: address["address_1"],
+            PreferenceNames.USER_CITY: address["city"],
+            PreferenceNames.USER_POSTCODE: address["postcode"],
+            PreferenceNames.USER_COUNTRY: address["country_id"],
+            PreferenceNames.USER_ZONE: address["zone_id"]
+          };
+          PrefsManager.setStringGroup(prefGroup);
+          Navigator.pop(context);
+        },
+        params: params,
+        resourceID: _accountAddress['address_id'].toString()
     );
   }
 
   _updatePassword(BuildContext context) {
     ApiManager.request(
-      OCResources.POST_PASSWORD,
-      (json) {
-        Scaffold.of(context).showSnackBar(
-          new SnackBar(
-            content: new Text("Password Updated!", style: new TextStyle(fontSize: 18.0),),
-            backgroundColor: UgoGreen,
-          )
-        );
-      },
-      params: {
-        "password": _accountInfo["password"],
-        "confirm": _accountInfo["confirm"]
-      }
+        OCResources.POST_PASSWORD,
+            (json) {
+          Scaffold.of(context).showSnackBar(
+              new SnackBar(
+                content: new Text("Password Updated!", style: new TextStyle(fontSize: 18.0),),
+                backgroundColor: UgoGreen,
+              )
+          );
+        },
+        params: {
+          "password": _accountInfo["password"],
+          "confirm": _accountInfo["confirm"]
+        }
     );
   }
 
   _logout(BuildContext context) {
     ApiManager.request(
-      OCResources.LOGOUT,
-      (json) {
-        _refreshToken(context);
-        PrefsManager.clearPref(PreferenceNames.USER_FIRST_NAME);
-        PrefsManager.clearPref(PreferenceNames.USER_LAST_NAME);
-        PrefsManager.clearPref(PreferenceNames.USER_EMAIL);
-        PrefsManager.clearPref(PreferenceNames.USER_TELEPHONE);
-        //PrefsManager.clearPref(PreferenceNames.USER_FAX);
-        PrefsManager.clearPref(PreferenceNames.USER_DATE_OF_BIRTH);
-        PrefsManager.clearPref(PreferenceNames.USER_GENDER);
-        PrefsManager.clearPref(PreferenceNames.USER_PROFILE);
-        PrefsManager.clearPref(PreferenceNames.USER_STRIPE_ID);
-      }
+        OCResources.LOGOUT,
+            (json) {
+          _refreshToken(context);
+          PrefsManager.clearPref(PreferenceNames.USER_FIRST_NAME);
+          PrefsManager.clearPref(PreferenceNames.USER_LAST_NAME);
+          PrefsManager.clearPref(PreferenceNames.USER_EMAIL);
+          PrefsManager.clearPref(PreferenceNames.USER_TELEPHONE);
+          //PrefsManager.clearPref(PreferenceNames.USER_FAX);
+          PrefsManager.clearPref(PreferenceNames.USER_DATE_OF_BIRTH);
+          PrefsManager.clearPref(PreferenceNames.USER_GENDER);
+          PrefsManager.clearPref(PreferenceNames.USER_PROFILE);
+          PrefsManager.clearPref(PreferenceNames.USER_STRIPE_ID);
+        }
     );
   }
 
@@ -402,7 +402,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   _refreshToken(BuildContext context) {
     ApiManager.request(
       OCResources.POST_TOKEN,
-      (json) async {
+          (json) async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove(PreferenceNames.USER_TOKEN);
         prefs.setString(PreferenceNames.USER_TOKEN, json["access_token"]);
@@ -419,7 +419,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     if (phone != null) {
       final phoneLengthValid = phone.replaceAll(PHONE_LENGTH_REGEXP, "").length > 9;
       return phone.length == phone.replaceAll(PHONE_REGEXP, "").length
-        && phoneLengthValid;
+          && phoneLengthValid;
     }
     return false;
   }
@@ -445,16 +445,15 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     return false;
   }
   bool _addressformValid() {
-    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null ) {
+    if(_accountAddress["address_1"] != null && _accountAddress["city"] != null && _accountAddress["postcode"] != null && _accountAddress["address_2"] != null) {
       return _accountAddress['address_1'].length >0
           && _accountAddress['city'].length >0
           && _accountAddress['postcode'].length >0
           //&& _selectedCountry != null
           && _selectedZone !=  null
           && selectedAddressType != null
-          //&& _accountAddress['address_2'].length >0
-          && _apartmentNameValid()
-          && _address2Valid();
+          && _address2Valid()
+          && _apartmentNameValid();
     }
     return false;
   }
@@ -463,13 +462,14 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     if(selectedAddressType.id == 14) {
       return _accountAddress['apartmentName'].length >0;
     }else if(selectedAddressType.id == 13)
-      {
-        return true;
-      }
+    {
+      return true;
+    }
   }
-  bool _address2Valid() {
+
+  bool _address2Valid(){
     if(selectedAddressType.id == 14) {
-      return _accountAddress['address2'].length >0;
+      return _accountAddress['address_2'].length >0;
     }else if(selectedAddressType.id == 13)
     {
       return true;
@@ -482,10 +482,10 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   }
 
   bool _passwordUpdateValid() =>
-    _accountInfo["password"] != null
-    && _accountInfo["confirm"] != null
-    && _accountInfo["password"] == _accountInfo["confirm"]
-      && _accountInfo["password"].length > 0;
+      _accountInfo["password"] != null
+          && _accountInfo["confirm"] != null
+          && _accountInfo["password"] == _accountInfo["confirm"]
+          && _accountInfo["password"].length > 0;
 
   _view(BuildContext context) {
     var passwordText = _passwordUpdateValid() ? "Update Password" : "Passwords do not match";
@@ -498,33 +498,33 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       child: new ListView(
         children: <Widget>[
           new TextField(
-            decoration: const InputDecoration(
-              labelText: 'First Name'
-            ),
-            //controller: new TextEditingController(text: _accountInfo["firstName"]),
+              decoration: const InputDecoration(
+                  labelText: 'First Name'
+              ),
+              //controller: new TextEditingController(text: _accountInfo["firstName"]),
               controller: firstNamecntrl,
-            onChanged: (value) => setState(() => _accountInfo["firstName"] = value)
+              onChanged: (value) => setState(() => _accountInfo["firstName"] = value)
           ),
           new TextField(
-            decoration: const InputDecoration(
-              labelText: 'Last Name'
-            ),
-            controller: lastNamecntrl,
-            onChanged: (value) => setState(() => _accountInfo["lastName"] = value)
+              decoration: const InputDecoration(
+                  labelText: 'Last Name'
+              ),
+              controller: lastNamecntrl,
+              onChanged: (value) => setState(() => _accountInfo["lastName"] = value)
           ),
           new TextField(
-            decoration: const InputDecoration(
-              labelText: 'Email'
-            ),
-            controller: emailcntrl,
-            onChanged: (value) => setState(() => _accountInfo["email"] = value)
+              decoration: const InputDecoration(
+                  labelText: 'Email'
+              ),
+              controller: emailcntrl,
+              onChanged: (value) => setState(() => _accountInfo["email"] = value)
           ),
           new TextField(
-            decoration: const InputDecoration(
-              labelText: 'Phone'
-            ),
-            controller: telephonecntrl,
-            onChanged: (value) => setState(() => _accountInfo["phone"] = value)
+              decoration: const InputDecoration(
+                  labelText: 'Phone'
+              ),
+              controller: telephonecntrl,
+              onChanged: (value) => setState(() => _accountInfo["phone"] = value)
           ),
           //new TextField(
           //    decoration: const InputDecoration(
@@ -610,41 +610,41 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
             children: <Widget>[
               new Expanded(
                 child: new RaisedButton(
-                  color: UgoGreen,
-                  onPressed: _formValid()
-                    ? () => _updateAccount(context)
-                    : null,
-                  child: new Text(
-                    _formValid()
-                    ? "Update Account"
-                    : "Enter Info to Update",
-                    style: new TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.white
-                    ),
-                  )
+                    color: UgoGreen,
+                    onPressed: _formValid()
+                        ? () => _updateAccount(context)
+                        : null,
+                    child: new Text(
+                      _formValid()
+                          ? "Update Account"
+                          : "Enter Info to Update",
+                      style: new TextStyle(
+                          fontSize: 18.0,
+                          color: Colors.white
+                      ),
+                    )
                 ),
               ),
             ],
           ),
 //          new Padding(padding: new EdgeInsets.only(top: 10.0),),
           new TextField(
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'New Password',
-            ),
-            controller: passwordcntrl,
-            onChanged: (value) {
-              setState(() => _accountInfo["password"] = value);
-            }
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'New Password',
+              ),
+              controller: passwordcntrl,
+              onChanged: (value) {
+                setState(() => _accountInfo["password"] = value);
+              }
           ),
           new TextField(
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Confirm Password',
-            ),
-            controller: cnfpasswordcntrl,
-            onChanged: (value) => setState(() => _accountInfo["confirm"] = value)
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Confirm Password',
+              ),
+              controller: cnfpasswordcntrl,
+              onChanged: (value) => setState(() => _accountInfo["confirm"] = value)
           ),
           new Padding(
             padding: const EdgeInsets.only(top: 10.0),
@@ -652,17 +652,17 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               children: <Widget>[
                 new Expanded(
                   child: new RaisedButton(
-                    color: UgoGreen,
-                    onPressed: _passwordUpdateValid()
-                      ? () => _updatePassword(context)
-                      : null,
-                    child: new Text(
-                      passwordText,
-                      style: new TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.white
-                      ),
-                    )
+                      color: UgoGreen,
+                      onPressed: _passwordUpdateValid()
+                          ? () => _updatePassword(context)
+                          : null,
+                      child: new Text(
+                        passwordText,
+                        style: new TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.white
+                        ),
+                      )
                   ),
                 ),
               ],
@@ -687,7 +687,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                     }else if(selectedAddressType.id == 13){
                       showApartment = false;
                       _accountAddress["apartmentName"]="";
-                      _accountAddress["address_2"]="";
+                      _accountAddress["address_2"]= "";
+
                     }
                   });
                 },
@@ -722,7 +723,7 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
               ),
               controller:suitecntrl,
               onChanged: (value) => setState(() => _accountAddress["address_2"] = value)
-          ):new Container(),
+          ): new Container(),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'City'
@@ -750,11 +751,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           //      },
           //      items: country.map((Country country) {
           //        return new DropdownMenuItem<Country>(
-          //          value: country,
-          //          child: new SizedBox(width: 200.0, child: new Text(country.name))
+          //            value: country,
+          //            child: new SizedBox(width: 200.0, child: new Text(country.name))
           //        );
           //      }).toList(),
-          //    ),
+          //   ),
           //  ),
           //),
           new InputDecorator(
@@ -775,8 +776,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
                 },
                 items: zone?.map((Zone zone) {
                   return new DropdownMenuItem<Zone>(
-                    value: zone,
-                    child: new SizedBox(width: 200.0, child: new Text(zone.name))
+                      value: zone,
+                      child: new SizedBox(width: 200.0, child: new Text(zone.name))
                   );
                 })?.toList() ?? [],
               ),
@@ -819,55 +820,55 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Account"),
-        actions: <Widget>[
-          new GestureDetector(
-            onTap: () => _logout(context),
-            child: new Container(
-              margin: new EdgeInsets.all(10.0),
-              padding: new EdgeInsets.symmetric(horizontal: 15.0),
-              decoration: new BoxDecoration(
-                color: Colors.red,
-                borderRadius: new BorderRadius.all(const Radius.circular(20.0)),
-                border: new Border.all(color: Colors.white, width: 3.0)
-              ),
-              child: new Row(
-                children: <Widget>[
-                  new Text(
-                    "Logout",
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold
+        appBar: new AppBar(
+          title: new Text("Account"),
+          actions: <Widget>[
+            new GestureDetector(
+              onTap: () => _logout(context),
+              child: new Container(
+                margin: new EdgeInsets.all(10.0),
+                padding: new EdgeInsets.symmetric(horizontal: 15.0),
+                decoration: new BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: new BorderRadius.all(const Radius.circular(20.0)),
+                    border: new Border.all(color: Colors.white, width: 3.0)
+                ),
+                child: new Row(
+                  children: <Widget>[
+                    new Text(
+                      "Logout",
+                      style: const TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-        bottom: new TabBar(
-          controller: _tabController,
-          tabs: [
-            new Tab(icon: new Icon(Icons.account_circle), text: "Details",),
-            new Tab(icon: new Icon(Icons.credit_card), text: "Cards"),
-            new Tab(icon: new Icon(Icons.shopping_cart), text: "History"),
           ],
-        ),
-      ),
-      body: new Builder(
-        builder: (BuildContext context) {
-          return new TabBarView(
-            children: [
-              _view(context),
-              new CardManagementPage(),
-              new OrderHistoryPage()
-            ],
+          bottom: new TabBar(
             controller: _tabController,
-          );
-        }, //child:
-      )
+            tabs: [
+              new Tab(icon: new Icon(Icons.account_circle), text: "Details",),
+              new Tab(icon: new Icon(Icons.credit_card), text: "Cards"),
+              new Tab(icon: new Icon(Icons.shopping_cart), text: "History"),
+            ],
+          ),
+        ),
+        body: new Builder(
+          builder: (BuildContext context) {
+            return new TabBarView(
+              children: [
+                _view(context),
+                new CardManagementPage(),
+                new OrderHistoryPage()
+              ],
+              controller: _tabController,
+            );
+          }, //child:
+        )
     );
   }
 }
