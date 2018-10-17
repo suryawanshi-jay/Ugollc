@@ -10,6 +10,7 @@ import 'package:ugo_flutter/pages/login_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
+import 'package:ugo_flutter/pages/guest_msg_page.dart';
 
 class CartPage extends StatefulWidget {
   final Function(dynamic) updateCart;
@@ -537,10 +538,12 @@ class CartTotalRow extends StatelessWidget {
   Widget build(BuildContext context) {
     String checkoutText;
     Widget checkoutRoute;
+    String guestCheckoutText = "Checkout as Guest User";;
+    Widget guestCheckoutRoute = new GuestMsgPage(cartTotals, shippingMethod);
 
     if (loggedIn) {
       checkoutText = "Proceed to Checkout";
-      checkoutRoute = new CheckoutPage(cartTotals, shippingMethod);
+      checkoutRoute = new CheckoutPage(cartTotals, shippingMethod,false);
     } else {
       checkoutText = "Log In to Checkout";
       checkoutRoute = new LoginPage();
@@ -627,6 +630,27 @@ class CartTotalRow extends StatelessWidget {
                     color: UgoGreen,
                     child: new Text(checkoutText, style: new TextStyle(fontSize: 18.0, color: Colors.white)),
                   )
+                )
+              ],
+            )
+          ),
+          loggedIn ? new Container() : new Container(
+            padding: new EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                    child: new RaisedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (BuildContext context) => guestCheckoutRoute
+                            )
+                        ).then((value) => setupCart());
+                      },
+                      color: UgoGreen,
+                      child: new Text(guestCheckoutText, style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                    )
                 )
               ],
             )

@@ -19,8 +19,9 @@ import 'package:ugo_flutter/models/addressType.dart';
 class CheckoutPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
   final ShippingMethod shippingMethod;
+  final bool guestUser;
 
-  CheckoutPage(this.cartTotals, this.shippingMethod);
+  CheckoutPage(this.cartTotals, this.shippingMethod,this.guestUser);
 
   @override
   _CheckoutPageState createState() => new _CheckoutPageState();

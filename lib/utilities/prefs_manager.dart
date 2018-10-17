@@ -12,6 +12,16 @@ class PrefsManager {
     }
   }
 
+   static Future<int> getInt(String pref) async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     try {
+       return prefs.getInt(pref);
+     } catch (exc) {
+       return null;
+     }
+   }
+
+
   static setStringGroup(Map<String, String> group) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     group.forEach((String pref, value) {

@@ -69,6 +69,7 @@ abstract class OCResources {
   static const DELETE_CART_PRODUCT = "DELETE::$OPENCART_IDENTIFIER::cart/product/{id}";
 
   static const POST_PAYMENT_ADDRESS = "POST::$OPENCART_IDENTIFIER::checkout/payment_address";
+  static const POST_GUEST_SHIPPING_ADDRESS = "POST::$OPENCART_IDENTIFIER::checkout/guest_shipping";
   static const POST_SHIPPING_ADDRESS = "POST::$OPENCART_IDENTIFIER::checkout/shipping_address";
   static const GET_SHIPPING_METHODS = "GET::$OPENCART_IDENTIFIER::checkout/shipping_method";
   static const POST_SHIPPING_METHOD = "POST::$OPENCART_IDENTIFIER::checkout/shipping_method";
@@ -133,10 +134,29 @@ abstract class PreferenceNames {
   static const USER_POSTCODE =  "${API_HOST}_userPostCode";
   static const USER_COUNTRY =  "${API_HOST}_userCountry";
   static const USER_ZONE =  "${API_HOST}_userZone";
+  static const USER_COUNTRY_ID = "${API_HOST}_userCountryId";
+  static const USER_ZONE_ID = "${API_HOST}_userZoneId";
+  static const USER_ADDRESS_TYPE_ID = "${API_HOST}_userAddressTypeId";
   static const USER_STRIPE_ID = "${API_HOST}_userStripeID";
   static const STRIPE_IDEM_KEY = "stripeIdempotencyKey";
   static const STRIPE_IDEM_KEY_EXPIRE = "stripeIdempotencyKeyExpire";
   static const STRIPE_IDEM_KEY_PRICE = "stripeIdempotencyKeyPrice";
+  static const GUEST_USER = "guestUser";
+  static const GUEST_USER_FIRST_NAME = "${API_HOST}_guestUserFirstName";
+  static const GUEST_USER_LAST_NAME = "${API_HOST}_guestUserLastName";
+  static const GUEST_USER_EMAIL = "${API_HOST}_guestUseruserEmail";
+  static const GUEST_USER_TELEPHONE = "${API_HOST}_guestUserTelephone";
+  static const GUEST_USER_DATE_OF_BIRTH = "${API_HOST}_guestUserDateOfBirth";
+  static const GUEST_USER_GENDER = "${API_HOST}_guestUserGender";
+  static const GUEST_USER_PROFILE = "${API_HOST}_guestUserProfile";
+  static const GUEST_USER_APARTMENT_NAME = "${API_HOST}_guestUserAddressName";
+  static const GUEST_USER_ADDRESS1 = "${API_HOST}_guestUserAddress1";
+  static const GUEST_USER_ADDRESS2 = "${API_HOST}_guestUserAddress2";
+  static const GUEST_USER_CITY = "${API_HOST}_guestUserCity";
+  static const GUEST_USER_POSTCODE =  "${API_HOST}_guestUserPostCode";
+  static const GUEST_USER_COUNTRY_ID = "${API_HOST}_guestUserCountryId";
+  static const GUEST_USER_ZONE_ID = "${API_HOST}_guestUserZoneId";
+  static const GUEST_USER_ADDRESS_TYPE_ID = "${API_HOST}_guestUserAddressTypeId";
 }
 
 final Map<String, dynamic> standinAddress = {
