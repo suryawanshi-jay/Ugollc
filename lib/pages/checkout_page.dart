@@ -14,6 +14,7 @@ import 'package:ugo_flutter/pages/order_confirm_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/models/addressType.dart';
+import 'package:ugo_flutter/utilities/prefs_manager.dart';
 
 
 class CheckoutPage extends StatefulWidget {
@@ -65,8 +66,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _apartmentName;
   String firstName;
   String lastName;
+  String email;
+  String telephone;
+  String dob;
+  String gender;
+  String profile;
   int countryID;
   int zoneID;
+  int addressTypeID;
+
 
   TextEditingController _addressController = new TextEditingController();
   TextEditingController _zipController = new TextEditingController();
@@ -78,10 +86,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
+  bool _guestUser;
+  String _firstname;
+  String _lastname;
+  String _email;
+  String _telephone;
+  String _dob;
+  String _gender;
+  String _profile;
 
   BuildContext _navContext;
 
   String _userComment;
+
 
   final _analytics = new FirebaseAnalytics();
 
@@ -90,12 +107,61 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.initState();
     _totals = widget.cartTotals;
     _shippingMethod = widget.shippingMethod;
+    _guestUser = widget.guestUser;
     _cardLoading = true;
     _addressLoading = true;
     _isButtonDisabled = false;
-    _logCheckout();
-    _getCards();
-    _getAddresses();
+    if(_guestUser == false){
+      _logCheckout();
+      _getCards();
+      _getAddresses();
+    }else{
+      _getGuestInfo();
+    }
+
+  }
+
+  _getGuestInfo() async {
+    _firstname = await PrefsManager.getString(PreferenceNames.GUEST_USER_FIRST_NAME);
+    _lastname = await PrefsManager.getString(PreferenceNames.GUEST_USER_LAST_NAME);
+    _email = await PrefsManager.getString(PreferenceNames.GUEST_USER_EMAIL);
+    _telephone = await PrefsManager.getString(PreferenceNames.GUEST_USER_TELEPHONE);
+    _dob = await PrefsManager.getString(PreferenceNames.GUEST_USER_DATE_OF_BIRTH);
+    _gender = await PrefsManager.getString(PreferenceNames.GUEST_USER_GENDER);
+    _profile = await PrefsManager.getString(PreferenceNames.GUEST_USER_PROFILE);
+    _addressController.text = await PrefsManager.getString(PreferenceNames.GUEST_USER_ADDRESS1);
+    _zipController.text =await PrefsManager.getString(PreferenceNames.GUEST_USER_POSTCODE);
+    _cityController.text = await PrefsManager.getString(PreferenceNames.GUEST_USER_CITY);
+    _address2Controller.text = await PrefsManager.getString(PreferenceNames.GUEST_USER_ADDRESS2);
+    _apartmentNameController.text = await PrefsManager.getString(PreferenceNames.GUEST_USER_APARTMENT_NAME);
+    zoneID =  await PrefsManager.getInt(PreferenceNames.GUEST_USER_ZONE_ID);
+    countryID = await PrefsManager.getInt(PreferenceNames.GUEST_USER_COUNTRY_ID);
+    addressTypeID = await PrefsManager.getInt(PreferenceNames.GUEST_USER_ADDRESS_TYPE_ID);
+    if(addressTypeID == 13) {
+      selectedAddressType = new AddressType(13, "House");
+    }else if(addressTypeID == 14){
+      selectedAddressType = new AddressType(14, "Apartment");
+      showApartment = true;
+    }else{
+      loadAddressType = false;
+      updateUser = true;
+    }
+    setState((){
+      _selectedAddress = null;
+      _address2 =  _address2Controller.text;
+      _city = _cityController.text;
+      _address1 = _addressController.text;
+      _zip = _zipController.text;
+      _apartmentName = _apartmentNameController.text;
+      selectedAddressType = selectedAddressType;
+      firstName = _firstname;
+      lastName = _lastname;
+      email = _email;
+      profile = _profile;
+      dob = _dob;
+      gender = _gender;
+      telephone = _telephone;
+    });
   }
 
   _logCheckout() async {
@@ -109,11 +175,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (stripe_email != null && stripe_email != "") {
       ApiManager.request(
         StripeResources.ADD_CUSTOMER,
-        (json) {
+            (json) {
           prefs.setString(PreferenceNames.USER_STRIPE_ID, json["id"]);
           final sources = json["sources"];
           final stripeCards = sources["data"].map((source) =>
-            new PaymentCard.fromJSON(source));
+          new PaymentCard.fromJSON(source));
           setState(() => _cards = stripeCards.toList());
           setState(() => _cardLoading = false);
         },
@@ -123,29 +189,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
       );
     }
   }
-  
+
   _getAddresses() {
     ApiManager.request(
-      OCResources.GET_ADDRESSES,
-      (json) {
-        final addrs = json["addresses"].map((addr) =>
+        OCResources.GET_ADDRESSES,
+            (json) {
+          final addrs = json["addresses"].map((addr) =>
           new Address.fromJSON(addr)).toList();
-        setState(() => _addresses = addrs);
-        setState(() => _addressLoading = false);
-      }
+          setState(() => _addresses = addrs);
+          setState(() => _addressLoading = false);
+        }
     );
   }
 
   // API SUBMIT METHODS
   // FIGURE OUT BAILOUT SAFETY NET WHEN ANY OF THESE FAILS
-  
+
   _placeOrder(BuildContext context) {
-//    _geocodeNewAddress();
-//    return;
     setState(() => _orderProcess = 0.0);
     setState(() => _ordering = true);
-    _submitPaymentAddress(context);
+    if(_guestUser == true){
+      _submitGuestPaymentAddress(context);
+    }else {
+      _submitPaymentAddress(context);
+    }
   }
+
+  //SUBMIT GUEST PAYMENT ADDRESS
+  _submitGuestPaymentAddress(BuildContext context) {
+    setState(() => _orderProcess = 0.1);
+    var params;
+    params = standinAddress;
+    params["payment_address"] = "new";
+    ApiManager.request(
+        OCResources.POST_PAYMENT_ADDRESS,
+            (json) {
+          _submitGuestShippingAddress(context);
+        },
+        params: params,
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
+    );
+
+  }
+
 
   // POST BILLING ADDRESS (STANDIN)
   _submitPaymentAddress(BuildContext context) {
@@ -166,16 +256,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     // TODO add handling of null addrID (logout/login?), indicates no default payment address
     ApiManager.request(
-      OCResources.POST_PAYMENT_ADDRESS,
-      (json) {
-        _submitShippingAddress(context);
-      },
-      params: params,
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
+        OCResources.POST_PAYMENT_ADDRESS,
+            (json) {
+          _submitShippingAddress(context);
+        },
+        params: params,
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
     );
   }
 
@@ -186,6 +276,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     } else {
       _geocodeNewAddress(context);
     }
+  }
+
+
+  _submitGuestShippingAddress(BuildContext context) {
+    _geocodeNewAddress(context);
   }
 
   _submitExistingShippingAddress(BuildContext context) {
@@ -217,33 +312,49 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }//Update existing user end
 
     ApiManager.request(
-      OCResources.POST_SHIPPING_ADDRESS,
-      (json) {
-        _submitShippingMethod(context);
-      },
+        OCResources.POST_SHIPPING_ADDRESS,
+            (json) {
+          _submitShippingMethod(context);
+        },
 
-      params: { "shipping_address": "existing", "address_id": _selectedAddress.toString()},
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
+        params: { "shipping_address": "existing", "address_id": _selectedAddress.toString()},
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
     );
   }
 
   _submitNewShippingAddress(Map params, BuildContext context) {
     setState(() => _orderProcess = 0.3);
     ApiManager.request(
-      OCResources.POST_SHIPPING_ADDRESS,
-      (json) {
-        _submitShippingMethod(context);
-      },
-      params: params,
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
+        OCResources.POST_SHIPPING_ADDRESS,
+            (json) {
+          _submitShippingMethod(context);
+        },
+        params: params,
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
+    );
+  }
+
+  _submitGuestNewShippingAddress(Map params, BuildContext context) {
+    setState(() => _orderProcess = 0.3);
+    ApiManager.request(
+        OCResources.POST_GUEST_SHIPPING_ADDRESS,
+            (json) {
+          _submitShippingMethod(context);
+        },
+        params: params,
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
     );
   }
 
@@ -251,59 +362,76 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _orderProcess = 0.2);
     final addrString = "$_address1, $_zip".replaceAll(" ", "+");
     ApiManager.request(
-      GoogleResources.GET_COORDS,
-      (json) async {
-        final location = json["results"].first["geometry"]["location"];
-        final double lat = location["lat"];
-        final double lon = location["lng"];
-        final addressPoint = new Point(lat, lon);
+        GoogleResources.GET_COORDS,
+            (json) async {
+          final location = json["results"].first["geometry"]["location"];
+          final double lat = location["lat"];
+          final double lon = location["lng"];
+          final addressPoint = new Point(lat, lon);
 
-        if (_deliveryDistance(addressPoint) > UGO_DELIVERY_RADIUS) {
+          if (_deliveryDistance(addressPoint) > UGO_DELIVERY_RADIUS) {
+            setState(() => _orderProcess = 0.0);
+            setState(() => _ordering = false);
+            ApiManager.defaultErrorHandler(
+                {},
+                context: context,
+                message: "Your address appears to be outside our delivery area. "
+                    "If you would like to continue, "
+                    "please enter another address and try again.",
+                analyticsInfo: "Coordinates: $lat, $lon",
+                delay: 5000
+            );
+            return;
+          }
+
+          var addressComponents = {};
+          final List componentList = json["results"].first["address_components"];
+          componentList.forEach((comp) {
+            final type = comp["types"].first;
+            addressComponents[type] = comp["short_name"];
+          });
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+
+          if(_guestUser == true){
+            prefs.getString(PreferenceNames.GUEST_USER_FIRST_NAME);
+            final ocAddr = {
+              "firstname": prefs.getString(PreferenceNames.GUEST_USER_FIRST_NAME),
+              "lastname": prefs.getString(PreferenceNames.GUEST_USER_LAST_NAME),
+              "custom_field[6]":'13',
+              "custom_field[7]":_apartmentName,
+              "address_1": _address1,
+              "address_2" : _address2,
+              "city": _city,
+              "postcode": _zip,
+              "country_id": countryID.toString(),
+              "zone_id": zoneID.toString(),
+              "shipping_address": "new"
+            };
+            _submitGuestNewShippingAddress(ocAddr, context);
+          }else {
+            prefs.getString(PreferenceNames.USER_FIRST_NAME);
+            final ocAddr = {
+              "firstname": prefs.getString(PreferenceNames.USER_FIRST_NAME),
+              "lastname": prefs.getString(PreferenceNames.USER_LAST_NAME),
+              "custom_field[6]": selectedAddressType.id.toString(),
+              "custom_field[7]": _apartmentName,
+              "address_1": _address1,
+              "address_2": _address2,
+              "city": _city,
+              "postcode": _zip,
+              "country_id": countryID.toString(),
+              "zone_id": zoneID.toString(),
+              "shipping_address": "new"
+            };
+            _submitNewShippingAddress(ocAddr, context);
+          }
+        },
+        resourceID: addrString,
+        errorHandler: (error) {
           setState(() => _orderProcess = 0.0);
           setState(() => _ordering = false);
-          ApiManager.defaultErrorHandler(
-            {},
-            context: context,
-            message: "Your address appears to be outside our delivery area. "
-              "If you would like to continue, "
-              "please enter another address and try again.",
-            analyticsInfo: "Coordinates: $lat, $lon",
-            delay: 5000
-          );
-          return;
+          ApiManager.defaultErrorHandler(error, context: context);
         }
-
-        var addressComponents = {};
-        final List componentList = json["results"].first["address_components"];
-        componentList.forEach((comp) {
-          final type = comp["types"].first;
-          addressComponents[type] = comp["short_name"];
-        });
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.getString(PreferenceNames.USER_FIRST_NAME);
-
-        final ocAddr = {
-          "firstname": prefs.getString(PreferenceNames.USER_FIRST_NAME),
-          "lastname": prefs.getString(PreferenceNames.USER_LAST_NAME),
-          "custom_field[6]":selectedAddressType.id.toString(),
-          "custom_field[7]":_apartmentName,
-          "address_1": _address1,
-          "address_2" : _address2,
-          "city": _city,
-          "postcode": _zip,
-          "country_id": countryID.toString(),
-          "zone_id": zoneID.toString(),
-          "shipping_address": "new"
-        };
-
-        _submitNewShippingAddress(ocAddr, context);
-      },
-      resourceID: addrString,
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
     );
   }
 
@@ -334,18 +462,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _orderProcess = 0.4);
     ApiManager.request(OCResources.GET_SHIPPING_METHODS, (json) {
       ApiManager.request(
-        OCResources.POST_SHIPPING_METHOD,
-          (json) {
-          _pickPaymentMethod(context);
-        },
-        params: {
-          "shipping_method": (_shippingMethod == null ? 'flat.flat' : _shippingMethod.id.toString())
-        },
-        errorHandler: (error) {
-          setState(() => _orderProcess = 0.0);
-          setState(() => _ordering = false);
-          ApiManager.defaultErrorHandler(error, context: context);
-        }
+          OCResources.POST_SHIPPING_METHOD,
+              (json) {
+            _pickPaymentMethod(context);
+          },
+          params: {
+            "shipping_method": (_shippingMethod == null ? 'flat.flat' : _shippingMethod.id.toString())
+          },
+          errorHandler: (error) {
+            setState(() => _orderProcess = 0.0);
+            setState(() => _ordering = false);
+            ApiManager.defaultErrorHandler(error, context: context);
+          }
       );
     });
   }
@@ -354,21 +482,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
   _pickPaymentMethod(BuildContext context) {
     setState(() => _orderProcess = 0.5);
     ApiManager.request(
-      OCResources.GET_PAYMENT_METHOD,
-      (json) {
-        if (_selectedCard == "cod") {
-          // post payment
-          _submitPayment("cod", "Cash on Delivery", context);
-        } else if (_selectedCard != null) {
-          // post stripe transaction
-          _submitStripePayment(context);
+        OCResources.GET_PAYMENT_METHOD,
+            (json) {
+          if (_selectedCard == "cod") {
+            // post payment
+            _submitPayment("cod", "Cash on Delivery", context);
+          } else if (_selectedCard != null) {
+            // post stripe transaction
+            _submitStripePayment(context);
+          }
+        },
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
         }
-      },
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
     );
   }
 
@@ -389,11 +517,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final price = prefs.getInt(PreferenceNames.STRIPE_IDEM_KEY_PRICE);
 
       if (expire == null
-        || expire == 0
-        || price == null
-        || price == 0
-        || now.millisecondsSinceEpoch > expire
-        || price != total
+          || expire == 0
+          || price == null
+          || price == 0
+          || now.millisecondsSinceEpoch > expire
+          || price != total
       ) {
         regenerateKey = true;
       }
@@ -409,28 +537,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     ApiManager.request(
-      StripeResources.POST_CHARGE,
-      (json) {
-        if (json["paid"] == true) {
-          final id = json["id"];
-          _submitPayment("stripe", "Stripe Transaction ID: $id", context);
+        StripeResources.POST_CHARGE,
+            (json) {
+          if (json["paid"] == true) {
+            final id = json["id"];
+            _submitPayment("stripe", "Stripe Transaction ID: $id", context);
+          }
+        },
+        params: {
+          "customer_id": customerID,
+          "card_id": _selectedCard,
+          "amount": total,
+          "order_number": "${now.year}_${now.month}_${now.day}",
+          "idem_key": idemKey
+        },
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(error, context: context);
         }
-      },
-      params: {
-      "customer_id": customerID,
-      "card_id": _selectedCard,
-      "amount": total,
-      "order_number": "${now.year}_${now.month}_${now.day}",
-      "idem_key": idemKey
-      },
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
     );
   }
-  
+
   int _cartTotalForStripe() {
     final CartTotal total = _totals.where((total) => total.title == "Total").first;
     final String cleanTotal = total.text.replaceAll(PRICE_REGEXP, "");
@@ -459,27 +587,61 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     ApiManager.request(
-      OCResources.POST_PAYMENT_METHOD,
-      (json) {
-        _confirmOrder(context);
-      },
+        OCResources.POST_PAYMENT_METHOD,
+            (json) {
+            _confirmOrder(context);
+        },
+        params: {
+          "payment_method": method,
+          "comment": commentText
+        },
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(
+              error,
+              context: context,
+              message: "We're sorry, something happened with your order that's preventing it from completing. "
+                  "Please try again. "
+                  "If you've seen this message multiple times, "
+                  "please call us so we can make sure your order gets handled properly.",
+              delay: 5000
+          );
+        }
+    );
+  }
+
+  // GET ORDER COMPLETE FOR GUEST ORDER
+  _completeGuestOrder(orderId) {
+    setState(() => _orderProcess = 0.10);
+    ApiManager.request(
+        OCResources.POST_GUEST_CONFIRM,
+            (json){
+        },
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(
+              error,
+              context: context,
+              message: "We're sorry, something happened with your order that's preventing it from completing. "
+                  "Please try again. "
+                  "If you've seen this message multiple times, "
+                  "please call us so we can make sure your order gets handled properly.",
+              delay: 5000
+          );
+        },
       params: {
-        "payment_method": method,
-        "comment": commentText
+        "guest": "1",
+        "firstname": firstName,
+        "lastname": lastName,
+        "email" : email,
+        "telephone": telephone,
+        "custom_field[account][2]" : gender.toString(),
+        "custom_field[account][3]" : profile.toString(),
+        "custom_field[account][4]" : dob,
+        "order_id" : orderId.toString()
       },
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(
-          error,
-          context: context,
-          message: "We're sorry, something happened with your order that's preventing it from completing. "
-            "Please try again. "
-            "If you've seen this message multiple times, "
-            "please call us so we can make sure your order gets handled properly.",
-          delay: 5000
-        );
-      }
     );
   }
 
@@ -487,26 +649,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
   _confirmOrder(BuildContext context) {
     setState(() => _orderProcess = 0.8);
     ApiManager.request(
-      OCResources.GET_CONFIRM,
-       // (json) => _orderPaid(context),
-       (json){
-         _orderPaid(context);
-         var orderId = json["order_id"];
-         updateCouponInfo(orderId);
-       },
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(
-          error,
-          context: context,
-          message: "We're sorry, something happened with your order that's preventing it from completing. "
-            "Please try again. "
-            "If you've seen this message multiple times, "
-            "please call us so we can make sure your order gets handled properly.",
-          delay: 5000
-        );
-      }
+        OCResources.GET_CONFIRM,
+        // (json) => _orderPaid(context),
+            (json){
+          _orderPaid(context);
+          var orderId = json["order_id"];
+
+          if(_guestUser == true){
+           _completeGuestOrder(orderId);
+          }
+          updateCouponInfo(orderId);
+        },
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(
+              error,
+              context: context,
+              message: "We're sorry, something happened with your order that's preventing it from completing. "
+                  "Please try again. "
+                  "If you've seen this message multiple times, "
+                  "please call us so we can make sure your order gets handled properly.",
+              delay: 5000
+          );
+        }
     );
   }
 
@@ -514,21 +680,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
   _orderPaid(BuildContext context) {
     setState(() => _orderProcess = 0.9);
     ApiManager.request(
-      OCResources.GET_PAY,
-        (json) => _orderSuccess(context),
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(
-          error,
-          context: context,
-          message: "We're sorry, something happened with your order that's preventing it from completing. "
-            "Please try again. "
-            "If you've seen this message multiple times, "
-            "please call us so we can make sure your order gets handled properly.",
-          delay: 5000
-        );
-      }
+        OCResources.GET_PAY,
+            (json) => _orderSuccess(context),
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(
+              error,
+              context: context,
+              message: "We're sorry, something happened with your order that's preventing it from completing. "
+                  "Please try again. "
+                  "If you've seen this message multiple times, "
+                  "please call us so we can make sure your order gets handled properly.",
+              delay: 5000
+          );
+        }
     );
   }
 
@@ -544,23 +710,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
       prefs.remove(PreferenceNames.STRIPE_IDEM_KEY_PRICE);
 
       Navigator.push(_navContext,
-        new MaterialPageRoute(
-          builder: (BuildContext context) => new OrderConfirmPage())
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new OrderConfirmPage())
       );
     },
-      errorHandler: (error) {
-        setState(() => _orderProcess = 0.0);
-        setState(() => _ordering = false);
-        ApiManager.defaultErrorHandler(
-          error,
-          context: context,
-          message: "We're sorry, something happened with your order that's preventing it from completing. "
-            "Please try again. "
-            "If you've seen this message multiple times, "
-            "please call us so we can make sure your order gets handled properly.",
-          delay: 5000
-        );
-      }
+        errorHandler: (error) {
+          setState(() => _orderProcess = 0.0);
+          setState(() => _ordering = false);
+          ApiManager.defaultErrorHandler(
+              error,
+              context: context,
+              message: "We're sorry, something happened with your order that's preventing it from completing. "
+                  "Please try again. "
+                  "If you've seen this message multiple times, "
+                  "please call us so we can make sure your order gets handled properly.",
+              delay: 5000
+          );
+        }
     );
   }
 
@@ -572,8 +738,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ];
     _cards.forEach((PaymentCard card) {
       cardList.add(new DropdownMenuItem(
-        child: new Text("${card.brand}  ***${card.last4}"),
-        value: card.id)
+          child: new Text("${card.brand}  ***${card.last4}"),
+          value: card.id)
       );
     });
 
@@ -582,7 +748,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     return cardList;
   }
-  
+
   List<DropdownMenuItem> _addressList() {
     var addrList = [new DropdownMenuItem(child: new Text("Select Address"))];
     _addresses.forEach((Address addr) {
@@ -654,7 +820,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
 
     if(type =="Total" && _isCouponCodeValid){
-        addedAmount = addedAmount -(_couponCodeAmount + _couponTax) ;
+      addedAmount = addedAmount -(_couponCodeAmount + _couponTax) ;
     }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -683,7 +849,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  void _isGuestCouponValid() {
+    if(_guestUser == true){
+      setState(() => couponMessage = "Coupon codes are only available to registered customers");
+    }
+  }
+
   void _isCouponValid() {
+
     var couponCodeValue = _couponCodeController.text;
 
     // Give call coupon code api and get validity and coupon value from it
@@ -724,11 +897,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ApiManager.defaultErrorHandler(error, context: context);
         }
     );
+    if(_guestUser == true){
+      setState(() => couponMessage = "Coupon codes are only available to registered customers");
+    }
+
   }
 
   void updateCouponInfo(lastOrderId){
     if(_isCouponCodeValid){
-    ApiManager.request(
+      ApiManager.request(
           OCResources.POST_UPDATE_COUPON_DETAILS,
               (json) {
           },
@@ -765,7 +942,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     bool cityValid = _city != null && _city.length >0;
     final nondigitRegExp = new RegExp(r"\D");
     bool zipValid = _zip != null
-      && _zip.length == _zip.replaceAll(nondigitRegExp, "").length;
+        && _zip.length == _zip.replaceAll(nondigitRegExp, "").length;
     bool cardValid = _selectedCard != null;
     bool _apartmentValid = _apartmentNameValid();
     return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid;
@@ -799,297 +976,298 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget build(BuildContext context) {
     final titleStyle = new TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
     final shippingCost = _shippingMethod == null
-      ? 0.0
-      : _shippingMethod.cost.toDouble();
+        ? 0.0
+        : _shippingMethod.cost.toDouble();
 
     // get number of cents, rounded, then convert to dollars
     final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
 
     final buttonText = _isFormValid() ? "Place Order" : "Complete Form to Order";
 
-    if (_cardLoading || _addressLoading) {
-      return new LoadingScreen();
+    if(_guestUser == false) {
+      if (_cardLoading || _addressLoading) {
+        return new LoadingScreen();
+      }
     }
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Checkout"),
-      ),
-      body: new GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: new Container(
-          child: new ListView(
-            padding: new EdgeInsets.symmetric(horizontal: 0.0, vertical: 15.0),
-            children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: new Column(
-                  children: <Widget>[
-                    new Container(
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Text("Select Delivery Address", style: titleStyle),
-                          new DropdownButton(
-                            items: _addressList(),
-                            onChanged: (value) => _setAddress(value),
-                            value: _selectedAddress,
-                          ),
-                          new Text("- OR -\nEnter New Address", style: titleStyle),
-                          new InputDecorator(
-                            decoration: const InputDecoration(
-                                labelText: 'Address Type'
-                            ),
-                            isEmpty: selectedAddressType == '',
-                            child: new DropdownButtonHideUnderline(
-                              child: new DropdownButton<AddressType>(
-                                value: selectedAddressType,
-                                isDense: true,
-                                onChanged: (AddressType newValue) {
-                                  setState(() {
-                                    loadAddressType = true;
-                                    selectedAddressType = newValue;
-                                    if(selectedAddressType.id == 14){
-                                      showApartment = true;
-                                    }else if(selectedAddressType.id == 13){
-                                      showApartment = false;
-                                      _apartmentName="";
-                                      _address2 ="";
 
-                                    }
-                                    if(updateUser == false) {
-                                      _selectedAddress = null;
-                                    }
-                                  });
-                                },
-                                items: addressType.map((AddressType at) {
-                                  return new DropdownMenuItem<AddressType>(
-                                    value: at,
-                                    child: new Text(
-                                        at.name
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ),
-                          showApartment ? new TextField(
-                            controller: _apartmentNameController,
-                            decoration: new InputDecoration(
-                                labelText: 'Apartment Name'
-                            ),
-                            onChanged: (value) => setState(() {
-                              _apartmentName = value;
-                              if(updateUser == false) {
-                                _selectedAddress = null;
-                              }
-                            }),
-                          ): new Container(),
-                          new TextField(
-                            controller: _addressController,
-                            decoration: new InputDecoration(
-                              labelText: 'Address'
-                            ),
-                            onChanged: (value) => setState(() {
-                              _address1 = value;
-                              if(updateUser == false) {
-                                _selectedAddress = null;
-                              }
-                            }),
-                          ),
-                          showApartment ? new TextField(
-                            controller: _address2Controller,
-                            decoration: new InputDecoration(
-                                labelText: 'Suite/Apt #'
-                            ),
-                            onChanged: (value) => setState(() {
-                              _address2 = value;
-                              debugPrint("$updateUser");
-                              if(updateUser == false) {
-                                _selectedAddress = null;
-                              }
-                            }),
-                          ): new Container(),
-                          new TextField(
-                            controller: _cityController,
-                            decoration: new InputDecoration(
-                                labelText: 'City'
-                            ),
-                            onChanged: (value) => setState(() {
-                              _city = value;
-                              if(updateUser == false) {
-                                _selectedAddress = null;
-                              }
-                            }),
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Container(
-                      padding: new EdgeInsets.only(bottom: 10.0),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new TextField(
-                            controller: _zipController,
-                            keyboardType: TextInputType.number,
-                            decoration: new InputDecoration(
-                              labelText: 'Zip Code'
-                            ),
-                            onChanged: (value) => setState(() {
-                              _zip = value;
-                              if(updateUser == false) {
-                                _selectedAddress = null;
-                              }
-                            })
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Container(
-                      padding: new EdgeInsets.only(bottom: 20.0),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Text("Payment Method", style: titleStyle),
-                          new Row(
-                            children: [
-                              new DropdownButton(
-                                items: _cardList(),
-                                value: _selectedCard,
-                                onChanged: (value) => setState(() => _selectedCard = value)
-                              ),
-                              new Expanded(
-                                child: new Container()
-                              ),
-                              new RaisedButton(
-                                color: UgoGreen,
-                                onPressed: _ordering 
-                                  ? null 
-                                  : () {
-                                  Navigator.push(context,
-                                    new MaterialPageRoute(
-                                      builder: (BuildContext context) => new AddCardPage())
-                                  ).then((newCard) {
-                                    if (newCard != null && newCard.runtimeType == PaymentCard) {
-                                      var updatedCards = _cards;
-                                      updatedCards.add(newCard);
-                                      setState(() => _cards = updatedCards);
-                                    }
-                                  });
-                                },
-                                child: new Text("Add New Card", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
-                              ),
-                            ]
-                          )
-                        ],
-                      ),
-                    ),
-                    new Container(
-                      padding: new EdgeInsets.only(bottom: 10.0),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Text("Use Coupon Code", style: titleStyle),
-                          new TextField(
-                            controller: _couponCodeController,
-                            decoration: new InputDecoration(
-                                labelText: 'Coupon Code'
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Container(
-                      padding: new EdgeInsets.only(bottom: 10.0),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          new RaisedButton(
-                            color: UgoGreen,
-                            child: new Text('Apply Coupon Code',style: new TextStyle(fontSize: 18.0, color: Colors.white)),
-                            onPressed: _isButtonDisabled ? null : _isCouponValid,
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Container(
-                      padding: new EdgeInsets.only(bottom: 10.0),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          new Text(couponMessage, style: new TextStyle(fontSize: 11.0, color: msgColor)),
-                        ],
-                      ),
-                    ),
-                    new Container(
-                      padding: new EdgeInsets.only(bottom: 20.0),
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: new Text("Additional Comments", style: titleStyle,),
-                          ),
-                          new TextField(
-                            controller: _commentController,
-                            maxLines: 7,
-                            onChanged: (value) => setState(() => _userComment = value),
-                            decoration: new InputDecoration(
-                              hintText: "Add special delivery instructions\nhere, if needed.",
-                              border: new OutlineInputBorder(),
-                              contentPadding: const EdgeInsets.all(8.0)
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-//              new Divider(color: Colors.black, height: 0.0,),
-              new LinearProgressIndicator(value: _orderProcess, backgroundColor: Colors.grey[300],),
-              new Container(
-                padding: new EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                child: new Column(
-                  children: <Widget>[
-                    _totalRow("Cart (Including Tip)", "Sub-Total"),
-                    _totalRow("Low Order Fee", "Low Order Fee"),
-                    _shippingRow(),
-                    _coupounCodeRow(),
-                    _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
-                    _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
-                  ],
-                ),
-              ),
-              new Container(
-                margin: new EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 20.0),
-                child: new Builder(
-                  builder: (BuildContext context) {
-                    return new Row(
-                      children: <Widget>[
-                        new Expanded(
-                          child: new RaisedButton(
-                            onPressed: _isFormValid() && !_ordering ?
-                              () {
-                              setState(() => _navContext = context);
-                              _placeOrder(context);
-                            }
-                              : null,
-                            color: UgoGreen,
-                            child: new Text(buttonText, style: new TextStyle(fontSize: 18.0, color: Colors.white))
-                          )
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text("Checkout"),
         ),
-      )
+        body: new GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: new Container(
+            child: new ListView(
+              padding: new EdgeInsets.symmetric(horizontal: 0.0, vertical: 15.0),
+              children: <Widget>[
+                new Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: new Column(
+                    children: <Widget>[
+                      new Container(
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            _guestUser ? new Container() : new Text("Select Delivery Address", style: titleStyle),
+                            _guestUser ? new Container() : new DropdownButton(
+                              items: _addressList(),
+                              onChanged: (value) => _setAddress(value),
+                              value: _selectedAddress,
+                            ),
+                            _guestUser ? new Text("Your Address", style: titleStyle) : new Text("- OR -\nEnter New Address", style: titleStyle),
+                            new InputDecorator(
+                              decoration: const InputDecoration(
+                                  labelText: 'Address Type'
+                              ),
+                              isEmpty: selectedAddressType == '',
+                              child: new DropdownButtonHideUnderline(
+                                child: new DropdownButton<AddressType>(
+                                  value: selectedAddressType,
+                                  isDense: true,
+                                  onChanged: (AddressType newValue) {
+                                    setState(() {
+                                      loadAddressType = true;
+                                      selectedAddressType = newValue;
+                                      if(selectedAddressType.id == 14){
+                                        showApartment = true;
+                                      }else if(selectedAddressType.id == 13) {
+                                        showApartment = false;
+                                        _apartmentName = "";
+                                        _address2 = "";
+                                      }
+                                      if(_guestUser == false && updateUser == false) {
+                                        _selectedAddress = null;
+                                      }
+                                    });
+                                  },
+                                  items: addressType.map((AddressType at) {
+                                    return new DropdownMenuItem<AddressType>(
+                                      value: at,
+                                      child: new Text(
+                                          at.name
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                            showApartment ? new TextField(
+                              controller: _apartmentNameController,
+                              decoration: new InputDecoration(
+                                  labelText: 'Apartment Name'
+                              ),
+                              onChanged: (value) => setState(() {
+                                _apartmentName = value;
+                                if(_guestUser == false && updateUser == false) {
+                                  _selectedAddress = null;
+                                }
+                              }),
+                            ): new Container(),
+                            new TextField(
+                              controller: _addressController,
+                              decoration: new InputDecoration(
+                                  labelText: 'Address'
+                              ),
+                              onChanged: (value) => setState(() {
+                                _address1 = value;
+                                if(_guestUser == false && updateUser == false) {
+                                  _selectedAddress = null;
+                                }
+                              }),
+                            ),
+                            showApartment ? new TextField(
+                              controller: _address2Controller,
+                              decoration: new InputDecoration(
+                                  labelText: 'Suite/Apt #'
+                              ),
+                              onChanged: (value) => setState(() {
+                                _address2 = value;
+                                if(_guestUser == false && updateUser == false) {
+                                  _selectedAddress = null;
+                                }
+                              }),
+                            ): new Container(),
+                            new TextField(
+                              controller: _cityController,
+                              decoration: new InputDecoration(
+                                  labelText: 'City'
+                              ),
+                              onChanged: (value) => setState(() {
+                                _city = value;
+                                if(_guestUser == false && updateUser == false) {
+                                  _selectedAddress = null;
+                                }
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new TextField(
+                                controller: _zipController,
+                                keyboardType: TextInputType.number,
+                                decoration: new InputDecoration(
+                                    labelText: 'Zip Code'
+                                ),
+                                onChanged: (value) => setState(() {
+                                  _zip = value;
+                                  if(_guestUser == false && updateUser == false) {
+                                    _selectedAddress = null;
+                                  }
+                                })
+                            ),
+                          ],
+                        ),
+                      ),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 20.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Text("Payment Method", style: titleStyle),
+                            new Row(
+                                children: [
+                                  new DropdownButton(
+                                      items: _cardList(),
+                                      value: _selectedCard,
+                                      onChanged: (value) => setState(() => _selectedCard = value)
+                                  ),
+                                  new Expanded(
+                                      child: new Container()
+                                  ),
+                                  new RaisedButton(
+                                    color: UgoGreen,
+                                    onPressed: _ordering
+                                        ? null
+                                        : () {
+                                      Navigator.push(context,
+                                          new MaterialPageRoute(
+                                              builder: (BuildContext context) => new AddCardPage())
+                                      ).then((newCard) {
+                                        if (newCard != null && newCard.runtimeType == PaymentCard) {
+                                          var updatedCards = _cards;
+                                          updatedCards.add(newCard);
+                                          setState(() => _cards = updatedCards);
+                                        }
+                                      });
+                                    },
+                                    child: new Text("Add New Card", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                                  ),
+                                ]
+                            )
+                          ],
+                        ),
+                      ),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Text("Use Coupon Code", style: titleStyle),
+                            new TextField(
+                              controller: _couponCodeController,
+                              decoration: new InputDecoration(
+                                  labelText: 'Coupon Code'
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new RaisedButton(
+                              color: UgoGreen,
+                              child: new Text('Apply Coupon Code',style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                              onPressed: _isButtonDisabled ? null : _guestUser ? _isGuestCouponValid :_isCouponValid,
+                            ),
+                          ],
+                        ),
+                      ),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new Text(couponMessage, style: new TextStyle(fontSize: 11.0, color: msgColor)),
+                          ],
+                        ),
+                      ),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 20.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: new Text("Additional Comments", style: titleStyle,),
+                            ),
+                            new TextField(
+                              controller: _commentController,
+                              maxLines: 7,
+                              onChanged: (value) => setState(() => _userComment = value),
+                              decoration: new InputDecoration(
+                                  hintText: "Add special delivery instructions\nhere, if needed.",
+                                  border: new OutlineInputBorder(),
+                                  contentPadding: const EdgeInsets.all(8.0)
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+//              new Divider(color: Colors.black, height: 0.0,),
+                new LinearProgressIndicator(value: _orderProcess, backgroundColor: Colors.grey[300],),
+                new Container(
+                  padding: new EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  child: new Column(
+                    children: <Widget>[
+                      _totalRow("Cart (Including Tip)", "Sub-Total"),
+                      _totalRow("Low Order Fee", "Low Order Fee"),
+                      _shippingRow(),
+                      _coupounCodeRow(),
+                      _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
+                      _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
+                    ],
+                  ),
+                ),
+                new Container(
+                  margin: new EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 20.0),
+                  child: new Builder(
+                    builder: (BuildContext context) {
+                      return new Row(
+                        children: <Widget>[
+                          new Expanded(
+                              child: new RaisedButton(
+                                  onPressed: _isFormValid() && !_ordering ?
+                                      () {
+                                    setState(() => _navContext = context);
+                                    _placeOrder(context);
+                                  }
+                                      : null,
+                                  color: UgoGreen,
+                                  child: new Text(buttonText, style: new TextStyle(fontSize: 18.0, color: Colors.white))
+                              )
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
     );
   }
 }
@@ -1108,14 +1286,14 @@ class CheckoutTotalRow extends StatelessWidget {
       child: new Column(
         children: <Widget>[
           new Container(
-            margin: new EdgeInsets.fromLTRB(30.0, .0, 30.0, 5.0),
-            child: new Row(
-              children: <Widget>[
-                new Text(title, style: style),
-                new Expanded(child: new Container()),
-                new Text('\$$amount', style: style)
-              ],
-            )
+              margin: new EdgeInsets.fromLTRB(30.0, .0, 30.0, 5.0),
+              child: new Row(
+                children: <Widget>[
+                  new Text(title, style: style),
+                  new Expanded(child: new Container()),
+                  new Text('\$$amount', style: style)
+                ],
+              )
           )
         ],
       ),
