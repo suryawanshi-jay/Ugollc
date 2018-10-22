@@ -511,8 +511,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       margin: new EdgeInsets.all(20.0),
       child: new ListView(
         children: <Widget>[
-          _showGuestCoupon ? new Text("Use coupon $guestRegCoupon to avail 10% off on your new order",style: new TextStyle(fontSize: 18.0, color: Colors.green, fontStyle: FontStyle.italic)
-          ): new Container(),
+          //_showGuestCoupon ? new Text("Use coupon $guestRegCoupon to avail 10% off on your new order",style: new TextStyle(fontSize: 18.0, color: Colors.green, fontStyle: FontStyle.italic)
+          //): new Container(),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'First Name'
