@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ugo_flutter/pages/registration_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
+import 'package:ugo_flutter/utilities/prefs_manager.dart';
 
 class LoginPage extends StatefulWidget {
   final Function() updateCart;
@@ -15,6 +16,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  @override
+  initState() {
+    super.initState();
+    _clearGuest();
+  }
+  _clearGuest(){
+    PrefsManager.clearPref(PreferenceNames.GUEST_REG_COUPON);
+  }
   String _email = "";
   String _password = "";
   bool _loading = false;

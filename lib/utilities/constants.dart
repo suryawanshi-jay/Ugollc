@@ -158,6 +158,7 @@ abstract class PreferenceNames {
   static const GUEST_USER_COUNTRY_ID = "${API_HOST}_guestUserCountryId";
   static const GUEST_USER_ZONE_ID = "${API_HOST}_guestUserZoneId";
   static const GUEST_USER_ADDRESS_TYPE_ID = "${API_HOST}_guestUserAddressTypeId";
+  static const GUEST_REG_COUPON = "${API_HOST}_guestUserRegCoupon";
 }
 
 final Map<String, dynamic> standinAddress = {

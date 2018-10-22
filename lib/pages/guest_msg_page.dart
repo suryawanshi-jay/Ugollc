@@ -5,7 +5,7 @@ import 'package:ugo_flutter/pages/guest_details.dart';
 import 'package:ugo_flutter/models/cart.dart';
 import 'package:ugo_flutter/models/shipping_method.dart';
 import 'package:ugo_flutter/pages/guest_details.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -20,11 +20,31 @@ class GuestMsgPage extends StatefulWidget {
 }
 
 class _GuestMsgPageState extends State<GuestMsgPage> {
+
+  String guestRegCoupon;
+
+  void _regGuestUser(BuildContext context) async{
+    setState(() => guestRegCoupon = "REGISTRATION10");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(PreferenceNames.GUEST_REG_COUPON, guestRegCoupon);
+    _regPage();
+  }
+
+  _regPage(){
+    Widget checkoutRoute = new RegistrationPage();
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => checkoutRoute,
+        )
+    );
+  }
+
+
   final Function() setupCart;
   @override
   Widget build (BuildContext ctxt) {
     String regText = "Register Now";
-    Widget regRoute = new RegistrationPage();
     String guestCheckoutText = "Continue as Guest User";
     Widget guestCheckoutRoute = new GuestDetailsPage(widget.cartTotals, widget.shippingMethod,true);
     return new Scaffold(
@@ -47,14 +67,7 @@ class _GuestMsgPageState extends State<GuestMsgPage> {
                 children: <Widget>[
                   new Expanded(
                     child: new RaisedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            new MaterialPageRoute(
-                                builder: (BuildContext context) => regRoute,
-                            )
-                        );
-                      },
+                      onPressed: ()  => _regGuestUser(context),
                       color: UgoGreen,
                       child: new Text(regText, style: new TextStyle(fontSize: 18.0, color: Colors.white)),
                     )
