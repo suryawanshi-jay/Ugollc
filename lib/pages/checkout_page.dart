@@ -128,7 +128,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   _checkIfGuest() async {
     guestRegCoupon = await PrefsManager.getString(PreferenceNames.GUEST_REG_COUPON);
-    debugPrint('$guestRegCoupon');
     if(guestRegCoupon != null){
       setState(() => _showGuestCoupon = true);
       setState(() => _couponCodeController.text  = guestRegCoupon);
@@ -1187,7 +1186,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             new Text("Use Coupon Code", style: titleStyle),
                             _showGuestCoupon ? new TextField(
                               controller: _couponCodeController,
-                              onChanged: (value) => setState(() => _couponCodeController.text = value),
+                              onChanged: (value) => setState(() => guestRegCoupon = value),
 
                             ): new TextField(
                               controller: _couponCodeController,

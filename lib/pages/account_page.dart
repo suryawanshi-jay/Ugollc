@@ -64,7 +64,6 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
 
   _checkIfGuest() async {
     guestRegCoupon = await PrefsManager.getString(PreferenceNames.GUEST_REG_COUPON);
-    debugPrint('$guestRegCoupon');
     if(guestRegCoupon != null){
       setState(() => _showGuestCoupon = true);
     }
