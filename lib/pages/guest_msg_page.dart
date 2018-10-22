@@ -24,7 +24,7 @@ class _GuestMsgPageState extends State<GuestMsgPage> {
   String guestRegCoupon;
 
   void _regGuestUser(BuildContext context) async{
-    setState(() => guestRegCoupon = "REGISTRATION10");
+    setState(() => guestRegCoupon = "REGISTER10");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(PreferenceNames.GUEST_REG_COUPON, guestRegCoupon);
     _regPage();
@@ -44,7 +44,7 @@ class _GuestMsgPageState extends State<GuestMsgPage> {
   final Function() setupCart;
   @override
   Widget build (BuildContext ctxt) {
-    String regText = "Register Now";
+    String regText = "Get Registered";
     String guestCheckoutText = "Continue as Guest User";
     Widget guestCheckoutRoute = new GuestDetailsPage(widget.cartTotals, widget.shippingMethod,true);
     return new Scaffold(

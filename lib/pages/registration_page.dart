@@ -82,16 +82,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _countryLoading = true;
     _getCountries();
     _getZones();
-    _checkIfGuest();
-  }
-
-
-  _checkIfGuest() async {
-    guestRegCoupon = await PrefsManager.getString(PreferenceNames.GUEST_REG_COUPON);
-    if(guestRegCoupon != null){
-      setState(() => _showGuestCoupon = true);
-    }
-
   }
 
   void _submitRegistration(BuildContext context) {
@@ -309,8 +299,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
         child: new SingleChildScrollView(
           child: new Column(
             children: <Widget>[
-              _showGuestCoupon ? new Text("Register now to and use coupon $guestRegCoupon to avail 10% off on your new order",style: new TextStyle(fontSize: 18.0, color: Colors.green, fontStyle: FontStyle.italic)
-              ): new Container(),
               new TextField(
                 decoration: const InputDecoration(
                   prefixIcon: const Icon(Icons.mail_outline),

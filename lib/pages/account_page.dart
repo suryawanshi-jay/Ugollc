@@ -48,6 +48,9 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
   bool showDob;
   bool blankDob = false;
 
+  String guestRegCoupon;
+  bool _showGuestCoupon = false;
+
   @override
   initState() {
     super.initState();
@@ -55,6 +58,17 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
     _getAccountInfo();
     _getAddresses();
     _getCountries();
+    _checkIfGuest();
+
+  }
+
+  _checkIfGuest() async {
+    guestRegCoupon = await PrefsManager.getString(PreferenceNames.GUEST_REG_COUPON);
+    debugPrint('$guestRegCoupon');
+    if(guestRegCoupon != null){
+      setState(() => _showGuestCoupon = true);
+    }
+
   }
 
   Gender selectedGender;
@@ -497,6 +511,8 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
       margin: new EdgeInsets.all(20.0),
       child: new ListView(
         children: <Widget>[
+          _showGuestCoupon ? new Text("Use coupon $guestRegCoupon to avail 10% off on your new order",style: new TextStyle(fontSize: 18.0, color: Colors.green, fontStyle: FontStyle.italic)
+          ): new Container(),
           new TextField(
               decoration: const InputDecoration(
                   labelText: 'First Name'

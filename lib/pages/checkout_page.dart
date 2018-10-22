@@ -1,7 +1,6 @@
 import 'dart:math';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ugo_flutter/models/address.dart';
@@ -15,6 +14,8 @@ import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/models/addressType.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
+import 'package:flutter/src/widgets/editable_text.dart';
+import 'package:flutter/src/material/text_field.dart';
 
 
 class CheckoutPage extends StatefulWidget {
@@ -94,6 +95,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _dob;
   String _gender;
   String _profile;
+  String guestRegCoupon;
+  bool _showGuestCoupon = false;
 
   BuildContext _navContext;
 
@@ -115,8 +118,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _logCheckout();
       _getCards();
       _getAddresses();
+      _checkIfGuest();
     }else{
       _getGuestInfo();
+
+    }
+
+  }
+
+  _checkIfGuest() async {
+    guestRegCoupon = await PrefsManager.getString(PreferenceNames.GUEST_REG_COUPON);
+    debugPrint('$guestRegCoupon');
+    if(guestRegCoupon != null){
+      setState(() => _showGuestCoupon = true);
+      setState(() => _couponCodeController.text  = guestRegCoupon);
     }
 
   }
@@ -1170,7 +1185,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             new Text("Use Coupon Code", style: titleStyle),
-                            new TextField(
+                            _showGuestCoupon ? new TextField(
+                              controller: _couponCodeController,
+                              onChanged: (value) => setState(() => _couponCodeController.text = value),
+
+                            ): new TextField(
                               controller: _couponCodeController,
                               decoration: new InputDecoration(
                                   labelText: 'Coupon Code'
