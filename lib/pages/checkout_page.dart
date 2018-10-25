@@ -140,9 +140,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _lastname = await PrefsManager.getString(PreferenceNames.GUEST_USER_LAST_NAME);
     _email = await PrefsManager.getString(PreferenceNames.GUEST_USER_EMAIL);
     _telephone = await PrefsManager.getString(PreferenceNames.GUEST_USER_TELEPHONE);
-    _dob = await PrefsManager.getString(PreferenceNames.GUEST_USER_DATE_OF_BIRTH);
-    _gender = await PrefsManager.getString(PreferenceNames.GUEST_USER_GENDER);
-    _profile = await PrefsManager.getString(PreferenceNames.GUEST_USER_PROFILE);
     _addressController.text = await PrefsManager.getString(PreferenceNames.GUEST_USER_ADDRESS1);
     _zipController.text =await PrefsManager.getString(PreferenceNames.GUEST_USER_POSTCODE);
     _cityController.text = await PrefsManager.getString(PreferenceNames.GUEST_USER_CITY);
@@ -171,9 +168,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       firstName = _firstname;
       lastName = _lastname;
       email = _email;
-      profile = _profile;
-      dob = _dob;
-      gender = _gender;
       telephone = _telephone;
     });
   }
@@ -651,9 +645,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
         "lastname": lastName,
         "email" : email,
         "telephone": telephone,
-        "custom_field[account][2]" : gender.toString(),
-        "custom_field[account][3]" : profile.toString(),
-        "custom_field[account][4]" : dob,
+//        "custom_field[account][2]" : gender.toString(),
+//        "custom_field[account][3]" : profile.toString(),
+//        "custom_field[account][4]" : dob,
         "order_id" : orderId.toString()
       },
     );

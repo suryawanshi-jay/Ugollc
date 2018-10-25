@@ -48,18 +48,6 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
   int optedCountry = 223;
 
   bool showApartment = false;
-
-  //Profile
-  Profile selectedProfile;
-  List<Profile> profile = <Profile>[const Profile(8,'Student'), const Profile(9,'Non-Student'), const Profile(10,'Student-Greek'), const Profile(11,'Parent'), const Profile(12,'Faculty')];
-  bool loadProfile = false;
-  String optedProfile = '';
-  // Gender
-  Gender selectedGender;
-  List<Gender> gender = <Gender>[const Gender(5,'Male'), const Gender(6,'Female'), const Gender(7,'Other')];
-  bool loadGender = false;
-  String optedGender = '';
-
   bool _loading = false;
 
   AddressType selectedAddressType;
@@ -81,9 +69,6 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
   }
 
   void _submitGuestDetails(BuildContext context) async {
-    debugPrint("here");
-    optedGender = (loadGender == true) ? selectedGender.id.toString() : '';
-    optedProfile = (loadProfile == true) ? selectedProfile.id.toString() : '';
     optedCountry = 223;
     optedZone = (loadZone == true) ? _selectedZone.id : '';
     optedAddressType = (loadAddressType == true) ? selectedAddressType.id : '';
@@ -101,9 +86,6 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
     prefs.setString(PreferenceNames.GUEST_USER_POSTCODE, _postCode);
     prefs.setInt(PreferenceNames.GUEST_USER_COUNTRY_ID, optedCountry);
     prefs.setInt(PreferenceNames.GUEST_USER_ZONE_ID, optedZone);
-    prefs.setString(PreferenceNames.GUEST_USER_GENDER, optedGender);
-    prefs.setString(PreferenceNames.GUEST_USER_PROFILE, optedProfile);
-    prefs.setString(PreferenceNames.GUEST_USER_DATE_OF_BIRTH, _dob.text.toString());
     prefs.setBool(PreferenceNames.GUEST_USER,true);
     _nextPage();
 
@@ -187,10 +169,6 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
     }
   }
 
-  bool isValidDob(String dob) {
-    return dob.isNotEmpty;
-  }
-
   bool _formValid() =>
       _email.trim().toLowerCase().replaceAll(EMAIL_REGEXP, "").length == 0
           && _email.length > 4
@@ -201,14 +179,10 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
           && _address1.length >0
           && _postCode.length > 3
           && _city.length > 0
-          //&& _selectedCountry != null
           && _selectedZone !=  null
-          && selectedGender != null
-          && selectedProfile != null
           && selectedAddressType != null
           && _address2Valid()
-          && _apartmentNameValid()
-          && isValidDob(_dob.text);
+          && _apartmentNameValid();
 
   String _buttonText() {
     //if (_loading) return "Checking Out...";
@@ -273,78 +247,6 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
                   setState(() => _lastName = value);
                 },
                 autocorrect: false,
-              ),
-              new Row(children: <Widget>[
-                new Expanded(
-                    child: new TextFormField(
-                      decoration: new InputDecoration(
-                        icon: const Icon(Icons.calendar_today),
-                        labelText: 'Date of Birth',
-                      ),
-                      controller: _dob,
-                      keyboardType: TextInputType.datetime,
-                    )),
-                new IconButton(
-                  icon: new Icon(Icons.date_range),
-                  tooltip: 'Choose date',
-                  onPressed: (() {
-                    _chooseDate(context, _dob.text);
-                  }),
-                )
-              ]),
-              new InputDecorator(
-                decoration: const InputDecoration(
-                    prefixIcon: const Icon(Icons.person),
-                    labelText: 'Gender'
-                ),
-                isEmpty: selectedGender == '',
-                child: new DropdownButtonHideUnderline(
-                  child: new DropdownButton<Gender>(
-                    value: selectedGender,
-                    isDense: true,
-                    onChanged: (Gender newValue) {
-                      setState(() {
-                        loadGender = true;
-                        selectedGender = newValue;
-                      });
-                    },
-                    items: gender.map((Gender gen) {
-                      return new DropdownMenuItem<Gender>(
-                        value: gen,
-                        child: new Text(
-                            gen.name
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              new InputDecorator(
-                decoration: const InputDecoration(
-                    prefixIcon: const Icon(Icons.portrait),
-                    labelText: 'Customer Profile'
-                ),
-                isEmpty: selectedProfile == '',
-                child: new DropdownButtonHideUnderline(
-                  child: new DropdownButton<Profile>(
-                    value: selectedProfile,
-                    isDense: true,
-                    onChanged: (Profile newValue) {
-                      setState(() {
-                        loadProfile = true;
-                        selectedProfile = newValue;
-                      });
-                    },
-                    items: profile.map((Profile pro) {
-                      return new DropdownMenuItem<Profile>(
-                        value: pro,
-                        child: new Text(
-                            pro.name
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
               ),
               //new Text("selected user name is ${selectedGender.name} : and Id is : ${selectedGender.id}"),
               new InputDecorator(
