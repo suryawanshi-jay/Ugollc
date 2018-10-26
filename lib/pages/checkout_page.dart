@@ -372,73 +372,96 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ApiManager.request(
         GoogleResources.GET_COORDS,
             (json) async {
-          final location = json["results"].first["geometry"]["location"];
-          final double lat = location["lat"];
-          final double lon = location["lng"];
-          final addressPoint = new Point(lat, lon);
+            if(json['status'] != "ZERO_RESULTS") {
+              final location = json["results"].first["geometry"]["location"];
+              final double lat = location["lat"];
+              final double lon = location["lng"];
+              final addressPoint = new Point(lat, lon);
+              if (_deliveryDistance(addressPoint) > UGO_DELIVERY_RADIUS) {
+                setState(() => _orderProcess = 0.0);
+                setState(() => _ordering = false);
+                ApiManager.defaultErrorHandler(
+                    {},
+                    context: context,
+                    message: "Your address appears to be outside our delivery area. "
+                        "If you would like to continue, "
+                        "please enter another address and try again.",
+                    analyticsInfo: "Coordinates: $lat, $lon",
+                    delay: 5000
+                );
+                return;
+              }
 
-          if (_deliveryDistance(addressPoint) > UGO_DELIVERY_RADIUS) {
-            setState(() => _orderProcess = 0.0);
-            setState(() => _ordering = false);
-            ApiManager.defaultErrorHandler(
-                {},
-                context: context,
-                message: "Your address appears to be outside our delivery area. "
-                    "If you would like to continue, "
-                    "please enter another address and try again.",
-                analyticsInfo: "Coordinates: $lat, $lon",
-                delay: 5000
-            );
-            return;
-          }
+              var addressComponents = {};
+              final List componentList = json["results"]
+                  .first["address_components"];
+              componentList.forEach((comp) {
+                final type = comp["types"].first;
+                addressComponents[type] = comp["short_name"];
+              });
+              SharedPreferences prefs = await SharedPreferences.getInstance();
 
-          var addressComponents = {};
-          final List componentList = json["results"].first["address_components"];
-          componentList.forEach((comp) {
-            final type = comp["types"].first;
-            addressComponents[type] = comp["short_name"];
-          });
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-
-          if(_guestUser == true){
-            prefs.getString(PreferenceNames.GUEST_USER_FIRST_NAME);
-            final ocAddr = {
-              "firstname": prefs.getString(PreferenceNames.GUEST_USER_FIRST_NAME),
-              "lastname": prefs.getString(PreferenceNames.GUEST_USER_LAST_NAME),
-              "custom_field[6]":'13',
-              "custom_field[7]":_apartmentName,
-              "address_1": _address1,
-              "address_2" : _address2,
-              "city": _city,
-              "postcode": _zip,
-              "country_id": countryID.toString(),
-              "zone_id": zoneID.toString(),
-              "shipping_address": "new"
-            };
-            _submitGuestNewShippingAddress(ocAddr, context);
-          }else {
-            prefs.getString(PreferenceNames.USER_FIRST_NAME);
-            final ocAddr = {
-              "firstname": prefs.getString(PreferenceNames.USER_FIRST_NAME),
-              "lastname": prefs.getString(PreferenceNames.USER_LAST_NAME),
-              "custom_field[6]": selectedAddressType.id.toString(),
-              "custom_field[7]": _apartmentName,
-              "address_1": _address1,
-              "address_2": _address2,
-              "city": _city,
-              "postcode": _zip,
-              "country_id": countryID.toString(),
-              "zone_id": zoneID.toString(),
-              "shipping_address": "new"
-            };
-            _submitNewShippingAddress(ocAddr, context);
-          }
+              if (_guestUser == true) {
+                prefs.getString(PreferenceNames.GUEST_USER_FIRST_NAME);
+                final ocAddr = {
+                  "firstname": prefs.getString(
+                      PreferenceNames.GUEST_USER_FIRST_NAME),
+                  "lastname": prefs.getString(
+                      PreferenceNames.GUEST_USER_LAST_NAME),
+                  "custom_field[6]": '13',
+                  "custom_field[7]": _apartmentName,
+                  "address_1": _address1,
+                  "address_2": _address2,
+                  "city": _city,
+                  "postcode": _zip,
+                  "country_id": countryID.toString(),
+                  "zone_id": zoneID.toString(),
+                  "shipping_address": "new"
+                };
+                _submitGuestNewShippingAddress(ocAddr, context);
+              } else {
+                prefs.getString(PreferenceNames.USER_FIRST_NAME);
+                final ocAddr = {
+                  "firstname": prefs.getString(PreferenceNames.USER_FIRST_NAME),
+                  "lastname": prefs.getString(PreferenceNames.USER_LAST_NAME),
+                  "custom_field[6]": selectedAddressType.id.toString(),
+                  "custom_field[7]": _apartmentName,
+                  "address_1": _address1,
+                  "address_2": _address2,
+                  "city": _city,
+                  "postcode": _zip,
+                  "country_id": countryID.toString(),
+                  "zone_id": zoneID.toString(),
+                  "shipping_address": "new"
+                };
+                _submitNewShippingAddress(ocAddr, context);
+              }
+            }else{
+              setState(() => _orderProcess = 0.0);
+              setState(() => _ordering = false);
+              ApiManager.defaultErrorHandler(
+                  {},
+                  context: context,
+                  message: "Your address appears to be outside our delivery area. "
+                      "If you would like to continue, "
+                      "please enter another address and try again.",
+                  delay: 5000
+              );
+              return;
+            }
         },
         resourceID: addrString,
         errorHandler: (error) {
           setState(() => _orderProcess = 0.0);
           setState(() => _ordering = false);
-          ApiManager.defaultErrorHandler(error, context: context);
+          ApiManager.defaultErrorHandler(
+              {},
+              context: context,
+              message: "Your address appears to be outside our delivery area. "
+                  "If you would like to continue, "
+                  "please enter another address and try again.",
+              delay: 5000
+          );
         }
     );
   }
