@@ -517,7 +517,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             (json) {
           if (_selectedCard == "cod") {
             // post payment
-            _submitPayment("cod", "Cash on Delivery", context);
+            _submitPayment("cod", "", context);
           } else if (_selectedCard != null) {
             // post stripe transaction
             _submitStripePayment(context);
@@ -614,7 +614,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _orderProcess = 0.7);
     var commentText = comment;
     if (_userComment != null) {
-      commentText = "$_userComment\n\n$comment";
+      commentText = "$_userComment";
     }
 
     ApiManager.request(
