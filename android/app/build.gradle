@@ -30,8 +30,8 @@ android {
         applicationId "com.ugollc.ugoflutter"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 24
-        versionName "2.0.4"
+        versionCode 27
+        versionName "2.0.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
