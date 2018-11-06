@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
-import 'package:ugo_flutter/pages/your_referral.dart';
+import 'package:ugo_flutter/pages/referral_history_page.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 
 class SendReferralPage extends StatefulWidget {
@@ -62,7 +62,7 @@ class _SendReferralPageState extends State<SendReferralPage> {
   }
 
   _yourReferral(){
-    Widget referralRoute = new YourReferralPage();
+    Widget referralRoute = new ReferralHistoryPage();
     Navigator.push(
       context,
       new MaterialPageRoute(

@@ -24,6 +24,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   Cart _cart;
   double _tip;
+  double _credits;
   Map<String, ShippingMethod> _shippingMethods = {};
   ShippingMethod _shippingMethod;
   bool _loggedIn = false;
@@ -34,6 +35,8 @@ class _CartPageState extends State<CartPage> {
   double _min_free_shipping_amt;
   bool showRestrictMsg =false;
   String restrictMsg;
+  String _userEmail ="";
+
 
   final _analytics = new FirebaseAnalytics();
 
@@ -41,8 +44,12 @@ class _CartPageState extends State<CartPage> {
   initState() {
     super.initState();
     _tip = 0.0;
+    _credits = 0.0;
     _setup();
     _getMinShippingAmt();
+    _getUserEmail();
+
+
   }
 
   @override
@@ -59,6 +66,26 @@ class _CartPageState extends State<CartPage> {
     _iscouponApplied();
     //_getShippingMethods();
     //_getCart();
+  }
+
+  _getUserEmail() async{
+    _userEmail = await PrefsManager.getString(PreferenceNames.USER_EMAIL);
+    setState(() => _userEmail = _userEmail);
+    _getCredits();
+  }
+
+  _getCredits() {
+    ApiManager.request(
+      OCResources.POST_STORE_CREDIT,
+          (json) {
+        if(json["credit"] != "null") {
+          setState(() => _credits = double.parse(json['credit']));
+        }
+      },
+      params: {
+        "customer_email" : _userEmail
+      },
+    );
   }
 
   _getCart() {
@@ -303,7 +330,7 @@ class _CartPageState extends State<CartPage> {
               ),
               textAlign: TextAlign.center,
         )):new Container(),
-            new CartTotalRow(_totals, _tip, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn, showRestrictMsg : showRestrictMsg)
+            new CartTotalRow(_totals, _tip,_credits, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn, showRestrictMsg : showRestrictMsg)
           ],
         ),
       )
@@ -462,6 +489,7 @@ class CartProductRow extends StatelessWidget {
 class CartTotalRow extends StatelessWidget {
   final List<CartTotal> cartTotals;
   final double tipAmount;
+  final double _creditAmount;
   final Function(double value) onChangeTip;
   final Function() setupCart;
   final ShippingMethod shippingMethod;
@@ -473,6 +501,7 @@ class CartTotalRow extends StatelessWidget {
   CartTotalRow(
     this.cartTotals,
     this.tipAmount,
+    this._creditAmount,
     this.onChangeTip,
     this.shippingMethod,
     this.setupCart,
@@ -534,6 +563,24 @@ class CartTotalRow extends StatelessWidget {
     );
   }
 
+  Widget _storeCreditRow() {
+    if (_creditAmount == null) {
+      return new Container();
+    }
+
+    var text = "Store Credit: - \$${_creditAmount}";
+    if (_creditAmount == 0) {
+      return new Container();
+    }
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     String checkoutText;
@@ -543,7 +590,7 @@ class CartTotalRow extends StatelessWidget {
 
     if (loggedIn) {
       checkoutText = "Proceed to Checkout";
-      checkoutRoute = new CheckoutPage(cartTotals, shippingMethod,false);
+      checkoutRoute = new CheckoutPage(cartTotals, shippingMethod,_creditAmount,false);
     } else {
       checkoutText = "Log In to Checkout";
       checkoutRoute = new LoginPage();
@@ -555,6 +602,8 @@ class CartTotalRow extends StatelessWidget {
 
     // get number of cents, rounded, then convert to dollars
     final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
+
+    final storeCredit = _creditAmount.toDouble();
 
     var tipIcon;
 
@@ -608,6 +657,7 @@ class CartTotalRow extends StatelessWidget {
                 _totalRow("Low Order Fee", "Low Order Fee"),
                 _shippingRow(),
                 _totalRow("Sales Tax", "Sales Tax", addedAmount: shippingTax),
+                _storeCreditRow(),
                 _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
               ],
             ),

@@ -21,9 +21,10 @@ import 'package:flutter/src/material/text_field.dart';
 class CheckoutPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
   final ShippingMethod shippingMethod;
+  final double creditAmount;
   final bool guestUser;
 
-  CheckoutPage(this.cartTotals, this.shippingMethod,this.guestUser);
+  CheckoutPage(this.cartTotals, this.shippingMethod,this.creditAmount,this.guestUser);
 
   @override
   _CheckoutPageState createState() => new _CheckoutPageState();
@@ -97,6 +98,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _profile;
   String guestRegCoupon;
   bool _showGuestCoupon = false;
+  double _credits;
 
   BuildContext _navContext;
 
@@ -110,6 +112,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.initState();
     _totals = widget.cartTotals;
     _shippingMethod = widget.shippingMethod;
+    _credits = widget.creditAmount;
     _guestUser = widget.guestUser;
     _cardLoading = true;
     _addressLoading = true;
@@ -712,7 +715,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _orderProcess = 0.9);
     ApiManager.request(
         OCResources.GET_PAY,
-            (json) => _orderSuccess(context),
+            (json) {
+          _orderSuccess(context);
+          },
         errorHandler: (error) {
           setState(() => _orderProcess = 0.0);
           setState(() => _ordering = false);
@@ -871,6 +876,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
     var text = "Delivery Charge: ${_shippingMethod.displayCost}";
     if (_shippingMethod.cost == 0) {
       text = "FREE DELIVERY!";
+    }
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
+  Row _storeCreditRow() {
+    if (_credits == null) {
+      return new Row();
+    }
+
+    var text = "Store Credit: - \$${_credits}";
+    if (_credits == 0) {
+      return new Row();
     }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1272,6 +1294,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _shippingRow(),
                       _coupounCodeRow(),
                       _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
+                      _storeCreditRow(),
                       _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
                     ],
                   ),

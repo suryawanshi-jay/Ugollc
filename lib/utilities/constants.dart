@@ -85,7 +85,8 @@ abstract class OCResources {
   static const GET_MIN_SHIPPING_AMT = "GET::$OPENCART_IDENTIFIER::cart/get_free_shipping";
   static const GET_REFERRAL_COUPON = "GET::$OPENCART_IDENTIFIER::module/referral_coupon";
   static const POST_REFERRAL_COUPON = "POST::$OPENCART_IDENTIFIER::module/referral_coupon";
-  static const GET_REFERRAL_HISTORY = "GET::$OPENCART_IDENTIFIER::module/referral_history";
+  static const POST_REFERRAL_HISTORY = "POST::$OPENCART_IDENTIFIER::module/referral_history";
+  static const POST_STORE_CREDIT = "POST::$OPENCART_IDENTIFIER::cart/store_credit";
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";

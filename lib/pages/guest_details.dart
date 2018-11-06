@@ -92,7 +92,7 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
   }
 
   _nextPage(){
-    Widget checkoutRoute = new CheckoutPage(_totals,_shippingMethod,guestUser);
+    Widget checkoutRoute = new CheckoutPage(_totals,_shippingMethod,null,guestUser);
     Navigator.push(
         context,
         new MaterialPageRoute(
