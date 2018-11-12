@@ -913,8 +913,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
 
     if(type =="Total" && _isCouponCodeValid){
-      addedAmount = addedAmount -(_couponCodeAmount + _couponTax) ;
+      addedAmount = addedAmount -(_couponCodeAmount + _couponTax);
     }
+    if(type =="Total" && _isRewardValid){
+      addedAmount = addedAmount - _rewardPointAmount ;
+    }
+   
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
