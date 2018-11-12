@@ -205,6 +205,15 @@ class _SendReferralPageState extends State<SendReferralPage> {
                         onChanged: (value) { setState(() => message = value); setState(() => newMessage = true);},
                       ),
                       new Padding(padding: new EdgeInsets.only(top: 25.0),),
+                      showReturnMsg?new Container(
+                        padding: new EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0, bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new Text(returnMsg, style: new TextStyle(fontSize: 15.0, color: returnMsgColor)),
+                          ],
+                        ),
+                      ):new Container(),
                       new Container(
                         padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
                         child: new Row(
@@ -219,15 +228,6 @@ class _SendReferralPageState extends State<SendReferralPage> {
                           ],
                         )
                       ),
-                      showReturnMsg?new Container(
-                        padding: new EdgeInsets.only(top: 0.0, left: 10.0, right: 10.0, bottom: 10.0),
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            new Text(returnMsg, style: new TextStyle(fontSize: 15.0, color: returnMsgColor)),
-                          ],
-                        ),
-                      ):new Container(),
                     ],
                   ),
                  ),

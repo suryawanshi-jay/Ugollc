@@ -26,6 +26,7 @@ class _ProductPageState extends State<ProductPage> {
   String restrictionMsg;
   bool showRestrictionMsg = false;
   int rewardPointsToBuy;
+  bool showRewardPoint = false;
 
   final _analytics = new FirebaseAnalytics();
 
@@ -40,6 +41,9 @@ class _ProductPageState extends State<ProductPage> {
         final product = new Product.fromJSON(json["product"]);
         setState(() => _product = product);
         setState(() => rewardPointsToBuy = json["product"]["reward_points_needed_to_buy"]);
+        if(rewardPointsToBuy > 0){
+          setState(() => showRewardPoint = true);
+        }
         final numPrice = double.parse(product.price.replaceAll(PRICE_REGEXP, ""));
         await _analytics.logViewItem(
           itemId: product.id.toString(),
@@ -184,7 +188,7 @@ class _ProductPageState extends State<ProductPage> {
         ],
       ),
       new Padding(padding: const EdgeInsets.only(top: 10.0),),
-      new Row(
+      showRewardPoint ? new Row(
         children: <Widget>[
           new Text("Price in reward points : ${rewardPointsToBuy}",
             textAlign: TextAlign.left,
@@ -194,7 +198,7 @@ class _ProductPageState extends State<ProductPage> {
             ),
           ),
         ],
-      ),
+      ): new Container(),
       new Padding(padding: const EdgeInsets.only(top: 10.0),),
       _product.richTextDescription(),
     ];

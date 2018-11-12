@@ -959,6 +959,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  Row _rewardPointRow() {
+    if (_isRewardValid == false) {
+      return new Row();
+    }
+    var text = "Reward Point Value (${_rewardPointController.text}): -\$${_rewardPointAmount.toStringAsFixed(2)}";
+    if (_rewardPointAmount == 0) {
+      return new Row();
+    }
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
   void _isGuestCouponValid() {
     if(_guestUser == true){
       setState(() => couponMessage = "Coupon codes are only available to registered customers");
@@ -1070,20 +1086,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return new Row();
     }
     var text = "Coupon Value : -\$${_couponCodeAmount.toStringAsFixed(2)}";
-
-    return new Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        new Text(text, style: new TextStyle(fontSize: 18.0))
-      ],
-    );
-  }
-
-  Row _rewardPointRow() {
-    if (_isRewardValid == false) {
-      return new Row();
-    }
-    var text = "Reward Point Value (${_rewardPointController.text}): -\$${_rewardPointAmount.toStringAsFixed(2)}";
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1435,9 +1437,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _totalRow("Low Order Fee", "Low Order Fee"),
                       _shippingRow(),
                       _coupounCodeRow(),
-                      _rewardPointRow(),
                       _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
                       _storeCreditRow(),
+                      _rewardPointRow(),
                       _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
                     ],
                   ),

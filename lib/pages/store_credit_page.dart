@@ -76,7 +76,7 @@ class _StoreCreditPageState extends State<StoreCreditPage> {
           child: new Column(
             children: <Widget>[
               new Container(
-                  padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+                  padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                   child:new Row(
                       children: <Widget>[
                         new Text("Store Credits:",style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold,color:Colors.black), textAlign: TextAlign.left,),

@@ -51,7 +51,7 @@ class _ReferralHistoryPageState extends State<ReferralHistoryPage> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return new LoadingContainer(loadingText: "LOADING REFERRALS . . .");
+      return new LoadingContainer(loadingText: "LOADING \nREFERRALS...");
     }
 
     final _referList = _referrals.map((refer) {
