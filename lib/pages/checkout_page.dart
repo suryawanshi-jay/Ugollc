@@ -24,6 +24,7 @@ class CheckoutPage extends StatefulWidget {
   final double creditAmount;
   final bool guestUser;
 
+
   CheckoutPage(this.cartTotals, this.shippingMethod,this.creditAmount,this.guestUser);
 
   @override
@@ -36,15 +37,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _ordering = false;
   double _orderProcess = 0.0;
   bool _isCouponCodeValid = false;
+  bool _isRewardValid = false;
   double _couponCodeAmount = 0.0;
+  double _rewardPointAmount = 0.0;
   bool _isButtonDisabled;
+  bool _isRewardButtonDisabled;
   String couponMessage = '';
+  String rewardMessage = '';
   String couponCodeType = '';
   double couponValue = 0.0;
   String dCCAmount = "0.0";
   Color msgColor = Colors.red;
   double _couponTax = 0.0;
   bool updateUser = false;
+
+  Cart _cart;
+  String _cartError;
 
 
   List<PaymentCard> _cards = [];
@@ -82,6 +90,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   TextEditingController _zipController = new TextEditingController();
   TextEditingController _commentController = new TextEditingController();
   TextEditingController _couponCodeController = new TextEditingController();
+  TextEditingController _rewardPointController = new TextEditingController();
   TextEditingController _address2Controller = new TextEditingController();
   TextEditingController _cityController = new TextEditingController();
   TextEditingController _apartmentNameController = new TextEditingController();
@@ -99,6 +108,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String guestRegCoupon;
   bool _showGuestCoupon = false;
   double _credits;
+  bool _showRewardPoint = false;
+  int _rewardTotal = 0;
+  String _userEmail;
+  int _maxPointUse = 0;
 
   BuildContext _navContext;
 
@@ -117,16 +130,60 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _cardLoading = true;
     _addressLoading = true;
     _isButtonDisabled = false;
+    _isRewardButtonDisabled = false;
+
     if(_guestUser == false){
       _logCheckout();
       _getCards();
       _getAddresses();
       _checkIfGuest();
+      _getCart();
     }else{
       _getGuestInfo();
 
     }
 
+  }
+
+  _getCart() {
+    ApiManager.request(
+        OCResources.GET_CART,
+            (json) {
+          setState(() => _cart = new Cart.fromJSON(json["cart"]));
+          if (_cart != null) {
+            setState(() => _maxPointUse = json["cart"]["max_reward_points_to_use"]);
+            _cart.products.forEach((product) {
+              if (product.points > 0) {
+                setState(() => _showRewardPoint = true);
+                _getUserEmail();
+              }
+            });
+          }
+        },
+        errorHandler: (json) {
+          setState(() => _cartError = json["errors"].first["message"]);
+        }
+    );
+  }
+
+  _getUserEmail() async{
+    _userEmail = await PrefsManager.getString(PreferenceNames.USER_EMAIL);
+    setState(() => _userEmail = _userEmail);
+    _getRewards();
+  }
+
+  _getRewards() {
+    ApiManager.request(
+      OCResources.POST_REWARD_POINTS,
+          (json) {
+        if(json["rewards_total"] != null) {
+          setState(() => _rewardTotal = json['rewards_total']);
+        }
+      },
+      params: {
+        "customer_email" : _userEmail
+      },
+    );
   }
 
   _checkIfGuest() async {
@@ -956,6 +1013,40 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   }
 
+  void _isRewardPointValid(){
+    var rewardPointValue = int.parse(_rewardPointController.text);
+    if(_rewardTotal >= rewardPointValue && _maxPointUse >= rewardPointValue ){
+      ApiManager.request(
+          OCResources.POST_REWARD_VALUE,
+              (json) {
+                 if(json != null){
+                   setState(() => msgColor = Colors.green);
+                   setState(() => rewardMessage = "Your reward points discount has been applied!");
+                   setState(() => _rewardPointAmount = json["discount"]);
+                   setState(() => _isRewardButtonDisabled = true);
+                   setState(() =>  _isRewardValid = true);
+
+                 }
+              },
+          params: {
+            "call_type": "rewardApiCall",
+            "reward": _rewardPointController.text
+          },
+          errorHandler: (error) {
+            ApiManager.defaultErrorHandler(error, context: context);
+          }
+      );
+
+
+    }else{
+      setState(() => rewardMessage = "Invalid reward points");
+
+    }
+
+
+
+  }
+
   void updateCouponInfo(lastOrderId){
     if(_isCouponCodeValid){
       ApiManager.request(
@@ -979,6 +1070,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return new Row();
     }
     var text = "Coupon Value : -\$${_couponCodeAmount.toStringAsFixed(2)}";
+
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
+  Row _rewardPointRow() {
+    if (_isRewardValid == false) {
+      return new Row();
+    }
+    var text = "Reward Point Value (${_rewardPointController.text}): -\$${_rewardPointAmount.toStringAsFixed(2)}";
 
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1258,6 +1363,43 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ],
                         ),
                       ),
+                      _showRewardPoint ? new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Text("Use Reward Points (Available ${_rewardTotal})", style: titleStyle),
+                            new TextField(
+                              controller: _rewardPointController,
+                              decoration: new InputDecoration(
+                                  labelText: 'Points to use (Max ${_maxPointUse})'
+                              ),
+                            ),
+                          ],
+                        ),
+                      ): new Container(),
+                      _showRewardPoint ? new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new RaisedButton(
+                              color: UgoGreen,
+                              child: new Text('Apply reward points',style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                              onPressed: _isRewardButtonDisabled ? null : _isRewardPointValid,
+                            ),
+                          ],
+                        ),
+                      ): new Container(),
+                      new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new Text(rewardMessage, style: new TextStyle(fontSize: 11.0, color: msgColor)),
+                          ],
+                        ),
+                      ),
                       new Container(
                         padding: new EdgeInsets.only(bottom: 20.0),
                         child: new Column(
@@ -1293,6 +1435,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _totalRow("Low Order Fee", "Low Order Fee"),
                       _shippingRow(),
                       _coupounCodeRow(),
+                      _rewardPointRow(),
                       _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
                       _storeCreditRow(),
                       _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),

@@ -87,6 +87,8 @@ abstract class OCResources {
   static const POST_REFERRAL_COUPON = "POST::$OPENCART_IDENTIFIER::module/referral_coupon";
   static const POST_REFERRAL_HISTORY = "POST::$OPENCART_IDENTIFIER::module/referral_history";
   static const POST_STORE_CREDIT = "POST::$OPENCART_IDENTIFIER::cart/store_credit";
+  static const POST_REWARD_POINTS = "POST::$OPENCART_IDENTIFIER::cart/reward_points";
+  static const POST_REWARD_VALUE = "POST::$OPENCART_IDENTIFIER::checkout/reward_point";
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";

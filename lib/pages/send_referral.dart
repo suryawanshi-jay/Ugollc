@@ -3,6 +3,7 @@ import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/pages/referral_history_page.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
+import'package:ugo_flutter/pages/store_credit_page.dart';
 
 class SendReferralPage extends StatefulWidget {
   @override
@@ -71,6 +72,16 @@ class _SendReferralPageState extends State<SendReferralPage> {
     );
   }
 
+  _Credits(){
+    Widget walletRoute = new StoreCreditPage();
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => walletRoute,
+        )
+    );
+  }
+
   _sendRefferal(){
     ApiManager.request(
       OCResources.POST_REFERRAL_COUPON,
@@ -129,6 +140,20 @@ class _SendReferralPageState extends State<SendReferralPage> {
                             onPressed: ()  => _yourReferral(),
                             color: UgoGreen,
                             child: new Text("Check your Referral", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                          )
+                      )
+                    ],
+                  )
+              ),
+              new Container(
+                  padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 20.0),
+                  child: new Row(
+                    children: <Widget>[
+                      new Expanded(
+                          child: new RaisedButton(
+                            onPressed: ()  => _Credits(),
+                            color: UgoGreen,
+                            child: new Text("Store Credit & Reward Points", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
                           )
                       )
                     ],

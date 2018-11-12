@@ -64,6 +64,7 @@ class CartProduct extends Object {
   String recurring;
   int quantity;
   String reward;
+  int points;
   String price;
   String total;
   String thumbImage;
@@ -79,6 +80,7 @@ class CartProduct extends Object {
     recurring = json["recurring"];
     quantity = json["quantity"];
     reward = json["reward"];
+    points = json["points"];
     price = json["price"];
     total = json["total"];
     thumbImage = json["thumb_image"];
