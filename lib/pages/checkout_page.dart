@@ -49,6 +49,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String dCCAmount = "0.0";
   Color msgColor = Colors.red;
   double _couponTax = 0.0;
+  double _rewardPointTax = 0.0;
   bool updateUser = false;
 
   Cart _cart;
@@ -916,7 +917,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       addedAmount = addedAmount -(_couponCodeAmount + _couponTax);
     }
     if(type =="Total" && _isRewardValid){
-      addedAmount = addedAmount - _rewardPointAmount ;
+      addedAmount = addedAmount - _rewardPointAmount  ;
     }
    
     return new Row(
@@ -1043,10 +1044,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                    setState(() => msgColor = Colors.green);
                    setState(() => rewardMessage = "Your reward points discount has been applied!");
                    setState(() => _rewardPointAmount = json["discount"]);
+                   setState(() => _rewardPointTax = json["discount"] * TAX_RATE);
                    setState(() => _isRewardButtonDisabled = true);
                    setState(() =>  _isRewardValid = true);
 
                  }
+
               },
           params: {
             "call_type": "rewardApiCall",
@@ -1441,10 +1444,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _totalRow("Low Order Fee", "Low Order Fee"),
                       _shippingRow(),
                       _coupounCodeRow(),
-                      _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax)),
+                      _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax - _rewardPointTax)),
                       _storeCreditRow(),
                       _rewardPointRow(),
-                      _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
+                      _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax -_rewardPointTax)),
                     ],
                   ),
                 ),

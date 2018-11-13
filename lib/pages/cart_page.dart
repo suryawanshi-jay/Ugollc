@@ -64,6 +64,7 @@ class _CartPageState extends State<CartPage> {
     PrefsManager.getString(PreferenceNames.USER_EMAIL).then((value) =>
       setState(() => _loggedIn = (value != null && value != "")));
     _iscouponApplied();
+    _isRewardApplied();
     //_getShippingMethods();
     //_getCart();
   }
@@ -266,6 +267,33 @@ class _CartPageState extends State<CartPage> {
                     (json) {
                       _getShippingMethods();
                       _getCart();
+                },
+                errorHandler: (error) {
+                  ApiManager.defaultErrorHandler(error, context: context);
+                }
+            );
+          }
+        },
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error);
+          setState(() => showRestrictMsg = true);
+          setState(() => restrictMsg = error['errors'][0]['message']);
+        },
+        context: context
+    );
+  }
+  void _isRewardApplied(){
+    ApiManager.request(
+        OCResources.GET_CART,
+            (json) {
+          var status = json["cart"]["reward_status"];
+          if(status){
+            // Remove coupon details from cart
+            ApiManager.request(
+                OCResources.POST_CLEAR_REWARD,
+                    (json) {
+                  _getShippingMethods();
+                  _getCart();
                 },
                 errorHandler: (error) {
                   ApiManager.defaultErrorHandler(error, context: context);

@@ -89,6 +89,8 @@ abstract class OCResources {
   static const POST_STORE_CREDIT = "POST::$OPENCART_IDENTIFIER::cart/store_credit";
   static const POST_REWARD_POINTS = "POST::$OPENCART_IDENTIFIER::cart/reward_points";
   static const POST_REWARD_VALUE = "POST::$OPENCART_IDENTIFIER::checkout/reward_point";
+  static const POST_CLEAR_REWARD = "POST::$OPENCART_IDENTIFIER::cart/clear_reward";
+
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";
