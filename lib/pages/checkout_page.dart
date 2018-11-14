@@ -67,6 +67,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   bool showApartment = false;
 
+  bool _addressAvailable = false;
+
   List<Address> _addresses = [];
   int _selectedAddress;
 
@@ -887,6 +889,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _zip = pickedAddr.zip;
       _apartmentName = pickedAddr.apartmentName;
       selectedAddressType = selectedAddressType;
+      _addressAvailable = true;
     });
   }
 
@@ -1032,6 +1035,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
       setState(() => couponMessage = "Coupon codes are only available to registered customers");
     }
 
+  }
+
+  void _clearAddress(){
+    setState(() {
+      _selectedAddress = null;
+      selectedAddressType  = null;
+      _apartmentNameController = new TextEditingController();
+      _addressController = new TextEditingController();
+      _address2Controller = new TextEditingController();
+      _cityController = new TextEditingController();
+      _zipController = new TextEditingController();
+    });
   }
 
   void _isRewardPointValid(){
@@ -1292,6 +1307,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ],
                         ),
                       ),
+                      _addressAvailable ? new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new RaisedButton(
+                              color: UgoGreen,
+                              child: new Text('Clear & Add New Address',style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                              onPressed: _clearAddress,
+                            ),
+                          ],
+                        ),
+                      ): new Container(),
                       new Container(
                         padding: new EdgeInsets.only(bottom: 20.0),
                         child: new Column(
