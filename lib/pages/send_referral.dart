@@ -132,34 +132,6 @@ class _SendReferralPageState extends State<SendReferralPage> {
                       ])
               ),
               new Container(
-                  padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 20.0),
-                  child: new Row(
-                    children: <Widget>[
-                      new Expanded(
-                          child: new RaisedButton(
-                            onPressed: ()  => _yourReferral(),
-                            color: UgoGreen,
-                            child: new Text("Check your Referral", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
-                          )
-                      )
-                    ],
-                  )
-              ),
-              new Container(
-                  padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 20.0),
-                  child: new Row(
-                    children: <Widget>[
-                      new Expanded(
-                          child: new RaisedButton(
-                            onPressed: ()  => _Credits(),
-                            color: UgoGreen,
-                            child: new Text("Store Credit & Reward Points", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
-                          )
-                      )
-                    ],
-                  )
-              ),
-              new Container(
                   padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
                   child:new Row(
                       children: <Widget>[
@@ -227,6 +199,34 @@ class _SendReferralPageState extends State<SendReferralPage> {
                             )
                           ],
                         )
+                      ),
+                      new Container(
+                          padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
+                          child: new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                  child: new RaisedButton(
+                                    onPressed: ()  => _yourReferral(),
+                                    color: UgoGreen,
+                                    child: new Text("Check your Referral", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                                  )
+                              )
+                            ],
+                          )
+                      ),
+                      new Container(
+                          padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 20.0),
+                          child: new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                  child: new RaisedButton(
+                                    onPressed: ()  => _Credits(),
+                                    color: UgoGreen,
+                                    child: new Text("Store Credit & Reward Points", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                                  )
+                              )
+                            ],
+                          )
                       ),
                     ],
                   ),
