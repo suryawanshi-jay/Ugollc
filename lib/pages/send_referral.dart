@@ -156,8 +156,8 @@ class _SendReferralPageState extends State<SendReferralPage> {
                       ),
                       new TextField(
                         decoration: const InputDecoration(
-                            prefixIcon: const Icon(Icons.mail),
-                            labelText: 'Email'
+                            prefixIcon: const Icon(Icons.mobile_screen_share),
+                            labelText: 'Phone Number'
                         ),
                         onChanged: (value) {
                           setState(() => email = value);
