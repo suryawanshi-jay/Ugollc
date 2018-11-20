@@ -83,11 +83,8 @@ class _StoreCreditPageState extends State<StoreCreditPage> {
                       ])
               ),
               new Container(
-                  padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-                  child:new Row(
-                      children: <Widget>[
-                        new SizedBox(width: 330.0,height: 100.0, child : new Text("You have \$${_credits} in your UGO wallet as store Credits.",style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold,color:Colors.green ), textAlign: TextAlign.center,)),
-                      ])
+                  padding: new EdgeInsets.all(15.0),
+                  child : new Text("You have \$${_credits} in your UGO wallet as store Credits.",style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold,color:Colors.green ), textAlign: TextAlign.center,),
               ),
               new Container(
                   padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
@@ -97,11 +94,8 @@ class _StoreCreditPageState extends State<StoreCreditPage> {
                       ])
               ),
               new Container(
-                  padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-                  child:new Row(
-                      children: <Widget>[
-                        new SizedBox(width: 330.0,height: 100.0, child : new Text("You have ${_rewardTotal} reward points in your UGO account.",style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold,color:Colors.green ), textAlign: TextAlign.center,)),
-                      ])
+                  padding: new EdgeInsets.all(15.0),
+                  child: new Text("You have ${_rewardTotal} reward points in your UGO account.",style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold,color:Colors.green ), textAlign: TextAlign.center,),
               ),
             ],
           ),
