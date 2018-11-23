@@ -556,19 +556,50 @@ class CartTotalRow extends StatelessWidget {
     if (cartTotals == null) {
       return new Container();
     }
-
     final totals = cartTotals.where((total) => total.title == type);
     if (totals == null || totals.length == 0) {
       return new Container();
     }
 
-    final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
-
+    var total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
+    var totalAmount = total + addedAmount;
+    if(type == "Store Credit"){
+      if(totalAmount >= _creditAmount) {
+        totalAmount == _creditAmount;
+        return new Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            new Text(
+              "$text: -\$${_creditAmount.toStringAsFixed(2)}",
+              style: new TextStyle(fontSize: 18.0),)
+          ],
+        );
+      }else{
+        return new Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            new Text(
+              "$text: -\$${totalAmount.toStringAsFixed(2)}",
+              style: new TextStyle(fontSize: 18.0),)
+          ],
+        );
+      }
+    }
+    if(type == "Total" && total == 0.0){
+      return new Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          new Text(
+            "$text: \$${total.toStringAsFixed(2)}",
+            style: new TextStyle(fontSize: 18.0),)
+        ],
+      );
+    }
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         new Text(
-          "$text: \$${(total + addedAmount).toStringAsFixed(2)}",
+          "$text: \$${totalAmount.toStringAsFixed(2)}",
           style: new TextStyle(fontSize: 18.0),)
       ],
     );
@@ -628,10 +659,9 @@ class CartTotalRow extends StatelessWidget {
       ? 0.0
       : shippingMethod.cost.toDouble();
 
+
     // get number of cents, rounded, then convert to dollars
     final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
-
-    final storeCredit = _creditAmount.toDouble();
 
     var tipIcon;
 
@@ -685,7 +715,7 @@ class CartTotalRow extends StatelessWidget {
                 _totalRow("Low Order Fee", "Low Order Fee"),
                 _shippingRow(),
                 _totalRow("Sales Tax", "Sales Tax", addedAmount: shippingTax),
-                _storeCreditRow(),
+                _totalRow("Store Credit", "Store Credit",addedAmount: shippingTax + shippingCost),
                 _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
               ],
             ),
