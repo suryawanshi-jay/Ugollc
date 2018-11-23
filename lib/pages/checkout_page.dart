@@ -922,12 +922,46 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if(type =="Total" && _isRewardValid){
       addedAmount = addedAmount - _rewardPointAmount  ;
     }
+
+    var totalAmount = total + addedAmount;
+    if(type == "Store Credit"){
+      if(totalAmount >= _credits) {
+        totalAmount == _credits;
+        return new Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            new Text(
+              "$text: -\$${_credits.toStringAsFixed(2)}",
+              style: new TextStyle(fontSize: 18.0),)
+          ],
+        );
+      }else{
+        return new Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            new Text(
+              "$text: -\$${totalAmount.toStringAsFixed(2)}",
+              style: new TextStyle(fontSize: 18.0),)
+          ],
+        );
+      }
+    }
+    if(type == "Total" && total == 0.0){
+      return new Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          new Text(
+            "$text: \$${total.toStringAsFixed(2)}",
+            style: new TextStyle(fontSize: 18.0),)
+        ],
+      );
+    }
    
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         new Text(
-          "$text: \$${(total + addedAmount).toStringAsFixed(2)}",
+          "$text: \$${(totalAmount).toStringAsFixed(2)}",
           style: new TextStyle(fontSize: 18.0),)
       ],
     );
@@ -1473,7 +1507,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _shippingRow(),
                       _coupounCodeRow(),
                       _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax - _rewardPointTax)),
-                      _storeCreditRow(),
+                      _totalRow("Store Credit", "Store Credit",addedAmount: shippingTax + shippingCost -_rewardPointTax),
                       _rewardPointRow(),
                       _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax -_rewardPointTax)),
                     ],
