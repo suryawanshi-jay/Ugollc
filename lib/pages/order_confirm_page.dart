@@ -1,8 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/pages/home_page.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
+import 'package:ugo_flutter/pages/send_referral.dart';
+import 'package:ugo_flutter/utilities/prefs_manager.dart';
 
-class OrderConfirmPage extends StatelessWidget {
+class OrderConfirmPage extends StatefulWidget {
+
+  @override
+  _OrderConfirmPageState createState() => new _OrderConfirmPageState();
+}
+
+class _OrderConfirmPageState extends State<OrderConfirmPage> {
+
+  bool _loggedIn = false;
+
+  @override
+  initState() {
+    super.initState();
+    _ifLoggedIn();
+  }
+
+  _ifLoggedIn() async {
+    final username = await PrefsManager.getString(PreferenceNames.USER_FIRST_NAME);
+    if (username != null) {
+      setState(() => _loggedIn = true);
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -24,8 +49,29 @@ class OrderConfirmPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              new Padding(
+              _loggedIn ? new Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: new Text(
+                  "Get \$5 Off on you next order for EVERY friend you refer to Ugo",
+                  textAlign: TextAlign.center,
+                  style: new TextStyle(fontSize: 18.0),
+                ),
+              ): new Container(),
+              _loggedIn ?  new Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: new FlatButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        new MaterialPageRoute(
+                            builder: (BuildContext context) => new SendReferralPage())
+                    );
+                  },
+                  color: UgoGreen,
+                  child: new Text("Refer Now", style: BUTTON_STYLE),
+                ),
+              ): new Container(),
+              new Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 15.0),
                 child: new Text(
                   "You should receive a confirmation email soon. "
                   "If you have any questions or concerns, please call us.\n\n"
@@ -35,7 +81,7 @@ class OrderConfirmPage extends StatelessWidget {
                 ),
               ),
               new Padding(
-                padding: const EdgeInsets.only(top: 24.0),
+                padding: const EdgeInsets.only(top: 12.0),
                 child: new FlatButton(
                   onPressed: () {
                     Navigator.pushReplacement(context,
