@@ -27,6 +27,7 @@ class _ProductPageState extends State<ProductPage> {
   bool showRestrictionMsg = false;
   int rewardPointsToBuy;
   bool showRewardPoint = false;
+  bool showDesc = false;
 
   final _analytics = new FirebaseAnalytics();
 
@@ -44,6 +45,7 @@ class _ProductPageState extends State<ProductPage> {
         if(rewardPointsToBuy > 0){
           setState(() => showRewardPoint = true);
         }
+
         final numPrice = double.parse(product.price.replaceAll(PRICE_REGEXP, ""));
         await _analytics.logViewItem(
           itemId: product.id.toString(),
@@ -156,7 +158,9 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Widget productDetails() {
-
+    if(_product.description != ""){
+      setState(() => showDesc = true);
+    }
     List<Widget> list = [
       new Padding(padding: new EdgeInsets.only(top: 15.0)),
       new Text(
@@ -200,7 +204,7 @@ class _ProductPageState extends State<ProductPage> {
         ],
       ): new Container(),
       new Padding(padding: const EdgeInsets.only(top: 10.0),),
-      _product.richTextDescription(),
+       showDesc ? _product.richTextDescription() : new Container(),
     ];
 
     list.add(_quantityRow());
