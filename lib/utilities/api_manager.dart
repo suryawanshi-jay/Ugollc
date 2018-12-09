@@ -52,7 +52,7 @@ class ApiManager extends Object {
 
   static Future<String> _urlForRequest(String resource, String resourceID) async {
     final endpoint = resource.split("::").last;
-    var url = "http://";
+    var url = "https://";
     switch (resource.split("::")[1]) {
       case OPENCART_IDENTIFIER:
         url += API_HOST + "/" + apiVersion + endpoint;
