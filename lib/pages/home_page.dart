@@ -26,6 +26,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<Category> _categories = [];
   bool _loading = false;
   Cart _cart;
+  bool showMaintenanceMsg = false;
+  String maintenenanceMsg;
 
   TabController _tabController;
 
@@ -120,7 +122,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         // flatten simple categories to fetch data for ALL categories to pass around
         var flatCategories = flattenCategoryHierarchy(categories, []);
         flatCategories.forEach((SimpleCategory category) {
-          if(category.totalProducts > 0) {
+          if(category.totalProducts > 3) {
             _fetchCategoryDetails(category);
             _loading = false;
           }
@@ -128,6 +130,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       },
       errorHandler: (response) {
         print(response);
+        if(response["heading_title"] == "Maintenance"){
+          setState(() => showMaintenanceMsg = true);
+          setState(() => maintenenanceMsg = "We are currently performing some scheduled maintenance. We will be back as soon as possible. Please check back soon");
+          setState(()=> _loading = false);
+        }
       },
       exceptionHandler: (exc) {
         print("GET CATEGORIES EXCEPTION");
@@ -259,8 +266,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 //    return new LoadingScreen();
 
     return _categories.length == 0
-      ? new LoadingScreen()
-      : new Scaffold(
+      ? showMaintenanceMsg ? new Scaffold(
+        appBar: new AppBar(
+          backgroundColor: UgoGreen,
+          title: new Image.asset('assets/images/ugo_logo.png'),
+        ),
+        body :new Container(
+            color: Colors.white,
+            child:new Column(
+              children: <Widget>[
+                new Container(
+                  padding: new EdgeInsets.symmetric(horizontal: 15.0, vertical: 75.0),
+                  child : new Text(maintenenanceMsg,style: new TextStyle(fontSize: 25.0,color:Colors.red ), textAlign: TextAlign.center,),
+                ),
+              ],
+            )
+        )
+      ) : new LoadingScreen() : new Scaffold(
       drawer: new UgoDrawer(updateCart: _fetchCart,),
       appBar: new AppBar(
         backgroundColor: UgoGreen,
