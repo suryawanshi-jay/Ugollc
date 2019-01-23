@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/secrets.dart';
-const String API_HOST = "ugollc.com";
-//const String API_HOST = "stage.ugollc.com";
+//const String API_HOST = "ugollc.com";
+const String API_HOST = "stage.ugollc.com";
 const String apiVersion = "api/v1/";
 const String basicAuthToken = "Basic VWdvQXV0aDMyMTY1NDpSVGdPQnN0QUJ4MjN4OTgxd3BvQQ==";
 
@@ -89,7 +89,7 @@ abstract class OCResources {
   static const POST_REWARD_POINTS = "POST::$OPENCART_IDENTIFIER::cart/reward_points";
   static const POST_REWARD_VALUE = "POST::$OPENCART_IDENTIFIER::checkout/reward_point";
   static const POST_CLEAR_REWARD = "POST::$OPENCART_IDENTIFIER::cart/clear_reward";
-
+  static const GET_FORBIDDEN_CHECK = "GET::$OPENCART_IDENTIFIER::checkout/forbidden_check";
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";

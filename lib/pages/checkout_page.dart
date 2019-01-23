@@ -43,6 +43,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _isButtonDisabled;
   bool _isRewardButtonDisabled;
   String couponMessage = '';
+  String paymentWarning;
   String rewardMessage = '';
   String couponCodeType = '';
   double couponValue = 0.0;
@@ -51,6 +52,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   double _couponTax = 0.0;
   double _rewardPointTax = 0.0;
   bool updateUser = false;
+  bool showPaymentWarning = false;
 
   Cart _cart;
   String _cartError;
@@ -68,6 +70,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool showApartment = false;
 
   bool _addressAvailable = false;
+
+  bool showuniqueId = false;
 
   List<Address> _addresses = [];
   int _selectedAddress;
@@ -87,6 +91,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int countryID;
   int zoneID;
   int addressTypeID;
+  String _uniqueId;
 
 
   TextEditingController _addressController = new TextEditingController();
@@ -97,6 +102,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   TextEditingController _address2Controller = new TextEditingController();
   TextEditingController _cityController = new TextEditingController();
   TextEditingController _apartmentNameController = new TextEditingController();
+  TextEditingController _uniqueIdController = new TextEditingController();
 
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
@@ -227,6 +233,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _address1 = _addressController.text;
       _zip = _zipController.text;
       _apartmentName = _apartmentNameController.text;
+      _uniqueId = _uniqueIdController.text;
       selectedAddressType = selectedAddressType;
       firstName = _firstname;
       lastName = _lastname;
@@ -581,7 +588,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
           if (_selectedCard == "cod") {
             // post payment
             _submitPayment("cod", "", context);
-          } else if (_selectedCard != null) {
+          }else if(_selectedCard == "BAMA Cash") {
+            _submitPayment("BAMA Cash", "", context);
+          }else if(_selectedCard == "DD") {
+            _submitPayment("DD", "", context);
+          }
+          else if (_selectedCard != null) {
             // post stripe transaction
             _submitStripePayment(context);
           }
@@ -679,6 +691,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (_userComment != null) {
       commentText = "$_userComment";
     }
+    var uniqueIdText = showuniqueId? _uniqueIdController.text:"";
 
     ApiManager.request(
         OCResources.POST_PAYMENT_METHOD,
@@ -687,7 +700,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         },
         params: {
           "payment_method": method,
-          "comment": commentText
+          "comment": commentText,
+          "payment_id" : uniqueIdText
         },
         errorHandler: (error) {
           setState(() => _orderProcess = 0.0);
@@ -841,6 +855,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
 //    cardList.add(new DropdownMenuItem(child: new Divider(height: 0.0,)));
     cardList.add(new DropdownMenuItem(child: new Text("Cash"), value: "cod"));
+    cardList.add(new DropdownMenuItem(child: new Text("BAMA Cash"), value: "BAMA Cash"));
+    cardList.add(new DropdownMenuItem(child: new Text("Dining Dollars"), value: "DD"));
 
     return cardList;
   }
@@ -1137,6 +1153,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   }
 
+  void forbiddenCheck(){
+    ApiManager.request(
+        OCResources.GET_FORBIDDEN_CHECK,
+            (json) {
+           if(json != null){
+             setState(() => paymentWarning = json["error"]["warning"]);
+             setState(() => showPaymentWarning = true);
+           }
+        },
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
+    );
+
+  }
+
+
   Row _coupounCodeRow() {
     if (_isCouponCodeValid == false) {
       return new Row();
@@ -1161,7 +1194,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
         && _zip.length == _zip.replaceAll(nondigitRegExp, "").length;
     bool cardValid = _selectedCard != null;
     bool _apartmentValid = _apartmentNameValid();
-    return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid;
+    bool _uniqueIdValid = _cardUniqueIdValid();
+    bool _paymentValid = _paymentMethodValid();
+    return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid && _paymentValid;
   }
 
   bool _apartmentNameValid() {
@@ -1174,6 +1209,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
         return true;
       }
     }
+  }
+
+  bool _paymentMethodValid() {
+    if (showPaymentWarning == true){
+      return false;
+    } else {
+      return true;
+    }
+
+  }
+
+  bool _cardUniqueIdValid() {
+      if (_selectedCard == "BAMA Cash" || _selectedCard == "DD"){
+        if(_uniqueIdController !=null){
+          return _uniqueIdController.text.length > 0;
+        }else{
+          return false;
+        }
+      } else {
+        return true;
+      }
   }
 
   bool _address2valueValid() {
@@ -1365,7 +1421,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   new DropdownButton(
                                       items: _cardList(),
                                       value: _selectedCard,
-                                      onChanged: (value) => setState(() => _selectedCard = value)
+                                      //onChanged: (value) => setState(() => _selectedCard = value)
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedCard  = value;
+                                          if(_selectedCard == "BAMA Cash" || _selectedCard == "DD") {
+                                            showuniqueId = true;
+                                          }else{
+                                            showuniqueId = false;
+                                            _uniqueId = " ";
+                                          }
+                                          if(_selectedCard == "DD"){
+                                            forbiddenCheck();
+                                          }
+                                        });
+                                      },
                                   ),
                                   new Expanded(
                                       child: new Container()
@@ -1393,6 +1463,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ],
                         ),
                       ),
+                      showPaymentWarning ? new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            new Text(paymentWarning, style: new TextStyle(fontSize: 11.0, color: msgColor)),
+                          ],
+                        ),
+                      ): new Container(),
+                      showuniqueId ? new Container(
+                        padding: new EdgeInsets.only(bottom: 10.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Text("Card Unique Id", style: titleStyle),
+                             new TextField(
+                              controller: _uniqueIdController,
+                              decoration: new InputDecoration(
+                                  labelText: 'Card Unique Id'
+                              ),
+                            ),
+                          ],
+                        ),
+                      ): new Container(),
                       new Container(
                         padding: new EdgeInsets.only(bottom: 10.0),
                         child: new Column(
