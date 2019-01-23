@@ -1433,6 +1433,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           }
                                           if(_selectedCard == "DD"){
                                             forbiddenCheck();
+                                          }else{
+                                            showPaymentWarning = false;
                                           }
                                         });
                                       },
