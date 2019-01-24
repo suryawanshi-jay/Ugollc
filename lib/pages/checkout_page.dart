@@ -1458,6 +1458,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         }
                                       });
                                     },
+                                    padding: new EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
                                     child: new Text("Add New Card", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
                                   ),
                                 ]
