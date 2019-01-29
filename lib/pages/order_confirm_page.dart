@@ -52,7 +52,7 @@ class _OrderConfirmPageState extends State<OrderConfirmPage> {
               _loggedIn ? new Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40.0),
                 child: new Text(
-                  "Get \$5 Off on you next order for EVERY friend you refer to Ugo",
+                  "Get \$5 OFF on your next order for every friend you refer to Ugo!",
                   textAlign: TextAlign.center,
                   style: new TextStyle(fontSize: 18.0),
                 ),

@@ -1480,11 +1480,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            new Text("Card Unique Id", style: titleStyle),
+                            new Text("CWID", style: titleStyle),
                              new TextField(
                               controller: _uniqueIdController,
                               decoration: new InputDecoration(
-                                  labelText: 'Card Unique Id'
+                                  labelText: 'CWID'
                               ),
                             ),
                           ],

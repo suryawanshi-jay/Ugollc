@@ -58,7 +58,7 @@ class _GuestMsgPageState extends State<GuestMsgPage> {
               padding: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
               child:new Row(
                 children: <Widget>[
-                new SizedBox(width: 330.0,height: 180.0, child : new Text("If you register your account, you will get an instant coupon for additional 10% off on your order",style: new TextStyle(fontSize: 25.0,fontWeight: FontWeight.bold,color:Colors.green ), textAlign: TextAlign.center,)),
+                new SizedBox(width: 330.0,height: 120.0, child : new Text("Register an account to receive an additional 10% off on your next order",style: new TextStyle(fontSize: 25.0,fontWeight: FontWeight.bold,color:Colors.green ), textAlign: TextAlign.center,)),
               ])
             ),
             new Container(
