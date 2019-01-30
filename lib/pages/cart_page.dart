@@ -614,12 +614,16 @@ class CartTotalRow extends StatelessWidget {
     if (shippingMethod.cost == 0) {
       text = "FREE DELIVERY!";
     }
-    return new Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        new Text(text, style: new TextStyle(fontSize: 18.0))
-      ],
-    );
+    if(text == "FREE DELIVERY!") {
+      return new Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          new Text(text, style: new TextStyle(fontSize: 18.0))
+        ],
+      );
+    }else {
+      return new Row();
+    }
   }
 
   Widget _storeCreditRow() {
@@ -714,9 +718,9 @@ class CartTotalRow extends StatelessWidget {
                 _totalRow("Cart (Including Tip)", "Sub-Total"),
                 _totalRow("Low Order Fee", "Low Order Fee"),
                 _shippingRow(),
-                _totalRow("Sales Tax", "Sales Tax", addedAmount: shippingTax),
-                _totalRow("Store Credit", "Store Credit",addedAmount: shippingTax + shippingCost),
-                _totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
+                //_totalRow("Sales Tax", "Sales Tax", addedAmount: shippingTax),
+                //_totalRow("Store Credit", "Store Credit",addedAmount: shippingTax + shippingCost),
+                //_totalRow("Total", "Total", addedAmount: (shippingCost+shippingTax)),
               ],
             ),
           ),

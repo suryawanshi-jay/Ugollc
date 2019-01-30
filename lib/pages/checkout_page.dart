@@ -53,6 +53,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   double _rewardPointTax = 0.0;
   bool updateUser = false;
   bool showPaymentWarning = false;
+  String payment_method;
+  String deliveryCost = "0.00";
 
   Cart _cart;
   String _cartError;
@@ -121,6 +123,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int _rewardTotal = 0;
   String _userEmail;
   int _maxPointUse = 0;
+  bool showShippingRow = false;
 
   BuildContext _navContext;
 
@@ -240,6 +243,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
       email = _email;
       telephone = _telephone;
     });
+  }
+
+  //To get shipping cost with respect to selected payment type
+  void getNewShippingCost(){
+    if(_selectedCard != null && _selectedCard != "BAMA Cash" && _selectedCard != "cod" && _selectedCard != "DD"){
+      payment_method = "pp_pro";
+    }else {
+      payment_method = _selectedCard;
+    }
+    ApiManager.request(
+      OCResources.POST_NEW_SHIPPING_AMT, (json) {
+        if(json != null){
+          setState(() => deliveryCost = json["delivery_fee"]);
+          setState(() => showShippingRow = true);
+        }
+      },
+      params: {
+        "payment_method" : payment_method,
+        "api_call" : "1"
+      },
+      errorHandler: (error) {
+        ApiManager.defaultErrorHandler(error, context: context);
+      }
+    );
   }
 
   _logCheckout() async {
@@ -988,16 +1015,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return new Row();
     }
 
-    var text = "Delivery Charge: ${_shippingMethod.displayCost}";
+    var text = "Delivery Charge:\$${deliveryCost}";
     if (_shippingMethod.cost == 0) {
       text = "FREE DELIVERY!";
+      showShippingRow = true;
     }
-    return new Row(
+    return showShippingRow ? new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         new Text(text, style: new TextStyle(fontSize: 18.0))
       ],
-    );
+    ): new Row();
   }
 
   Row _storeCreditRow() {
@@ -1249,7 +1277,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final titleStyle = new TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
     final shippingCost = _shippingMethod == null
         ? 0.0
-        : _shippingMethod.cost.toDouble();
+        : double.parse(deliveryCost).toDouble();
 
     // get number of cents, rounded, then convert to dollars
     final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
@@ -1436,7 +1464,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           }else{
                                             showPaymentWarning = false;
                                           }
+
                                         });
+                                        if (_shippingMethod != null && _shippingMethod.cost != 0.0){
+                                            getNewShippingCost();
+                                        };
                                       },
                                   ),
                                   new Expanded(
