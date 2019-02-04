@@ -255,7 +255,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ApiManager.request(
       OCResources.POST_NEW_SHIPPING_AMT, (json) {
         if(json != null){
-          setState(() => deliveryCost = json["delivery_fee"]);
+          if(json['fee_type'] == "P"){
+            final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
+            final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
+            setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * double.parse(clnTotal)/100).toString());
+          }else {
+            setState(() => deliveryCost = json["delivery_fee"]);
+          }
           setState(() => showShippingRow = true);
         }
       },
