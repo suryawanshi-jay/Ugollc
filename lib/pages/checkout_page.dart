@@ -56,9 +56,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String payment_method;
   String deliveryCost = "0.00";
 
+  bool addressValid = false;
+  bool addressTypeValid = false;
+  bool _address2Valid = false;
+  bool cityValid = false;
+  bool zipValid = false;
+  bool cardValid = false;
+  bool _apartmentValid = false;
+
   Cart _cart;
   String _cartError;
-
 
   List<PaymentCard> _cards = [];
   String _selectedCard;
@@ -877,7 +884,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   // LAYOUT METHODS
   List<DropdownMenuItem> _cardList() {
     var cardList = [
-      new DropdownMenuItem(child: new Text("Select Payment")),
+      new DropdownMenuItem(child: new Text("Select Payment*",style : cardValid ? new TextStyle(color:Colors.green): new TextStyle(color:Colors.red))),
     ];
     _cards.forEach((PaymentCard card) {
       cardList.add(new DropdownMenuItem(
@@ -887,9 +894,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     });
 
 //    cardList.add(new DropdownMenuItem(child: new Divider(height: 0.0,)));
+    cardList.add(new DropdownMenuItem(child: new Text("DINING DOLLARS"), value: "DD"));
+    cardList.add(new DropdownMenuItem(child: new Text("BAMA CASH"), value: "BAMA Cash"));
     cardList.add(new DropdownMenuItem(child: new Text("Cash"), value: "cod"));
-    cardList.add(new DropdownMenuItem(child: new Text("BAMA Cash"), value: "BAMA Cash"));
-    cardList.add(new DropdownMenuItem(child: new Text("Dining Dollars"), value: "DD"));
 
     return cardList;
   }
@@ -1219,18 +1226,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   bool _isFormValid() {
-    bool addressValid = _address1 != null && _address1.length > 0;
-    bool addressTypeValid = selectedAddressType!= null;
-    bool _address2Valid = _address2valueValid();
-    bool cityValid = _city != null && _city.length >0;
-    final nondigitRegExp = new RegExp(r"\D");
-    bool zipValid = _zip != null
+     addressValid = _address1 != null && _address1.length > 0;
+     addressTypeValid = selectedAddressType!= null;
+     _address2Valid = _address2valueValid();
+     cityValid = _city != null && _city.length >0;
+     final nondigitRegExp = new RegExp(r"\D");
+     zipValid = _zip != null
         && _zip.length == _zip.replaceAll(nondigitRegExp, "").length;
-    bool cardValid = _selectedCard != null;
-    bool _apartmentValid = _apartmentNameValid();
-    bool _uniqueIdValid = _cardUniqueIdValid();
-    bool _paymentValid = _paymentMethodValid();
-    return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid && _paymentValid;
+     cardValid = _selectedCard != null;
+     _apartmentValid = _apartmentNameValid();
+     bool _uniqueIdValid = _cardUniqueIdValid();
+     bool _paymentValid = _paymentMethodValid();
+     return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid && _paymentValid;
   }
 
   bool _apartmentNameValid() {
@@ -1238,6 +1245,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       if (selectedAddressType.id == 14) {
         if(_apartmentName !=null){
           return _apartmentName.length > 0;
+        }else{
+          return false;
         }
       } else if (selectedAddressType.id == 13) {
         return true;
@@ -1257,7 +1266,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _cardUniqueIdValid() {
       if (_selectedCard == "BAMA Cash" || _selectedCard == "DD"){
         if(_uniqueIdController !=null){
-          return _uniqueIdController.text.length > 0;
+          return _uniqueIdController.text.length > 7;
         }else{
           return false;
         }
@@ -1271,6 +1280,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       if (selectedAddressType.id == 14) {
         if(_address2 !=null) {
           return _address2.length > 0;
+        }else {
+          return false;
         }
       } else if (selectedAddressType.id == 13) {
         return true;
@@ -1281,6 +1292,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     final titleStyle = new TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
+    final correctStyle =  new TextStyle(color:UgoGreen);
+    final wrongStyle =  new TextStyle(color:Colors.red);
     final shippingCost = _shippingMethod == null
         ? 0.0
         : double.parse(deliveryCost).toDouble();
@@ -1324,8 +1337,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                             _guestUser ? new Text("Your Address", style: titleStyle) : new Text("- OR -\nEnter New Address", style: titleStyle),
                             new InputDecorator(
-                              decoration: const InputDecoration(
-                                  labelText: 'Address Type'
+                              decoration: new InputDecoration(
+                                labelText: 'Address Type*',
+                                labelStyle: addressTypeValid ? correctStyle:wrongStyle,
                               ),
                               isEmpty: selectedAddressType == '',
                               child: new DropdownButtonHideUnderline(
@@ -1342,6 +1356,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         showApartment = false;
                                         _apartmentName = "";
                                         _address2 = "";
+
                                       }
                                       if(_guestUser == false && updateUser == false) {
                                         _selectedAddress = null;
@@ -1362,7 +1377,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             showApartment ? new TextField(
                               controller: _apartmentNameController,
                               decoration: new InputDecoration(
-                                  labelText: 'Apartment Name'
+                                labelText: 'Apartment Name*',
+                                labelStyle: _apartmentValid ? correctStyle : wrongStyle,
                               ),
                               onChanged: (value) => setState(() {
                                 _apartmentName = value;
@@ -1374,7 +1390,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             new TextField(
                               controller: _addressController,
                               decoration: new InputDecoration(
-                                  labelText: 'Address'
+                                labelText: 'Address*',
+                                labelStyle: addressValid ? correctStyle : wrongStyle,
                               ),
                               onChanged: (value) => setState(() {
                                 _address1 = value;
@@ -1386,7 +1403,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             showApartment ? new TextField(
                               controller: _address2Controller,
                               decoration: new InputDecoration(
-                                  labelText: 'Suite/Apt #'
+                                labelText: 'Suite/Apt #*',
+                                labelStyle: _address2Valid ? correctStyle : wrongStyle,
                               ),
                               onChanged: (value) => setState(() {
                                 _address2 = value;
@@ -1398,7 +1416,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             new TextField(
                               controller: _cityController,
                               decoration: new InputDecoration(
-                                  labelText: 'City'
+                                labelText: 'City*',
+                                labelStyle: cityValid ? correctStyle : wrongStyle,
                               ),
                               onChanged: (value) => setState(() {
                                 _city = value;
@@ -1419,7 +1438,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 controller: _zipController,
                                 keyboardType: TextInputType.number,
                                 decoration: new InputDecoration(
-                                    labelText: 'Zip Code'
+                                  labelText: 'Zip Code*',
+                                  labelStyle: zipValid ? correctStyle : wrongStyle,
                                 ),
                                 onChanged: (value) => setState(() {
                                   _zip = value;
@@ -1518,12 +1538,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            new Text("CWID", style: titleStyle),
+                            new Text("Enter CWID#", style: titleStyle),
                              new TextField(
                               controller: _uniqueIdController,
                               decoration: new InputDecoration(
-                                  labelText: 'CWID'
+                                labelText: 'Enter 8 or 19 characters CWID*',
                               ),
+                               maxLength: 19,
                             ),
                           ],
                         ),
