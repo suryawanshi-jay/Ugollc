@@ -270,7 +270,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
             final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
             final double tip = _tipAmount;
-            setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
+            //setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
+            setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * double.parse(clnTotal)/100).toString());
+
           }else {
             setState(() => deliveryCost = json["delivery_fee"]);
           }
