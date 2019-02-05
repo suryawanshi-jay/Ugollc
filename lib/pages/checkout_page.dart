@@ -854,9 +854,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     });
 
 //    cardList.add(new DropdownMenuItem(child: new Divider(height: 0.0,)));
+    cardList.add(new DropdownMenuItem(child: new Text("DINING DOLLARS"), value: "DD"));
+    cardList.add(new DropdownMenuItem(child: new Text("BAMA CASH"), value: "BAMA Cash"));
     cardList.add(new DropdownMenuItem(child: new Text("Cash"), value: "cod"));
-    cardList.add(new DropdownMenuItem(child: new Text("BAMA Cash"), value: "BAMA Cash"));
-    cardList.add(new DropdownMenuItem(child: new Text("Dining Dollars"), value: "DD"));
 
     return cardList;
   }
@@ -1223,7 +1223,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _cardUniqueIdValid() {
       if (_selectedCard == "BAMA Cash" || _selectedCard == "DD"){
         if(_uniqueIdController !=null){
-          return _uniqueIdController.text.length > 0;
+          return _uniqueIdController.text.length >= 8 && _uniqueIdController.text.length <= 19;
         }else{
           return false;
         }
@@ -1480,12 +1480,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            new Text("CWID", style: titleStyle),
+                            new Text("Enter CWID#", style: titleStyle),
                              new TextField(
                               controller: _uniqueIdController,
                               decoration: new InputDecoration(
                                   labelText: 'CWID'
                               ),
+                               maxLength: 19,
                             ),
                           ],
                         ),
