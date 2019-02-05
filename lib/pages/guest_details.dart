@@ -19,9 +19,10 @@ import 'package:ugo_flutter/models/shipping_method.dart';
 class GuestDetailsPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
   final ShippingMethod shippingMethod;
+  final double tipAmount;
   final bool guestUser;
 
-  GuestDetailsPage(this.cartTotals, this.shippingMethod, this.guestUser);
+  GuestDetailsPage(this.cartTotals,this.tipAmount, this.shippingMethod, this.guestUser);
 
   @override
   _GuestDetailsPageState createState() => new _GuestDetailsPageState();
@@ -56,6 +57,7 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
   bool loadAddressType = false;
   int optedAddressType;
   bool guestUser = true;
+  double _tipAmount;
 
   final _analytics = new FirebaseAnalytics();
 
@@ -65,6 +67,7 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
     super.initState();
     _totals = widget.cartTotals;
     _shippingMethod = widget.shippingMethod;
+    _tipAmount = widget.tipAmount;
     _getZones();
   }
 
@@ -92,7 +95,7 @@ class _GuestDetailsPageState extends State<GuestDetailsPage> {
   }
 
   _nextPage(){
-    Widget checkoutRoute = new CheckoutPage(_totals,_shippingMethod,null,guestUser);
+    Widget checkoutRoute = new CheckoutPage(_totals,_tipAmount,_shippingMethod,null,guestUser);
     Navigator.push(
         context,
         new MaterialPageRoute(

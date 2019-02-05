@@ -649,11 +649,11 @@ class CartTotalRow extends StatelessWidget {
     String checkoutText;
     Widget checkoutRoute;
     String guestCheckoutText = "Checkout as Guest User";;
-    Widget guestCheckoutRoute = new GuestMsgPage(cartTotals, shippingMethod);
+    Widget guestCheckoutRoute = new GuestMsgPage(cartTotals,tipAmount, shippingMethod);
 
     if (loggedIn) {
       checkoutText = "Proceed to Checkout";
-      checkoutRoute = new CheckoutPage(cartTotals, shippingMethod,_creditAmount,false);
+      checkoutRoute = new CheckoutPage(cartTotals,tipAmount, shippingMethod,_creditAmount,false);
     } else {
       checkoutText = "Log In to Checkout";
       checkoutRoute = new LoginPage();

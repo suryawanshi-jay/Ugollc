@@ -12,8 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class GuestMsgPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
   final ShippingMethod shippingMethod;
+  final double tipAmount;
 
-  GuestMsgPage(this.cartTotals, this.shippingMethod);
+  GuestMsgPage(this.cartTotals,this.tipAmount,this.shippingMethod);
 
   @override
   _GuestMsgPageState createState() => new _GuestMsgPageState();
@@ -46,7 +47,7 @@ class _GuestMsgPageState extends State<GuestMsgPage> {
   Widget build (BuildContext ctxt) {
     String regText = "Get Registered";
     String guestCheckoutText = "Continue as Guest User";
-    Widget guestCheckoutRoute = new GuestDetailsPage(widget.cartTotals, widget.shippingMethod,true);
+    Widget guestCheckoutRoute = new GuestDetailsPage(widget.cartTotals,widget.tipAmount, widget.shippingMethod,true);
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Guest Checkout"),

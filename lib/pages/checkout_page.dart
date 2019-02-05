@@ -20,12 +20,13 @@ import 'package:flutter/src/material/text_field.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<CartTotal> cartTotals;
+  final double tipAmount;
   final ShippingMethod shippingMethod;
   final double creditAmount;
   final bool guestUser;
 
 
-  CheckoutPage(this.cartTotals, this.shippingMethod,this.creditAmount,this.guestUser);
+  CheckoutPage(this.cartTotals,this.tipAmount, this.shippingMethod,this.creditAmount,this.guestUser);
 
   @override
   _CheckoutPageState createState() => new _CheckoutPageState();
@@ -115,6 +116,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
+  double _tipAmount;
   bool _guestUser;
   String _firstname;
   String _lastname;
@@ -143,6 +145,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   initState() {
     super.initState();
     _totals = widget.cartTotals;
+    _tipAmount = widget.tipAmount;
     _shippingMethod = widget.shippingMethod;
     _credits = widget.creditAmount;
     _guestUser = widget.guestUser;
@@ -262,10 +265,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ApiManager.request(
       OCResources.POST_NEW_SHIPPING_AMT, (json) {
         if(json != null){
+          //For cart total's percent based delivery fee
           if(json['fee_type'] == "P"){
             final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
             final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
-            setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * double.parse(clnTotal)/100).toString());
+            final double tip = _tipAmount;
+            setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
           }else {
             setState(() => deliveryCost = json["delivery_fee"]);
           }
