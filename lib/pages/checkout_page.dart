@@ -69,6 +69,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _cartError;
 
   List<PaymentCard> _cards = [];
+  List _cwids = [];
   String _selectedCard;
 
   AddressType selectedAddressType;
@@ -160,6 +161,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _getAddresses();
       _checkIfGuest();
       _getCart();
+      _getCWID();
     }else{
       _getGuestInfo();
 
@@ -185,6 +187,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
         errorHandler: (json) {
           setState(() => _cartError = json["errors"].first["message"]);
         }
+    );
+  }
+
+  _getCWID() {
+    ApiManager.request(
+        OCResources.GET_CWID,
+            (json) {
+              setState(() => _cwids = json.toList());
+        },
+
     );
   }
 
@@ -897,6 +909,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     var cardList = [
       new DropdownMenuItem(child: new Text("Select Payment*",style : cardValid ? new TextStyle(color:Colors.green): new TextStyle(color:Colors.red))),
     ];
+
     _cards.forEach((PaymentCard card) {
       cardList.add(new DropdownMenuItem(
           child: new Text("${card.brand}  ***${card.last4}"),
