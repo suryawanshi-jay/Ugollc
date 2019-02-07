@@ -116,7 +116,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
-  double _tipAmount;
+  double _tipAmount = 0.0;
   bool _guestUser;
   String _firstname;
   String _lastname;
@@ -271,7 +271,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
             final double tip = _tipAmount;
             //setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
-            var newDeliveryCost = (double.parse(json["delivery_fee"]) * double.parse(clnTotal)/100);
+            var newDeliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal) - tip)/100);
             if(newDeliveryCost >= 2.99) {
               setState(() => deliveryCost = newDeliveryCost.toStringAsFixed(2));
             } else {
