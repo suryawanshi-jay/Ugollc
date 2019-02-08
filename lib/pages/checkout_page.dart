@@ -103,6 +103,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int zoneID;
   int addressTypeID;
   String _uniqueId;
+  String _cwid;
+  bool prefillCwid = false;
+  bool _uniqueIdValid = false;
 
 
   TextEditingController _addressController = new TextEditingController();
@@ -194,7 +197,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ApiManager.request(
         OCResources.GET_CWID,
             (json) {
-              setState(() => _cwids = json.toList());
+              _cwid = json['cwid'];
+              setState(() => _uniqueIdController.text = _cwid);
+              setState(() => prefillCwid = true);
         },
 
     );
@@ -1259,7 +1264,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         && _zip.length == _zip.replaceAll(nondigitRegExp, "").length;
      cardValid = _selectedCard != null;
      _apartmentValid = _apartmentNameValid();
-     bool _uniqueIdValid = _cardUniqueIdValid();
+     _uniqueIdValid = _cardUniqueIdValid();
      bool _paymentValid = _paymentMethodValid();
      return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid && _paymentValid;
   }
@@ -1290,7 +1295,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _cardUniqueIdValid() {
       if (_selectedCard == "BAMA Cash" || _selectedCard == "DD"){
         if(_uniqueIdController !=null){
-          return _uniqueIdController.text.length > 7;
+          return _uniqueIdController.text.length == 8 || _uniqueIdController.text.length == 16 || _uniqueIdController.text.length == 19;
         }else{
           return false;
         }
@@ -1563,10 +1568,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             new Text("Enter CWID#", style: titleStyle),
+                            prefillCwid ? new TextField(
+                              controller: _uniqueIdController,
+                              decoration: new InputDecoration(
+                                labelText: 'CWID*',
+                                labelStyle: _uniqueIdValid ? correctStyle:wrongStyle,
+                                helperText: 'Please use the new 16 digit CWID if\nyou have it',
+                                helperStyle : new TextStyle (fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
+                              maxLength: 19,
+                              onChanged: (value) { setState(() => _cwid = value);
+                              },
+                            ):
                              new TextField(
                               controller: _uniqueIdController,
                               decoration: new InputDecoration(
-                                labelText: 'Enter 8 or 19 characters CWID*',
+                                labelText: 'CWID*',
+                                labelStyle: _uniqueIdValid ? correctStyle:wrongStyle,
+                                helperText: 'Please use the new 16 digit CWID if\nyou have it',
+                                helperStyle : new TextStyle (fontWeight: FontWeight.bold, color: Colors.black),
                               ),
                                maxLength: 19,
                             ),
