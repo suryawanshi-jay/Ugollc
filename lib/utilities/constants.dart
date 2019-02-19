@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/secrets.dart';
-const String API_HOST = "ugollc.com";
-//const String API_HOST = "stage.ugollc.com";
+//const String API_HOST = "ugollc.com";
+const String API_HOST = "stage.ugollc.com";
 const String apiVersion = "api/v1/";
 const String basicAuthToken = "Basic VWdvQXV0aDMyMTY1NDpSVGdPQnN0QUJ4MjN4OTgxd3BvQQ==";
 

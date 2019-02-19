@@ -47,6 +47,7 @@ flutter:
 
   assets:
     - assets/images/ugo_logo.png
+    - assets/images/pause.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
