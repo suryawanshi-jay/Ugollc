@@ -55,7 +55,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool updateUser = false;
   bool showPaymentWarning = false;
   String payment_method;
-  String deliveryCost = "0.00";
+  String deliveryCost = '0.0';
+  double forbiddenPrice = 0.0;
+  double _min_free_shipping_amt = 0.0;
+  Map<String, ShippingMethod> _shippingMethods = {};
 
   bool addressValid = false;
   bool addressTypeValid = false;
@@ -64,6 +67,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool zipValid = false;
   bool cardValid = false;
   bool _apartmentValid = false;
+  bool showApplyCoupon = false;
 
   Cart _cart;
   String _cartError;
@@ -148,7 +152,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   initState() {
     super.initState();
-    _totals = widget.cartTotals;
+    //_totals = widget.cartTsssotals;
     _tipAmount = widget.tipAmount;
     _shippingMethod = widget.shippingMethod;
     _credits = widget.creditAmount;
@@ -172,21 +176,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   }
 
-  _getCart() {
+  _getCart(){
     ApiManager.request(
         OCResources.GET_CART,
             (json) {
           setState(() => _cart = new Cart.fromJSON(json["cart"]));
           if (_cart != null) {
             setState(() => _maxPointUse = json["cart"]["max_reward_points_to_use"]);
+            setState(() =>_totals = _cart.totals);
             _cart.products.forEach((product) {
               if (product.points > 0) {
                 setState(() => _showRewardPoint = true);
                 _getUserEmail();
+                _getMinShippingAmt();
               }
             });
           }
         },
+        params :{
+          "api_call" :1
+    },
         errorHandler: (json) {
           setState(() => _cartError = json["errors"].first["message"]);
         }
@@ -270,6 +279,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
       email = _email;
       telephone = _telephone;
     });
+  }
+
+  _getShippingMethods() {
+    ApiManager.request(
+        OCResources.GET_SHIPPING_METHODS,
+            (json) {
+          var methods = {};
+          json["shipping_methods"].forEach((item) {
+            final method = new ShippingMethod.fromJSON(item);
+            methods[method.id] = method;
+          });
+          setState(() => _shippingMethods = methods);
+          if (_cart != null) {
+            _setShippingMethod();
+          }
+        }
+    );
+  }
+
+  _setShippingMethod() {
+      ShippingMethod method;
+      if (_shippingMethods != null && _shippingMethods.length > 0) {
+        final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
+        final String clnTotal = forbiddenPrice > 0.0 ? (double.parse(subTotal.text.replaceAll(PRICE_REGEXP, "")) - forbiddenPrice).toString() : subTotal.text.replaceAll(PRICE_REGEXP, "");
+        if ((double.parse(clnTotal) - _tipAmount) >= _min_free_shipping_amt) {
+          method =
+              _shippingMethods["free.free"] ?? _shippingMethods["flat.flat"];
+          setState(() => _shippingMethod = method);
+        } else {
+          method = _shippingMethods["flat.flat"] ?? null;
+          setState(() => _shippingMethod = method);
+        }
+        if (_shippingMethod != null && _shippingMethod.cost != 0.0){
+          debugPrint("here");
+          getNewShippingCost();
+        };
+      }
+  }
+
+  _getMinShippingAmt() {
+    ApiManager.request(
+        OCResources.GET_MIN_SHIPPING_AMT,
+            (json) {
+          setState(() => _min_free_shipping_amt = double.parse(json["min_free_shipping_amnt"]));
+          _getShippingMethods();
+        }
+    );
   }
 
   //To get shipping cost with respect to selected payment type
@@ -990,15 +1046,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _totalRow(String text, String type, {double addedAmount: 0.0}) {
+
     if (_totals == null) {
       return new Container();
     }
 
-    final totals = _totals.where((total) => total.title == type);
-    if (totals == null || totals.length == 0) {
+    final totals =  _totals.where((total) => total.title == type);
+
+    if ((totals == null || totals.length == 0)) {
       return new Container();
     }
-
+    //final total = forbiddenPrice > 0.0  && type == "Sub-Total" ? double.parse(totals.first.text.replaceAll(PRICE_REGEXP, "")) - forbiddenPrice : forbiddenPrice > 0.0 && type == "Low Order Fee"  ? 2.79 : forbiddenPrice > 0.0 && type == "Sales Tax" ? double.parse(totals.first.text.replaceAll(PRICE_REGEXP, "")) - forbiddenPrice * TAX_RATE : forbiddenPrice > 0.0  && type == "Total" ? double.parse(totals.first.text.replaceAll(PRICE_REGEXP, "")) - forbiddenPrice -(forbiddenPrice * TAX_RATE) : double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
     final total = double.parse(totals.first.text.replaceAll(PRICE_REGEXP, ""));
 
     if(type =="Total" && _isCouponCodeValid){
@@ -1131,10 +1189,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               double calcPercentage = ((double.parse(clnTotal) * _couponCodeAmount).round() / 100);
               setState(() => _couponCodeAmount = calcPercentage);
               // Calculate and reduce tax of coupon
-              final tempCouponTax = (calcPercentage * TAX_RATE);
+              final tempCouponTax = (calcPercentage  * TAX_RATE);
               setState(() => _couponTax = tempCouponTax);
             }else{
-              final tempCouponTax1 = ((_couponCodeAmount * TAX_RATE));
+              final tempCouponTax1 = (_couponCodeAmount * TAX_RATE);
               setState(() => _couponTax = tempCouponTax1);
               setState(() => _couponCodeAmount = _couponCodeAmount);
             }
@@ -1230,13 +1288,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
            if(json != null){
              setState(() => paymentWarning = json["error"]["warning"]);
              setState(() => showPaymentWarning = true);
+             if(paymentWarning.startsWith('Your')){
+               setState(() => forbiddenPrice = json["price"]);
+               _getCart();
+               _getShippingMethods();
+             }
            }
         },
         errorHandler: (error) {
           ApiManager.defaultErrorHandler(error, context: context);
         }
     );
-
   }
 
 
@@ -1265,8 +1327,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
      cardValid = _selectedCard != null;
      _apartmentValid = _apartmentNameValid();
      _uniqueIdValid = _cardUniqueIdValid();
-     bool _paymentValid = _paymentMethodValid();
-     return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid && _paymentValid;
+     return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid;
   }
 
   bool _apartmentNameValid() {
@@ -1524,6 +1585,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         if (_shippingMethod != null && _shippingMethod.cost != 0.0){
                                             getNewShippingCost();
                                         };
+                                        setState(() => showApplyCoupon = true);
                                       },
                                   ),
                                   new Expanded(
@@ -1593,7 +1655,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ],
                         ),
                       ): new Container(),
-                      new Container(
+                      showApplyCoupon ? new Container(
                         padding: new EdgeInsets.only(bottom: 10.0),
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1611,8 +1673,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                           ],
                         ),
-                      ),
-                      new Container(
+                      ): new Container(),
+                      showApplyCoupon ? new Container(
                         padding: new EdgeInsets.only(bottom: 10.0),
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1624,7 +1686,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                           ],
                         ),
-                      ),
+                      ): new Container(),
                       new Container(
                         padding: new EdgeInsets.only(bottom: 10.0),
                         child: new Column(

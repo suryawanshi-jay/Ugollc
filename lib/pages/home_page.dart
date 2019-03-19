@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         print(response);
         if(response["heading_title"] == "Maintenance"){
           setState(() => showMaintenanceMsg = true);
-          setState(() => maintenenanceMsg = "We are currently performing some scheduled maintenance. We will be back as soon as possible. Please check back soon");
+          setState(() => maintenenanceMsg = "😥 We have temporarily paused all orders but don't worry we will back soon.");
           setState(()=> _loading = false);
         }
       },
@@ -271,18 +271,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           backgroundColor: UgoGreen,
           title: new Image.asset('assets/images/ugo_logo.png'),
         ),
-        body :new Container(
-            color: Colors.white,
-            child:new Column(
-              children: <Widget>[
-                new Container(
-                  padding: new EdgeInsets.symmetric(horizontal: 15.0, vertical: 75.0),
-                  child : new Text(maintenenanceMsg,style: new TextStyle(fontSize: 25.0,color:Colors.red ), textAlign: TextAlign.center,),
-                ),
-              ],
-            )
-        )
-      ) : new LoadingScreen() : new Scaffold(
+        body : new AlertDialog(
+          content: new ListView(
+            children: <Widget>[
+              new Image.asset('assets/images/pause.png'),
+              new ListTile(
+                title: new Text(maintenenanceMsg,textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 20.0)),
+              )
+            ],
+          )//actions: <Widget>[
+        ),
+    ): new LoadingScreen() : new Scaffold(
       drawer: new UgoDrawer(updateCart: _fetchCart,),
       appBar: new AppBar(
         backgroundColor: UgoGreen,
