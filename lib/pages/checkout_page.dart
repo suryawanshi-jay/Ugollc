@@ -1308,6 +1308,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
              }
            }
         },
+        params: {
+          "newFlow"  : 1
+        },
         errorHandler: (error) {
           ApiManager.defaultErrorHandler(error, context: context);
         }
