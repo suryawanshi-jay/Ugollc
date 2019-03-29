@@ -188,14 +188,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   List<Widget> _featuredCategories() {
     final featured = _filterCategories(OCFilterGroups.DISPLAY, OCFilters.DISPLAY_FEATURED);
-    featured.sort((catA, catB) => catA.name.compareTo(catB.name));
+    //featured.sort((catA, catB) => catA.name.compareTo(catB.name));
     return featured.map((category) =>
       new CategoryListRow(category, _cart, namePrefix: "Featured: ", updateCart: _updateCart,)).toList();
   }
 
   List<CircleProductWidget> _quickLinks() {
     var categories = _filterCategories(OCFilterGroups.DISPLAY, OCFilters.DISPLAY_QUICK);
-    categories.sort((catA, catB) => catA.name.compareTo(catB.name));
+    //categories.sort((catA, catB) => catA.name.compareTo(catB.name));
     var list = [];
     for(int i = 0; i < 3; i++) {
       if (categories.length > i && categories[i] != null) {

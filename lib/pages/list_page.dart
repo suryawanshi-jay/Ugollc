@@ -41,7 +41,7 @@ class _ListPageState extends State<ListPage> {
       },
       resourceID: widget.categoryID.toString(),
       params: {
-        "sort": "name",
+       // "sort": "name",
       }
     );
   }
