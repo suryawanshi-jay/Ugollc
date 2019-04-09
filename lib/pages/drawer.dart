@@ -8,6 +8,8 @@ import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:ugo_flutter/utilities/widget_utils.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:ugo_flutter/pages/send_referral.dart';
+import 'package:ugo_flutter/pages/purchase_credit.dart';
+
 
 class UgoDrawer extends StatefulWidget {
   final Function() updateCart;
@@ -77,6 +79,7 @@ class _UgoDrawerState extends State<UgoDrawer> {
             ),
 
             new UgoDrawerRow("Our Company", Icons.star, "http://ugodelivery.herokuapp.com/origin"),
+            _loggedIn ?new UgoDrawerCreditRow("UGO Credits", Icons.monetization_on):new Container(),
             _loggedIn ?new UgoDrawerReferralRow("Refer & Earn", Icons.card_giftcard):new Container(),
             new UgoDrawerRow("FAQ", Icons.info_outline, "http://ugodelivery.herokuapp.com/support"),
             new UgoDrawerRow("Privacy Policy", Icons.security, "http://ugodelivery.herokuapp.com/privacy-policy"),
@@ -154,6 +157,48 @@ class UgoDrawerReferralRow extends StatelessWidget {
         onTap: () => Navigator.push(context,
             new MaterialPageRoute(
                 builder: (BuildContext context) => sendReferralPage
+            )
+        ),
+        child: new Row(
+          children: <Widget>[
+            new Icon(icon, color: textColor),
+            new Padding(padding: new EdgeInsets.only(left: 10.0)),
+            new Text(
+              title,
+              style: new TextStyle(
+                  color: textColor,
+                  fontSize: 18.0,
+                  fontFamily: 'JosefinSans'
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UgoDrawerCreditRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  UgoDrawerCreditRow(this.title, this.icon);
+
+  final flutterWebviewPlugin = new FlutterWebviewPlugin();
+
+  @override
+  Widget build(BuildContext context) {
+    var purchaseCreditPage = new PurchaseCreditPage();
+    final bgColor = Colors.grey[800];
+    final textColor = Colors.grey[400];
+    return new Container(
+      margin: new EdgeInsets.only(bottom: 2.0),
+      padding: new EdgeInsets.all(20.0),
+      color: bgColor,
+      child: new GestureDetector(
+        onTap: () => Navigator.push(context,
+            new MaterialPageRoute(
+                builder: (BuildContext context) => purchaseCreditPage
             )
         ),
         child: new Row(
