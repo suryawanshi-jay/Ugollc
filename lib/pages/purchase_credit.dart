@@ -16,7 +16,9 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   bool checkedValue = false;
   double _maxCredit;
   double _minCredit;
-  String defaultAmount;
+  double purchaseCredit;
+  bool showError = false;
+  String errorMsg = "";
 
   TextEditingController _creditController = new TextEditingController();
 
@@ -32,8 +34,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
     ApiManager.request(
         OCResources.GET_CREDIT_DETAILS,
             (json) {
-          debugPrint("$json");
-          setState(() => _minCredit = 20.00);
+          setState(() => _minCredit = double.parse(json['credit']['min _amount']));
           setState(() => _maxCredit = double.parse(json['credit']['max_amount']));
           setState(() => _creditController.text = json['credit']['default_amount']);
         }
@@ -41,15 +42,32 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   }
 
   _validatePurchaseCredit(){
-    //debugPrint(_minCredit);
-    //var min_amount = double.parse(_minCredit);
-    //var max_amount = double.parse(_maxCredit);
-    //var buyAmount = double.parse(amount);
-
-    if(double.parse(amount) >= _minCredit && double.parse(amount) <= _maxCredit) {
-      debugPrint("here1");
+    if(checkedValue == false){
+      setState(() => showError = true);
+      setState(() => errorMsg = "You must agree that store credit are non-refundable!");
+    }
+    if(amount == null){
+      var credit = _creditController.text;
+      setState(() => purchaseCredit = double.parse(credit));
     }else {
-      debugPrint("nookk");
+      setState(() => purchaseCredit = double.parse(amount));
+    }
+    if(purchaseCredit >= _minCredit && purchaseCredit <= _maxCredit) {
+      ApiManager.request(
+        OCResources.POST_CREDIT_DETAILS,
+            (json) {
+        },
+        params: {
+          "amount" : purchaseCredit.toString(),
+          "agree" : "1"
+        },
+      );
+    }else if(purchaseCredit < _minCredit) {
+      setState(() => showError = true);
+      setState(() => errorMsg = "Amount must be greater than \$${_minCredit}0!");
+    }else {
+      setState(() => showError = true);
+      setState(() => errorMsg = "Amount must be lesser than \$${_maxCredit}0!");
     }
   }
 
@@ -102,7 +120,17 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
                             setState(() => checkedValue = true);
                           },
                         ),
+
                         new Padding(padding: new EdgeInsets.only(top: 25.0),),
+                        showError ? new Container(
+                          padding: new EdgeInsets.all(10.0),
+                          child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              new Text(errorMsg, style: new TextStyle(fontSize: 14.0, color: Colors.red)),
+                            ],
+                          ),
+                        ): new Container(),
                         new Container(
                             padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
                             child: new Row(

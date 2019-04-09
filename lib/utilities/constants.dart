@@ -93,6 +93,7 @@ abstract class OCResources {
   static const POST_NEW_SHIPPING_AMT = "POST::$OPENCART_IDENTIFIER::checkout/shipping_amount";
   static const GET_CWID = "GET::$OPENCART_IDENTIFIER::checkout/get_cwid";
   static const GET_CREDIT_DETAILS = "GET::$OPENCART_IDENTIFIER::account/buy_credit";
+  static const POST_CREDIT_DETAILS = "POST::$OPENCART_IDENTIFIER::account/buy_credit";
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";
