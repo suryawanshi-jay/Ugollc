@@ -85,7 +85,7 @@ abstract class OCResources {
   static const GET_REFERRAL_COUPON = "GET::$OPENCART_IDENTIFIER::module/referral_coupon";
   static const POST_REFERRAL_COUPON = "POST::$OPENCART_IDENTIFIER::module/referral_coupon";
   static const POST_REFERRAL_HISTORY = "POST::$OPENCART_IDENTIFIER::module/referral_history";
-  static const POST_STORE_CREDIT = "POST::$OPENCART_IDENTIFIER::cart/store_credit";
+  static const GET_STORE_CREDIT = "GET::$OPENCART_IDENTIFIER::cart/store_credit";
   static const POST_REWARD_POINTS = "POST::$OPENCART_IDENTIFIER::cart/reward_points";
   static const POST_REWARD_VALUE = "POST::$OPENCART_IDENTIFIER::checkout/reward_point";
   static const POST_CLEAR_REWARD = "POST::$OPENCART_IDENTIFIER::cart/clear_reward";
@@ -94,6 +94,7 @@ abstract class OCResources {
   static const GET_CWID = "GET::$OPENCART_IDENTIFIER::checkout/get_cwid";
   static const GET_CREDIT_DETAILS = "GET::$OPENCART_IDENTIFIER::account/buy_credit";
   static const POST_CREDIT_DETAILS = "POST::$OPENCART_IDENTIFIER::account/buy_credit";
+  static const GET_EMPTY_CART = "GET::$OPENCART_IDENTIFIER::checkout/empty_cart";
 
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";

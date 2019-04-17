@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
-import 'package:ugo_flutter/utilities/prefs_manager.dart';
-import 'package:ugo_flutter/pages/referral_history_page.dart';
+import 'package:ugo_flutter/widgets/store_credit_button.dart';
+import 'package:ugo_flutter/pages/checkout_page.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import'package:ugo_flutter/pages/store_credit_page.dart';
+import 'package:ugo_flutter/models/cart.dart';
+import 'package:ugo_flutter/models/shipping_method.dart';
 
 class PurchaseCreditPage extends StatefulWidget {
   @override
@@ -19,16 +21,16 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   double purchaseCredit;
   bool showError = false;
   String errorMsg = "";
+  double _credits = 0.00;
+  Widget checkoutRoute;
 
   TextEditingController _creditController = new TextEditingController();
-
 
   @override
   initState() {
     _getCreditDetails();
-
+    _getCredits();
   }
-
 
   _getCreditDetails() {
     ApiManager.request(
@@ -52,31 +54,67 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
     }else {
       setState(() => purchaseCredit = double.parse(amount));
     }
-    if(purchaseCredit >= _minCredit && purchaseCredit <= _maxCredit) {
+    if(purchaseCredit >= _minCredit && purchaseCredit <= _maxCredit && checkedValue == true ) {
+      showError = false;
       ApiManager.request(
         OCResources.POST_CREDIT_DETAILS,
             (json) {
+          empty_cart();
         },
         params: {
           "amount" : purchaseCredit.toString(),
           "agree" : "1"
         },
       );
-    }else if(purchaseCredit < _minCredit) {
+    }else if(purchaseCredit < _minCredit && checkedValue == true) {
       setState(() => showError = true);
       setState(() => errorMsg = "Amount must be greater than \$${_minCredit}0!");
-    }else {
-      setState(() => showError = true);
+    }else if(purchaseCredit > _maxCredit && checkedValue == true) {
+      setState(() => showError = true && checkedValue == true);
       setState(() => errorMsg = "Amount must be lesser than \$${_maxCredit}0!");
     }
   }
 
+  empty_cart(){
+    ApiManager.request(
+      OCResources.GET_EMPTY_CART,
+        (json) {
+         _nextPage();
+        },
+    );
+  }
+
+  _nextPage(){
+    Widget checkoutRoute = new CheckoutPage(null,0.0,null,null,false);
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => checkoutRoute,
+        )
+    );
+  }
+
+  void _getCredits() {
+    ApiManager.request(
+      OCResources.GET_STORE_CREDIT,
+          (json) {
+        if(json["credit"] != null) {
+          setState(() => _credits = json['credit']);
+        }else{
+          setState(() => _credits = 0.00);
+        }
+      },
+    );
+  }
 
   @override
   Widget build (BuildContext ctxt) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("UGO Credits"),
+        actions: [
+          new StoreCreditButton(_credits),
+        ],
       ),
       body: new GestureDetector(
         onTap: () {

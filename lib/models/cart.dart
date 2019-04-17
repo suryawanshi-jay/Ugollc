@@ -3,6 +3,7 @@ import 'package:ugo_flutter/utilities/constants.dart';
 class Cart extends Object {
   List<CartProduct> products;
   List<CartVoucher> vouchers;
+  List<CartCredit> credits;
   List<CartTotal> totals;
 
   String weight;
@@ -22,6 +23,9 @@ class Cart extends Object {
     ).toList();
     vouchers = json["vouchers"] == null ? [] : json["vouchers"].map((Map voucher) =>
       new CartVoucher.fromJSON(voucher)
+    ).toList();
+    credits = json["credits"] == null ? [] : json["credits"].map((Map credit) =>
+    new CartCredit.fromJSON(credit)
     ).toList();
     totals = json["totals"] == null ? [] : json["totals"].map((Map total) =>
       new CartTotal.fromJSON(total)
@@ -107,6 +111,20 @@ class CartVoucher extends Object {
     key = json["key"];
     description = json["description"];
     amount = json["amount"];
+  }
+}
+
+class CartCredit extends Object {
+  String key;
+  String description;
+  String amount;
+  String thumbImage;
+
+  CartCredit.fromJSON(Map json) {
+    key = json["key"].toString();
+    description = json["description"];
+    amount = json["amount"];
+    thumbImage = json["thumb"];
   }
 }
 

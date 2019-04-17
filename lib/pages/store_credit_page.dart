@@ -12,7 +12,7 @@ class StoreCreditPage extends StatefulWidget {
 class _StoreCreditPageState extends State<StoreCreditPage> {
 
     String _userEmail;
-    double _credits;
+    double _credits = 0.0;
     List<RewardPoint> _rewards = [];
     String description;
     int points;
@@ -33,16 +33,13 @@ class _StoreCreditPageState extends State<StoreCreditPage> {
 
     _getCredits() {
       ApiManager.request(
-        OCResources.POST_STORE_CREDIT,
+        OCResources.GET_STORE_CREDIT,
             (json) {
           if(json["credit"] != null) {
             setState(() => _credits = double.parse(json['credit']));
           }else{
             setState(() => _credits = 0.00);
           }
-        },
-        params: {
-          "customer_email" : _userEmail
         },
       );
     }

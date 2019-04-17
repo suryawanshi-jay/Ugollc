@@ -11,6 +11,7 @@ import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:ugo_flutter/pages/guest_msg_page.dart';
+import 'package:ugo_flutter/widgets/store_credit_button.dart';
 
 class CartPage extends StatefulWidget {
   final Function(dynamic) updateCart;
@@ -34,9 +35,9 @@ class _CartPageState extends State<CartPage> {
   double buyMoreAmt;
   double _min_free_shipping_amt;
   bool showRestrictMsg =false;
+  bool showDrivertipRow = false;
   String restrictMsg;
   String _userEmail ="";
-
 
   final _analytics = new FirebaseAnalytics();
 
@@ -75,16 +76,15 @@ class _CartPageState extends State<CartPage> {
     _getCredits();
   }
 
-  _getCredits() {
+  void _getCredits() {
     ApiManager.request(
-      OCResources.POST_STORE_CREDIT,
+      OCResources.GET_STORE_CREDIT,
           (json) {
-        if(json["credit"] != "null") {
-          setState(() => _credits = double.parse(json['credit']));
+        if(json["credit"] != null) {
+          setState(() => _credits = json['credit']);
+        }else{
+          setState(() => _credits = 0.00);
         }
-      },
-      params: {
-        "customer_email" : _userEmail
       },
     );
   }
@@ -94,6 +94,9 @@ class _CartPageState extends State<CartPage> {
       OCResources.GET_CART,
         (json) {
         setState(() => _cart = new Cart.fromJSON(json["cart"]));
+        if(_cart != null && _cart.productCount()> 0) {
+          showDrivertipRow = true;
+        }
         final tips = _cartTips();
         if (tips.length > 0) {
           setState(() => _tip = tips.first.quantity.toDouble());
@@ -236,7 +239,9 @@ class _CartPageState extends State<CartPage> {
         } else {
           method = _shippingMethods["flat.flat"] ?? null;
           buyMoreAmt = _min_free_shipping_amt - (_subtotal() - _tip);
-          showShippingMsg = true;
+          if(_cart != null && _cart.productCount() > 0) {
+            showShippingMsg = true;
+          }
         }
       }
       setState(() => _shippingMethod = method);
@@ -320,6 +325,10 @@ class _CartPageState extends State<CartPage> {
           _productList.add(new Divider(color: Colors.grey[800], height: 0.0,));
         }
       });
+      _cart.credits.forEach((credit) {
+          _productList.add(new CartCreditRow(credit,deleteProduct));
+          _productList.add(new Divider(color: Colors.grey[800], height: 0.0,));
+      });
       _totals = _cart.totals;
     }
 
@@ -338,6 +347,9 @@ class _CartPageState extends State<CartPage> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Cart"),
+        actions: [
+          _loggedIn ? new StoreCreditButton(_credits) : new Container(),
+        ],
       ),
       body: new Container(
         color: Colors.white,
@@ -358,7 +370,7 @@ class _CartPageState extends State<CartPage> {
               ),
               textAlign: TextAlign.center,
         )):new Container(),
-            new CartTotalRow(_totals, _tip,_credits, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn, showRestrictMsg : showRestrictMsg)
+            new CartTotalRow(_totals, _tip,_credits, updateTip, _shippingMethod, _setup, showShippingMsg, buyMoreAmt : buyMoreAmt, loggedIn: _loggedIn, showRestrictMsg : showRestrictMsg, showDriverTipRow : showDrivertipRow)
           ],
         ),
       )
@@ -514,6 +526,108 @@ class CartProductRow extends StatelessWidget {
   }
 }
 
+class CartCreditRow extends StatelessWidget {
+  final CartCredit credit;
+  //final Function(String key, int quantity) updateQuantity;
+  final Function(String key) deleteProduct;
+
+  CartCreditRow(this.credit,this.deleteProduct);
+
+  @override
+  Widget build(BuildContext context) {
+    Widget image = new Placeholder();
+
+    if (credit.thumbImage != null) {
+      image = new Image.network(credit.thumbImage);
+    }
+
+    return new Dismissible(
+      key: new Key(credit.key),
+      onDismissed: (direction) => deleteProduct(credit.key),
+      direction: DismissDirection.endToStart,
+      background: new Container(
+        padding: new EdgeInsets.only(right: 16.0),
+        color: Colors.red,
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            new Icon(
+              Icons.chevron_left,
+              size: 48.0,
+              color: Colors.white.withAlpha(175),
+            ),
+            new Icon(
+              Icons.delete_forever,
+              color: Colors.white.withAlpha(175),
+              size: 64.0,
+            ),
+          ],
+        ),
+      ),
+      child: new Container(
+//      color: Colors.red,
+        margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+        child: new Row(
+          children: <Widget>[
+            new SizedBox(
+              height: 80.0,
+              width: 80.0,
+              child: new AspectRatio(
+                aspectRatio: 1.0,
+                child: image,
+              ),
+            ),
+            new Expanded(
+              child: new Container(
+                margin: new EdgeInsets.only(left: 10.0),
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    new Text(
+                      "UGO Credit",
+                      style: new TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    /*new Padding(
+                      padding: new EdgeInsets.symmetric(
+                          vertical: 10.0,
+                          horizontal: 0.0
+                      ),
+                      child: new Text(""),
+                    ),*/
+                    new Text(credit.amount),
+                  ],
+                ),
+              ),
+            ),
+            new Column(
+              children: <Widget>[
+                /*new IconButton(
+                  icon: new Icon(Icons.keyboard_arrow_up),
+                  padding: new EdgeInsets.all(4.0),
+                  onPressed: () => updateQuantity(product.key, product.quantity+1),
+                  iconSize: 35.0,
+                  color: UgoGreen,
+                ),*/
+                //new Text(product.quantity.toString(), style: new TextStyle(fontSize: 24.0),),
+                /*new IconButton(
+                  icon: new Icon(Icons.keyboard_arrow_down),
+                  padding: new EdgeInsets.all(4.0),
+                  onPressed: decreaseQuantity,
+                  iconSize: 35.0,
+                  color: UgoGreen,
+                ),*/
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CartTotalRow extends StatelessWidget {
   final List<CartTotal> cartTotals;
   final double tipAmount;
@@ -525,6 +639,7 @@ class CartTotalRow extends StatelessWidget {
   final double buyMoreAmt;
   bool showShippingMsg;
   bool showRestrictMsg;
+  bool showDriverTipRow;
 
   CartTotalRow(
     this.cartTotals,
@@ -537,7 +652,8 @@ class CartTotalRow extends StatelessWidget {
     {
       this.buyMoreAmt,
       this.loggedIn: false,
-      this.showRestrictMsg
+      this.showRestrictMsg,
+      this.showDriverTipRow,
     }
   );
 
@@ -686,7 +802,7 @@ class CartTotalRow extends StatelessWidget {
               new Text("You are only \$${buyMoreAmt.toStringAsFixed(2)} away from \nfree delivery" ,textAlign: TextAlign.left, style: new TextStyle(fontSize: 15.0,fontWeight: FontWeight.bold,color:Colors.blue ),),
             ])
           ): new Container(),
-          new Container(
+          showDriverTipRow ? new Container(
             padding: new EdgeInsets.symmetric(horizontal: 20.0, vertical: 0.0),
             child: new Row(
               children: <Widget>[
@@ -710,7 +826,7 @@ class CartTotalRow extends StatelessWidget {
                 new Text("\$${tipAmount.toStringAsFixed(2)}", style: new TextStyle(fontSize: 18.0),),
               ],
             ),
-          ),
+          ):new Container(),
           new Container(
             padding: new EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: new Column(

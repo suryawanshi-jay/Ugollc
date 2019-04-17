@@ -11,10 +11,12 @@ import 'package:ugo_flutter/pages/search_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/widgets/cart_button.dart';
+import 'package:ugo_flutter/widgets/store_credit_button.dart';
 import 'package:ugo_flutter/widgets/product_widget.dart';
 import 'package:ugo_flutter/widgets/circle_product_widget.dart';
 import 'package:ugo_flutter/widgets/list_divider.dart';
 import 'package:ugo_flutter/pages/drawer.dart';
+import 'package:ugo_flutter/utilities/prefs_manager.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -28,6 +30,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Cart _cart;
   bool showMaintenanceMsg = false;
   String maintenenanceMsg;
+  double _credits;
+  bool loggedIn = false;
 
   TabController _tabController;
 
@@ -97,6 +101,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     } else {
       _fetchCategories();
       _fetchCart();
+      _getCredits();
+      _checkLoggedIn();
+    }
+  }
+
+  _checkLoggedIn() async {
+    final username = await PrefsManager.getString(PreferenceNames.USER_FIRST_NAME);
+    if (username != null) {
+      setState(() => loggedIn = true);
     }
   }
 
@@ -149,6 +162,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         final fetchedCart = new Cart.fromJSON(json["cart"]);
         setState(() => _cart = fetchedCart);
       }
+    );
+  }
+
+  void _getCredits() {
+    ApiManager.request(
+      OCResources.GET_STORE_CREDIT,
+          (json) {
+        if(json["credit"] != null) {
+          setState(() => _credits = json['credit']);
+        }else{
+          setState(() => _credits = 0.00);
+        }
+      },
     );
   }
 
@@ -286,8 +312,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       appBar: new AppBar(
         backgroundColor: UgoGreen,
         title: new Image.asset('assets/images/ugo_logo.png'),
-        centerTitle: true,
+        //centerTitle: true,
         actions: [
+          loggedIn ? new StoreCreditButton(_credits): new Container(),
           new CartButton(_cart, updateCart: _updateCart),
         ],
         bottom: new TabBar(

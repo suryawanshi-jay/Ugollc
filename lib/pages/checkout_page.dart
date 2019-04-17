@@ -16,6 +16,7 @@ import 'package:ugo_flutter/models/addressType.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:flutter/src/widgets/editable_text.dart';
 import 'package:flutter/src/material/text_field.dart';
+import 'package:ugo_flutter/widgets/store_credit_button.dart';
 
 
 class CheckoutPage extends StatefulWidget {
@@ -170,11 +171,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _checkIfGuest();
       _getCart();
       _getCWID();
+      _getCredits();
     }else{
       _getGuestInfo();
-
+      _getCart();
     }
-
   }
 
   _getCart(){
@@ -219,6 +220,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _userEmail = await PrefsManager.getString(PreferenceNames.USER_EMAIL);
     setState(() => _userEmail = _userEmail);
     _getRewards();
+  }
+
+  void _getCredits() {
+    ApiManager.request(
+      OCResources.GET_STORE_CREDIT,
+          (json) {
+        if(json["credit"] != null) {
+          setState(() => _credits = json['credit']);
+        }else{
+          setState(() => _credits = 0.00);
+        }
+      },
+    );
   }
 
   _getRewards() {
@@ -459,8 +473,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     // TODO add handling of null addrID (logout/login?), indicates no default payment address
     ApiManager.request(
         OCResources.POST_PAYMENT_ADDRESS,
-            (json) {
-          _submitShippingAddress(context);
+          (json) {
+            if(_cart != null && _cart.productCount()  > 0)
+            {
+              _submitShippingAddress(context);
+            }else {
+              _pickPaymentMethod(context);
+            }
         },
         params: params,
         errorHandler: (error) {
@@ -981,7 +1000,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 //    cardList.add(new DropdownMenuItem(child: new Divider(height: 0.0,)));
     cardList.add(new DropdownMenuItem(child: new Text("DINING DOLLARS"), value: "DD"));
     cardList.add(new DropdownMenuItem(child: new Text("BAMA CASH"), value: "BAMA Cash"));
-    cardList.add(new DropdownMenuItem(child: new Text("Cash"), value: "cod"));
+    if(_cart != null && _cart.productCount() > 0) {
+      cardList.add(new DropdownMenuItem(child: new Text("Cash"), value: "cod"));
+    }
 
     return cardList;
   }
@@ -1418,6 +1439,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return new Scaffold(
         appBar: new AppBar(
           title: new Text("Checkout"),
+          actions: [
+            _guestUser ? new Container() : new StoreCreditButton(_credits),
+          ],
         ),
         body: new GestureDetector(
           onTap: () {
@@ -1601,7 +1625,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         if (_shippingMethod != null && _shippingMethod.cost != 0.0){
                                             getNewShippingCost();
                                         };
-                                        setState(() => showApplyCoupon = true);
+                                        if(_cart != null && _cart.productCount()  > 0)
+                                        {
+                                          setState(() =>
+                                          showApplyCoupon = true);
+                                        }
                                       },
                                   ),
                                   new Expanded(
