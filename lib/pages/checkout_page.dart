@@ -227,7 +227,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       OCResources.GET_STORE_CREDIT,
           (json) {
         if(json["credit"] != null) {
-          setState(() => _credits = json['credit']);
+          setState(() => _credits = double.parse(json['credit']));
         }else{
           setState(() => _credits = 0.00);
         }
@@ -1440,7 +1440,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         appBar: new AppBar(
           title: new Text("Checkout"),
           actions: [
-            _guestUser ? new Container() : new StoreCreditButton(_credits),
+            _guestUser ? new Container() : new StoreCreditButton(_credits,_cart),
           ],
         ),
         body: new GestureDetector(

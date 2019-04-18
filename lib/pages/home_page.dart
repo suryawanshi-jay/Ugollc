@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       OCResources.GET_STORE_CREDIT,
           (json) {
         if(json["credit"] != null) {
-          setState(() => _credits = json['credit']);
+          setState(() => _credits = double.parse(json['credit']));
         }else{
           setState(() => _credits = 0.00);
         }
@@ -314,7 +314,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         title: new Image.asset('assets/images/ugo_logo.png'),
         //centerTitle: true,
         actions: [
-          loggedIn ? new StoreCreditButton(_credits): new Container(),
+          loggedIn ? new StoreCreditButton(_credits,_cart): new Container(),
           new CartButton(_cart, updateCart: _updateCart),
         ],
         bottom: new TabBar(
@@ -347,7 +347,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             hiddenCategoryIDs: _hiddenCategoryIDs,
           )
         ]
-      )
+      ),
     );
   }
 }

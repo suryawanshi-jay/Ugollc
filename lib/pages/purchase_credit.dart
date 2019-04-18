@@ -99,7 +99,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
       OCResources.GET_STORE_CREDIT,
           (json) {
         if(json["credit"] != null) {
-          setState(() => _credits = json['credit']);
+          setState(() => _credits = double.parse(json['credit']));
         }else{
           setState(() => _credits = 0.00);
         }
@@ -113,7 +113,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
       appBar: new AppBar(
         title: new Text("UGO Credits"),
         actions: [
-          new StoreCreditButton(_credits),
+          new StoreCreditButton(_credits,null),
         ],
       ),
       body: new GestureDetector(

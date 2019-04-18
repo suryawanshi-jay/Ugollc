@@ -81,7 +81,7 @@ class _CartPageState extends State<CartPage> {
       OCResources.GET_STORE_CREDIT,
           (json) {
         if(json["credit"] != null) {
-          setState(() => _credits = json['credit']);
+          setState(() => _credits = double.parse(json['credit']));
         }else{
           setState(() => _credits = 0.00);
         }
@@ -348,7 +348,7 @@ class _CartPageState extends State<CartPage> {
       appBar: new AppBar(
         title: new Text("Cart"),
         actions: [
-          _loggedIn ? new StoreCreditButton(_credits) : new Container(),
+          _loggedIn ? new StoreCreditButton(_credits,_cart) : new Container(),
         ],
       ),
       body: new Container(

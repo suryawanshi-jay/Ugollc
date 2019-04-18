@@ -75,6 +75,7 @@ class ApiManager extends Object {
     if (resourceID != null) {
       url = url.replaceAll(r'{id}', resourceID);
     }
+    debugPrint("$url");
     return url;
   }
 
