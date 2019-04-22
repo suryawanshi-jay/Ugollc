@@ -39,7 +39,7 @@ class _StoreCreditButtonState extends State<StoreCreditButton> {
         ),
         child: new Row(
             children: <Widget>[
-              //new Text("\$${_cartText}", style: new TextStyle(color: UgoGreen, fontSize: 13.0)),
+              new Text("\$${_cartText}", style: new TextStyle(color: UgoGreen, fontSize: 13.0)),
               new Icon(Icons.add_circle, color: UgoGreen,),
               new Padding(padding: new EdgeInsets.only(left: _cartPadding),),
             ]
