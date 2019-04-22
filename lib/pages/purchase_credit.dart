@@ -3,12 +3,12 @@ import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/widgets/store_credit_button.dart';
 import 'package:ugo_flutter/pages/checkout_page.dart';
-import 'package:ugo_flutter/utilities/prefs_manager.dart';
-import'package:ugo_flutter/pages/store_credit_page.dart';
 import 'package:ugo_flutter/models/cart.dart';
-import 'package:ugo_flutter/models/shipping_method.dart';
 
 class PurchaseCreditPage extends StatefulWidget {
+
+  PurchaseCreditPage();
+
   @override
   _PurchaseCreditPageState createState() => new _PurchaseCreditPageState();
 }
@@ -23,6 +23,8 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   String errorMsg = "";
   double _credits = 0.00;
   Widget checkoutRoute;
+  bool showPurchaseForm = true;
+  Cart _cart;
 
   TextEditingController _creditController = new TextEditingController();
 
@@ -30,6 +32,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   initState() {
     _getCreditDetails();
     _getCredits();
+    _getCart();
   }
 
   _getCreditDetails() {
@@ -40,6 +43,21 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
           setState(() => _maxCredit = double.parse(json['credit']['max_amount']));
           setState(() => _creditController.text = json['credit']['default_amount']);
         }
+    );
+  }
+
+  _getCart(){
+    ApiManager.request(
+        OCResources.GET_CART,
+            (json) {
+          setState(() => _cart = new Cart.fromJSON(json["cart"]));
+          if (_cart.productCount() > 0) {
+              setState(() => showPurchaseForm = false);
+          }
+        },
+        params :{
+          "api_call" :1
+        },
     );
   }
 
@@ -109,7 +127,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
 
   @override
   Widget build (BuildContext ctxt) {
-    return new Scaffold(
+    return showPurchaseForm ? new Scaffold(
       appBar: new AppBar(
         title: new Text("UGO Credits"),
         actions: [
@@ -170,18 +188,18 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
                           ),
                         ): new Container(),
                         new Container(
-                            padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
-                            child: new Row(
-                              children: <Widget>[
-                                new Expanded(
-                                    child: new RaisedButton(
-                                      onPressed: ()  => _validatePurchaseCredit(),
-                                      color: UgoGreen,
-                                      child: new Text("Buy Credit", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
-                                    )
-                                )
-                              ],
-                            )
+                          padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0),
+                          child: new Row(
+                            children: <Widget>[
+                              new Expanded(
+                                  child: new RaisedButton(
+                                    onPressed: ()  => _validatePurchaseCredit(),
+                                    color: UgoGreen,
+                                    child: new Text("Buy Credit", style: new TextStyle(fontSize: 18.0, color: Colors.white)),
+                                  )
+                              )
+                            ],
+                          )
                         ),
                       ],
                     ),
@@ -192,6 +210,17 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
           ),
         ),
       ),
+    ):new AlertDialog(
+      //title: new Text("Alert Dialog title"),
+      content: new Text("You must empty your cart first to purchase UGO credit!",textAlign: TextAlign.left, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0)),
+      actions: <Widget>[
+        new FlatButton(
+          child: new Text("Back"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

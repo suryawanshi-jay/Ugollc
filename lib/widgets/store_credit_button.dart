@@ -19,38 +19,10 @@ class _StoreCreditButtonState extends State<StoreCreditButton> {
   bool showAlert = false;
 
   _onStoreCreditClick(){
-
-    if(widget.cart.productCount() > 0){
-      //setState(() => showAlert = true);
-      debugPrint("hhiu");
-      Navigator.push(context,
-          new MaterialPageRoute(
-              builder: (BuildContext context) => new PurchaseCreditPage())
-      );
-
-      /*return new Scaffold(
-        appBar: new AppBar(
-          backgroundColor: UgoGreen,
-          title: new Image.asset('assets/images/ugo_logo.png'),
-        ),
-        body : new AlertDialog(
-            content: new ListView(
-              children: <Widget>[
-                //new Image.asset('assets/images/pause.png'),
-                new ListTile(
-                  title: new Text("yhiuyhiuy",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 20.0)),
-                )
-              ],
-            )//actions: <Widget>[
-        ),
-      );*/
-    }else {
-      Navigator.push(context,
-          new MaterialPageRoute(
-              builder: (BuildContext context) => new PurchaseCreditPage())
-      );
-    }
-
+    Navigator.push(context,
+        new MaterialPageRoute(
+            builder: (BuildContext context) => new PurchaseCreditPage())
+    );
   }
 
   Widget build(BuildContext context) {
