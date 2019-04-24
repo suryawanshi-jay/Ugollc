@@ -95,9 +95,11 @@ abstract class OCResources {
   static const GET_CREDIT_DETAILS = "GET::$OPENCART_IDENTIFIER::account/buy_credit";
   static const POST_CREDIT_DETAILS = "POST::$OPENCART_IDENTIFIER::account/buy_credit";
   static const GET_EMPTY_CART = "GET::$OPENCART_IDENTIFIER::checkout/empty_cart";
-
+  static const GET_VERSION = "GET::$OPENCART_IDENTIFIER::common/version";
   static const GET_COUNTRY = "GET::$OPENCART_IDENTIFIER::common/country";
   static const POST_ZONE = "POST::$OPENCART_IDENTIFIER::common/country";
+  static const APP_STORE_URL = 'https://itunes.apple.com/us/app/ugo-convenience-delivery/id1029275361?mt=8';
+  static const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.ugollc.ugoflutter&hl=en_US';
 
 }
 
