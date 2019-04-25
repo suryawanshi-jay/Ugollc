@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   initState() {
+    _checkLoggedIn();
     super.initState();
     _tabController = new TabController(length: 3, vsync: this);
     setState(() => _loading = true);
@@ -151,6 +152,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: new Text(btnLabel),
               onPressed: () => _launchURL(APP_STORE_URL),
             ),
+            //new  FlatButton(
+            //  child: new Text(btnLabelCancel),
+            //  onPressed: () => Navigator.pop(context),
+            //),
           ],
         )
             : new AlertDialog(
@@ -161,6 +166,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: new Text(btnLabel),
               onPressed: () => _launchURL(PLAY_STORE_URL),
             ),
+            //new FlatButton(
+            //  child: new  Text(btnLabelCancel),
+            //  onPressed: () => Navigator.pop(context),
+            //),
           ],
         );
       }),
