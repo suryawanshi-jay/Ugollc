@@ -129,7 +129,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   Widget build (BuildContext ctxt) {
     return showPurchaseForm ? new Scaffold(
       appBar: new AppBar(
-        title: new Text("UGO Credits"),
+        title: new Text("UGO Credit"),
         actions: [
           new StoreCreditButton(_credits,null),
         ],

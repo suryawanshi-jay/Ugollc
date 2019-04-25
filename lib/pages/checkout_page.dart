@@ -1089,7 +1089,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     var totalAmount = total + addedAmount;
     if(type == "Store Credit"){
-      setState(() => newTotal = totalAmount);
       if(totalAmount >= _credits) {
         totalAmount == _credits;
         return new Row(
@@ -1112,28 +1111,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     }
     if(type == "Total" && total == 0.0){
-      if(_credits > 0.0) {
-        var new_total = totalAmount - _credits;
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            new Text(
-              "$text: \$${new_total.toStringAsFixed(2)}",
-              style: new TextStyle(fontSize: 18.0),)
-          ],
-        );
-      } else {
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            new Text(
-              "$text: \$${total.toStringAsFixed(2)}",
-              style: new TextStyle(fontSize: 18.0),)
-          ],
-        );
-      }
+      return new Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          new Text(
+            "$text: \$${total.toStringAsFixed(2)}",
+            style: new TextStyle(fontSize: 18.0),)
+        ],
+      );
     }
-   
+
     return new Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[

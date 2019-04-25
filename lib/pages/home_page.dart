@@ -17,8 +17,6 @@ import 'package:ugo_flutter/widgets/list_divider.dart';
 import 'package:ugo_flutter/pages/drawer.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info/package_info.dart';
-import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,9 +35,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String maintenenanceMsg;
   double _credits;
   bool loggedIn = false;
-  bool isIOS = false;
   String currentVersion = "3.0.11";
-  String platform = "ios";
+  String platform = "android";
+  bool isiOS = false;
+  bool isAndroid = false;
 
   TabController _tabController;
 
@@ -57,7 +56,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabController = new TabController(length: 3, vsync: this);
     setState(() => _loading = true);
     _startupTokenCheck();
-   // versionCheck();
+    versionCheck();
     _searchFocus = new FocusNode();
     _searchField = new TextField(
       focusNode: _searchFocus,
@@ -116,42 +115,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   versionCheck() async {
-    bool isIOS = false;
-    debugPrint("hewhdui");
-    //Get Current installed version of app
-    //final PackageInfo info = await PackageInfo.fromPlatform();
-    debugPrint("hewhduiyuiyi");
-    //double currentVersion = double.parse(info.version.trim().replaceAll(".", ""));
-
     if(platform == "ios"){
-      setState(() => isIOS = true);
+      setState(() => isiOS = true);
+    }else{
+      setState(() => isAndroid = true);
     }
     ApiManager.request(
         OCResources.GET_VERSION,
             (json) async {
-          debugPrint("$json");
           if(json['version'] != currentVersion ){
             _showVersionDialog();
           }
         },
-      //params: {
-      //    "plateform" :platform
-      //}
+      params: {
+          "platform" :platform
+      }
     );
   }
 
   void _showVersionDialog() async {
      await showDialog<String>(
-      context: context,
+      //context: context,
       barrierDismissible: false,
       child: new Builder (builder: (BuildContext context) {
         String title = "New Update Available";
         String message =
             "There is a newer version of app available please update it now.";
         String btnLabel = "Update Now";
-        //String btnLabelCancel = "Later";
-        //return Platform.isIOS
-        return isIOS
+        return isiOS
             ? new CupertinoAlertDialog(
           title: new Text(title),
           content:new Text(message),
@@ -160,10 +151,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: new Text(btnLabel),
               onPressed: () => _launchURL(APP_STORE_URL),
             ),
-            //new  FlatButton(
-            //  child: new Text(btnLabelCancel),
-            //  onPressed: () => Navigator.pop(context),
-            //),
           ],
         )
             : new AlertDialog(
@@ -174,10 +161,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: new Text(btnLabel),
               onPressed: () => _launchURL(PLAY_STORE_URL),
             ),
-            //new FlatButton(
-            //  child: new  Text(btnLabelCancel),
-            //  onPressed: () => Navigator.pop(context),
-            //),
           ],
         );
       }),
