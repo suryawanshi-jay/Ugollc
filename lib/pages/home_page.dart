@@ -52,11 +52,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   initState() {
-    _checkLoggedIn();
     super.initState();
     _tabController = new TabController(length: 3, vsync: this);
     setState(() => _loading = true);
     _startupTokenCheck();
+    _checkLoggedIn();
     versionCheck();
     _searchFocus = new FocusNode();
     _searchField = new TextField(
@@ -134,43 +134,41 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  void _showVersionDialog() async {
-     await showDialog<String>(
-      //context: context,
+   _showVersionDialog()  {
+      showDialog<String>(
+      context: context,
       barrierDismissible: false,
       child: new Builder (builder: (BuildContext context) {
+
         String title = "New Update Available";
         String message =
             "There is a newer version of app available please update it now.";
         String btnLabel = "Update Now";
         return isiOS
-            ? new CupertinoAlertDialog(
-          title: new Text(title),
-          content:new Text(message),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text(btnLabel),
-              onPressed: () => _launchURL(APP_STORE_URL),
-            ),
-            //new  FlatButton(
-            //  child: new Text(btnLabelCancel),
-            //  onPressed: () => Navigator.pop(context),
-            //),
-          ],
-        )
-            : new AlertDialog(
-          title: new Text(title),
-          content:new  Text(message),
-          actions: <Widget>[
-            new  FlatButton(
-              child: new Text(btnLabel),
-              onPressed: () => _launchURL(PLAY_STORE_URL),
-            ),
-            //new FlatButton(
-            //  child: new  Text(btnLabelCancel),
-            //  onPressed: () => Navigator.pop(context),
-            //),
-          ],
+            ?new WillPopScope(
+              onWillPop: () {},
+                child : new CupertinoAlertDialog(
+                title: new Text(title),
+                content:new Text(message),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text(btnLabel),
+                    onPressed: () => _launchURL(APP_STORE_URL),
+                  ),
+                ],
+              )
+        ):new WillPopScope(
+          onWillPop: () {},
+          child : new AlertDialog(
+            title: new Text(title),
+            content:new  Text(message),
+            actions: <Widget>[
+              new  FlatButton(
+                child: new Text(btnLabel),
+                onPressed: () => _launchURL(PLAY_STORE_URL),
+              ),
+            ],
+          )
         );
       }),
     );
@@ -390,8 +388,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       appBar: new AppBar(
         backgroundColor: UgoGreen,
         title: new Image.asset('assets/images/ugo_logo.png'),
+
         //centerTitle: true,
         actions: [
+          new Text("Credit:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 10.0)),
           loggedIn ? new StoreCreditButton(_credits,_cart): new Container(),
           new CartButton(_cart, updateCart: _updateCart),
         ],

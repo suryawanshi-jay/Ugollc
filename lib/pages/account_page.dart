@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ugo_flutter/pages/card_management_page.dart';
 import 'package:ugo_flutter/pages/order_history_page.dart';
+import 'package:ugo_flutter/pages/home_page.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
@@ -422,7 +423,11 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
         if (widget.updateCart != null) {
           widget.updateCart();
         }
-        Navigator.pop(context);
+        Navigator.push(context,
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new HomePage()
+          )
+        );
       },
     );
   }

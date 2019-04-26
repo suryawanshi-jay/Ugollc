@@ -5,6 +5,8 @@ import 'package:ugo_flutter/pages/registration_page.dart';
 import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/utilities/constants.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
+import 'package:ugo_flutter/pages/home_page.dart';
+
 
 class LoginPage extends StatefulWidget {
   final Function() updateCart;
@@ -136,7 +138,11 @@ class _LoginPageState extends State<LoginPage> {
       widget.updateCart();
     }
 
-    Navigator.pop(context);
+    Navigator.push(context,
+      new MaterialPageRoute(
+        builder: (BuildContext context) => new HomePage()
+      )
+    );
   }
 
   _forgotPassword(BuildContext context) {
