@@ -348,6 +348,7 @@ class _CartPageState extends State<CartPage> {
       appBar: new AppBar(
         title: new Text("Cart"),
         actions: [
+          _loggedIn ? new Container(margin: new EdgeInsets.fromLTRB(10.0,17.0,2.0,8.0),child :new Text("Credit:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))): new Container(),
           _loggedIn ? new StoreCreditButton(_credits,_cart) : new Container(),
         ],
       ),

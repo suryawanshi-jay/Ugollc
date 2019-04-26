@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String maintenenanceMsg;
   double _credits;
   bool loggedIn = false;
-  String currentVersion = "3.0.11";
+  String currentVersion = "3.0.2";
   String platform = "android";
   bool isiOS = false;
   bool isAndroid = false;
@@ -391,7 +391,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
         //centerTitle: true,
         actions: [
-          new Text("Credit:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 10.0)),
+          loggedIn ? new Container(margin: new EdgeInsets.fromLTRB(10.0,17.0,2.0,8.0),child :new Text("Credit:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))): new Container(),
           loggedIn ? new StoreCreditButton(_credits,_cart): new Container(),
           new CartButton(_cart, updateCart: _updateCart),
         ],

@@ -31,8 +31,8 @@ class _StoreCreditButtonState extends State<StoreCreditButton> {
     final _cartPadding = _cartCount > 0 ? 4.0 : 0.0;
     return new GestureDetector(
       child: new Container(
-        margin: new EdgeInsets.all(10.0),
-        padding: new EdgeInsets.symmetric(horizontal: 15.0),
+        margin: new EdgeInsets.fromLTRB(1.0,10.0,2.0,10.0),
+        padding: new EdgeInsets.symmetric(horizontal: 10.0),
         decoration: new BoxDecoration(
           color: Colors.white,
           borderRadius: new BorderRadius.all(const Radius.circular(20.0)),

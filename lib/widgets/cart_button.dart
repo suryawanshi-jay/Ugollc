@@ -21,8 +21,8 @@ class _CartButtonState extends State<CartButton> {
     final _cartPadding = _cartCount > 0 ? 5.0 : 0.0;
     return new GestureDetector(
       child: new Container(
-        margin: new EdgeInsets.all(10.0),
-        padding: new EdgeInsets.symmetric(horizontal: 15.0),
+        margin: new EdgeInsets.fromLTRB(3.0,10.0,5.0,10.0),
+        padding: new EdgeInsets.symmetric(horizontal: 10.0),
         decoration: new BoxDecoration(
           color: Colors.white,
           borderRadius: new BorderRadius.all(const Radius.circular(20.0)),

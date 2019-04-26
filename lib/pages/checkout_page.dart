@@ -1427,6 +1427,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         appBar: new AppBar(
           title: new Text("Checkout"),
           actions: [
+           _guestUser ? new Container() :new Container(margin: new EdgeInsets.fromLTRB(10.0,17.0,2.0,8.0),child :new Text("Credit:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))),
             _guestUser ? new Container() : new StoreCreditButton(_credits,_cart),
           ],
         ),

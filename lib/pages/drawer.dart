@@ -79,7 +79,7 @@ class _UgoDrawerState extends State<UgoDrawer> {
             ),
 
             new UgoDrawerRow("Our Company", Icons.star, "http://ugodelivery.herokuapp.com/origin"),
-            _loggedIn ?new UgoDrawerCreditRow("UGO Credits", Icons.monetization_on):new Container(),
+            _loggedIn ?new UgoDrawerCreditRow("UGO Credit", Icons.monetization_on):new Container(),
             _loggedIn ?new UgoDrawerReferralRow("Refer & Earn", Icons.card_giftcard):new Container(),
             new UgoDrawerRow("FAQ", Icons.info_outline, "http://ugodelivery.herokuapp.com/support"),
             new UgoDrawerRow("Privacy Policy", Icons.security, "http://ugodelivery.herokuapp.com/privacy-policy"),
