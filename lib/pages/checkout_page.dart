@@ -353,21 +353,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
       OCResources.POST_NEW_SHIPPING_AMT, (json) {
         if(json != null){
           //For cart total's percent based delivery fee
-          if(json['fee_type'] == "P"){
-            final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
-            final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
-            final double tip = _tipAmount;
-            //setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
-            var newDeliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal) - tip)/100);
-            if(newDeliveryCost >= 2.99) {
-              setState(() => deliveryCost = newDeliveryCost.toStringAsFixed(2));
+          if(_cart.productCount() > 0) {
+            if (json['fee_type'] == "P") {
+              final CartTotal subTotal = _totals
+                  .where((total) => total.title == "Sub-Total")
+                  .first;
+              final String clnTotal = subTotal.text.replaceAll(
+                  PRICE_REGEXP, "");
+              final double tip = _tipAmount;
+              //setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
+              var newDeliveryCost = (double.parse(json["delivery_fee"]) *
+                  (double.parse(clnTotal) - tip) / 100);
+              if (newDeliveryCost >= 3.99) {
+                setState(() =>
+                deliveryCost = newDeliveryCost.toStringAsFixed(2));
+              } else {
+                setState(() => deliveryCost = 3.99.toString());
+              }
             } else {
-              setState(() => deliveryCost = 2.99.toString());
+              setState(() => deliveryCost = json["delivery_fee"]);
             }
-          }else {
-            setState(() => deliveryCost = json["delivery_fee"]);
+            setState(() => showShippingRow = true);
+          } else {
+            setState(() => deliveryCost = 0.00.toString());
+            setState(() => showShippingRow = false);
           }
-          setState(() => showShippingRow = true);
         }
       },
       params: {
@@ -1427,7 +1437,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         appBar: new AppBar(
           title: new Text("Checkout"),
           actions: [
-           _guestUser ? new Container() :new Container(margin: new EdgeInsets.fromLTRB(10.0,17.0,2.0,8.0),child :new Text("Credit:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))),
+           _guestUser ? new Container() :new Container(margin: new EdgeInsets.fromLTRB(10.0,17.0,2.0,8.0),child :new Text("CREDIT:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))),
             _guestUser ? new Container() : new StoreCreditButton(_credits,_cart),
           ],
         ),
