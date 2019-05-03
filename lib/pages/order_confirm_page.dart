@@ -5,6 +5,9 @@ import 'package:ugo_flutter/pages/send_referral.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 
 class OrderConfirmPage extends StatefulWidget {
+  final bool _productOrder;
+
+  OrderConfirmPage(this._productOrder);
 
   @override
   _OrderConfirmPageState createState() => new _OrderConfirmPageState();
@@ -70,8 +73,8 @@ class _OrderConfirmPageState extends State<OrderConfirmPage> {
                   child: new Text("Refer Now", style: BUTTON_STYLE),
                 ),
               ): new Container(),
-              new Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 15.0),
+              widget._productOrder ? new Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 8.0),
                 child: new Text(
                   "You should receive a confirmation email soon. "
                   "If you have any questions or concerns, please call us.\n\n"
@@ -79,9 +82,16 @@ class _OrderConfirmPageState extends State<OrderConfirmPage> {
                   textAlign: TextAlign.center,
                   style: new TextStyle(fontSize: 18.0),
                 ),
+              ):new Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0,vertical: 8.0),
+                child: new Text(
+                  "Thank you for your credit purchase! Hold tight! Before your Credit is added to your Ugo E-wallet, it needs to be approval by our general manager. The process won't take longer than 3-5 minutes. Once credit order is reviewed, you'll receive an SMS confirming or denying your attempted credit purchase. If accepted, your funds will be added to you wallet immediately. If rejected, please call (205)-632-3307 for further assistance.",
+                  textAlign: TextAlign.center,
+                  style: new TextStyle(fontSize: 14.0),
+                ),
               ),
               new Padding(
-                padding: const EdgeInsets.only(top: 12.0),
+                padding: const EdgeInsets.only(top: 3.0),
                 child: new FlatButton(
                   onPressed: () {
                     Navigator.pushReplacement(context,

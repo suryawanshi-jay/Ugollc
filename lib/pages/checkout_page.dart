@@ -70,6 +70,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _apartmentValid = false;
   bool showApplyCoupon = false;
   double newTotal = 0.0;
+  bool _productOrder = false;
 
   Cart _cart;
   String _cartError;
@@ -193,6 +194,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 _getMinShippingAmt();
               }
             });
+            if(_cart.productCount() > 0){
+              _productOrder = true;
+            }
           }
         },
         params :{
@@ -974,7 +978,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       Navigator.push(_navContext,
           new MaterialPageRoute(
-              builder: (BuildContext context) => new OrderConfirmPage())
+              builder: (BuildContext context) => new OrderConfirmPage(_productOrder))
       );
     },
         errorHandler: (error) {
