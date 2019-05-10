@@ -163,6 +163,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
                 },
               ),
             ],
+          scrollController: new ScrollController(keepScrollOffset: true),
           ) : new AlertDialog(
             title: new Text(title),
             content: new Container(
