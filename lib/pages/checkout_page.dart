@@ -1461,7 +1461,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            _guestUser ? new Container() : new Text("Select Delivery Address", style: titleStyle),
+                            _productOrder ? _guestUser ? new Container() : new Text("Select Delivery Address", style: titleStyle) : new Text("Select Billing Address", style:titleStyle),
                             _guestUser ? new Container() : new DropdownButton(
                               items: _addressList(),
                               onChanged: (value) => _setAddress(value),

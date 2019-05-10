@@ -35,8 +35,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String maintenenanceMsg;
   double _credits;
   bool loggedIn = false;
-  String currentVersion = "3.0.2";
-  String platform = "android";
+  String currentVersion = CURRENT_VERSION;
+  String platform = PLATFORM;
   bool isiOS = false;
   bool isAndroid = false;
 
@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() => _loading = true);
     _startupTokenCheck();
     _checkLoggedIn();
-    //versionCheck();
+    versionCheck();
     _searchFocus = new FocusNode();
     _searchField = new TextField(
       focusNode: _searchFocus,

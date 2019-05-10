@@ -4,6 +4,8 @@ import 'package:ugo_flutter/utilities/api_manager.dart';
 import 'package:ugo_flutter/widgets/store_credit_button.dart';
 import 'package:ugo_flutter/pages/checkout_page.dart';
 import 'package:ugo_flutter/models/cart.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:ugo_flutter/utilities/constants.dart';
 
 class PurchaseCreditPage extends StatefulWidget {
 
@@ -25,6 +27,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
   Widget checkoutRoute;
   bool showPurchaseForm = true;
   Cart _cart;
+  bool isIos = false;
 
   TextEditingController _creditController = new TextEditingController();
 
@@ -33,6 +36,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
     _getCreditDetails();
     _getCredits();
     _getCart();
+    _checkPlatform();
   }
 
   _getCreditDetails() {
@@ -59,6 +63,14 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
           "api_call" :1
         },
     );
+  }
+
+  _checkPlatform(){
+    if(PLATFORM == "ios"){
+      isIos = true;
+    }else {
+      isIos = false;
+    }
   }
 
   _validatePurchaseCredit(){
@@ -99,6 +111,99 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
         (json) {
          _nextPage();
         },
+    );
+  }
+
+  _showTermsDialog()  {
+    showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      child: new Builder (builder: (BuildContext context)
+    {
+      String title = "Terms & Conditions";
+      String message =
+          "Ugo Credit must be purchased separately\nUgo Credit accepts the following payment methods:\n-Credit/debit card\n-Dining Dollars\n-Bama Cash\nEvery attempted Ugo Credit purchase undergoes a review process by management that will take 3-5 minutes.\nBuyer will receive SMS updates on their credit status, every step of the way.\nWhen approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\nWhen approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\nAll future orders will draw from buyers existing credit balance.\nIf Ugo Credit does not cover full order, the buyer must pay the difference with another payment type.";
+      return new WillPopScope(
+        onWillPop: () {},
+        child: isIos ? new CupertinoAlertDialog(
+          title: new Text(title),
+          content: new Container(
+            margin: new EdgeInsets.only(
+                top: 15.0, left: 5.0, right: 5.0, bottom: 0.0),
+            child: new ListView(
+              children: <Widget>[
+                new Text("1. Ugo Credit must be purchased separately.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+                new Text(
+                    "2. Ugo Credit accepts the following payment methods:\n-Credit/debit card\n-Dining Dollars\n-Bama Cash.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+                new Text(
+                    "3. Every attempted Ugo Credit purchase undergoes a review process by management that will take 3-5 minutes.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+                new Text(
+                    "4. Buyer will receive SMS updates on their credit status, every step of the way.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+                new Text(
+                    "5. When approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+                new Text(
+                    "6. All future orders will draw from buyers existing credit balance.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+                new Text(
+                    "7. If Ugo Credit does not cover full order, the buyer must pay the difference with another payment type.\n",
+                    style: new TextStyle(fontStyle: FontStyle.italic)),
+              ]
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ) : new AlertDialog(
+            title: new Text(title),
+            content: new Container(
+              margin: new EdgeInsets.only(
+                  top: 15.0, left: 5.0, right: 5.0, bottom: 0.0),
+              child: new ListView(
+                  children: <Widget>[
+                    new Text("1. Ugo Credit must be purchased separately.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                    new Text(
+                        "2. Ugo Credit accepts the following payment methods:\n-Credit/debit card\n-Dining Dollars\n-Bama Cash.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                    new Text(
+                        "3. Every attempted Ugo Credit purchase undergoes a review process by management that will take 3-5 minutes.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                    new Text(
+                        "4. Buyer will receive SMS updates on their credit status, every step of the way.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                    new Text(
+                        "5. When approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                    new Text(
+                        "6. All future orders will draw from buyers existing credit balance.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                    new Text(
+                        "7. If Ugo Credit does not cover full order, the buyer must pay the difference with another payment type.\n",
+                        style: new TextStyle(fontStyle: FontStyle.italic)),
+                  ]
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          )
+        );
+      }),
     );
   }
 
@@ -168,9 +273,15 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
                               setState(() => amount = value);
                             },
                         ),
-                        new Padding(padding: new EdgeInsets.only(top: 25.0),),
+                        new Padding(padding: new EdgeInsets.only(top: 25.0, left: 5.0, right: 5.0, bottom: 0.0),),
                         new CheckboxListTile(
-                          title: new Text("I understand that purchase of store credits are non-refundable."),
+                          title: new GestureDetector(
+                              child: new Text("I have read and agree with the Terms & Conditions.",textAlign: TextAlign.left, style: new TextStyle(decoration: TextDecoration.underline, color:UgoGreen,)),
+                              onTap: () {
+                                _showTermsDialog();
+                                // do what you need to do when "Click here" gets clicked
+                              }
+                          ),
                           value: checkedValue,
                           onChanged: (value) {
                             setState(() => checkedValue = true);
