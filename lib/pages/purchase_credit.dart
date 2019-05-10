@@ -122,7 +122,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
     {
       String title = "Terms & Conditions";
       String message =
-          "1. Ugo Credit must be purchased separately\n\n2. Ugo Credit accepts the following payment methods:\n-Credit/debit card\n-Dining Dollars\n-Bama Cash\n\n3. Every attempted Ugo Credit purchase undergoes a review process by management that will take 3-5 minutes.\n\n4. Buyer will receive SMS updates on their credit status, every step of the way.\n\n5. When approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\n\n6. All future orders will draw from buyers existing credit balance.\n\n7. If Ugo Credit does not cover full order, the buyer must pay the difference with another payment type.";
+          "\n1. Ugo Credit must be purchased separately\n\n2. Ugo Credit accepts the following payment methods:\n-Credit/debit card\n-Dining Dollars\n-Bama Cash\n\n3. Every attempted Ugo Credit purchase undergoes a review process by management that will take 3-5 minutes.\n\n4. Buyer will receive SMS updates on their credit status, every step of the way.\n\n5. When approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\n\n6. All future orders will draw from buyers existing credit balance.\n\n7. If Ugo Credit does not cover full order, the buyer must pay the difference with another payment type.";
       return new WillPopScope(
         onWillPop: () {},
         child: isIos ? new CupertinoAlertDialog(
