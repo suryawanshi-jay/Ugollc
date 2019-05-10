@@ -127,35 +127,7 @@ class _PurchaseCreditPageState extends State<PurchaseCreditPage> {
         onWillPop: () {},
         child: isIos ? new CupertinoAlertDialog(
           title: new Text(title),
-          content:new Text(message),
-          /*content: new Container(
-            //margin: new EdgeInsets.only(
-            //    top: 15.0, left: 5.0, right: 5.0, bottom: 0.0),
-            child: new ListView(
-              children: <Widget>[
-                new Text("1. Ugo Credit must be purchased separately.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic)),
-                new Text(
-                    "2. Ugo Credit accepts the following payment methods:\n-Credit/debit card\n-Dining Dollars\n-Bama Cash.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic)),
-                new Text(
-                    "3. Every attempted Ugo Credit purchase undergoes a review process by management that will take 3-5 minutes.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic))
-                new Text(
-                    "4. Buyer will receive SMS updates on their credit status, every step of the way.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic)),
-                new Text(
-                    "5. When approved, Ugo Credit will be added to buyers E-Wallet where the Balance will be displayed.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic)),
-                new Text(
-                    "6. All future orders will draw from buyers existing credit balance.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic)),
-                new Text(
-                    "7. If Ugo Credit does not cover full order, the buyer must pay the difference with another payment type.\n",
-                    style: new TextStyle(fontStyle: FontStyle.italic)),
-              ]
-              ),
-            )*/
+          content:new Text(message,textAlign: TextAlign.left,),
             actions: <Widget>[
               new FlatButton(
                 child: new Text("Close"),
