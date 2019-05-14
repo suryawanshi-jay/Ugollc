@@ -391,7 +391,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
         //centerTitle: true,
         actions: [
-          loggedIn ? new Container(margin: new EdgeInsets.fromLTRB(10.0,17.0,2.0,8.0),child :new Text("CREDIT:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))): new Container(),
+          loggedIn ? new Container(margin: new EdgeInsets.fromLTRB(5.0,17.0,2.0,8.0),child :new Text("CREDIT:",textAlign: TextAlign.center, style : new TextStyle(fontWeight: FontWeight.bold,fontSize: 16.0,color:Colors.yellow))): new Container(),
           loggedIn ? new StoreCreditButton(_credits,_cart): new Container(),
           new CartButton(_cart, updateCart: _updateCart),
         ],
