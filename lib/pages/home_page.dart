@@ -99,8 +99,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           _fetchCart();
         },
         errorHandler: (response) {
+          setState(() => showMaintenanceMsg = true);
+          setState(() => maintenenanceMsg = "😥 We have temporarily paused all orders but don't worry we will back soon.");
+          setState(()=> _loading = false);
           // TODO: handle this error
-          print("ERROR GETTING TOKEN ON LAUNCH, " + response.statusCode.toString());
+          //print("ERROR GETTING TOKEN ON LAUNCH, " + response.statusCode.toString());
         },
         exceptionHandler: (exception) {
           // TODO: handle this exception
