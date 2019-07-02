@@ -57,6 +57,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool showPaymentWarning = false;
   String payment_method;
   String deliveryCost = '0.0';
+  String speedDeliveryCost = '0.0';
   double forbiddenPrice = 0.0;
   double _min_free_shipping_amt = 0.0;
   Map<String, ShippingMethod> _shippingMethods = {};
@@ -69,8 +70,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool cardValid = false;
   bool _apartmentValid = false;
   bool showApplyCoupon = false;
+  bool showSpeedDelivery = false;
   double newTotal = 0.0;
   bool _productOrder = false;
+  bool checkedValue = false;
 
   Cart _cart;
   String _cartError;
@@ -358,25 +361,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
         if(json != null){
           //For cart total's percent based delivery fee
           if(_cart.productCount() > 0) {
-            if (json['fee_type'] == "P") {
-              final CartTotal subTotal = _totals
-                  .where((total) => total.title == "Sub-Total")
-                  .first;
-              final String clnTotal = subTotal.text.replaceAll(
-                  PRICE_REGEXP, "");
-              final double tip = _tipAmount;
-              //setState(() => deliveryCost = (double.parse(json["delivery_fee"]) * (double.parse(clnTotal)- tip)/100).toString());
-              var newDeliveryCost = (double.parse(json["delivery_fee"]) *
-                  (double.parse(clnTotal) - tip) / 100);
-              if (newDeliveryCost >= 3.99) {
-                setState(() =>
-                deliveryCost = newDeliveryCost.toStringAsFixed(2));
-              } else {
-                setState(() => deliveryCost = 3.99.toString());
-              }
-            } else {
-              setState(() => deliveryCost = json["delivery_fee"]);
+            if(_shippingMethod.cost == 0.0){
+              setState(() => deliveryCost = '0.00');
+            }else {
+              setState(() => deliveryCost = json["basic_fee"].toString());
             }
+            setState(() => speedDeliveryCost = json["speedy_delivery_fee"].toString());
             setState(() => showShippingRow = true);
           } else {
             setState(() => deliveryCost = 0.00.toString());
@@ -386,6 +376,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       },
       params: {
         "payment_method" : payment_method,
+        "speedy_fee" : checkedValue ? "yes" : "no",
         "api_call" : "1"
       },
       errorHandler: (error) {
@@ -1163,6 +1154,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ): new Row();
   }
 
+  Row _speedDeliveryRow() {
+    if (checkedValue == false) {
+      return new Row();
+    }
+
+    var text = "Speed Delivery Cost:\$${speedDeliveryCost}";
+
+    return  new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
   Row _storeCreditRow() {
     if (_credits == null) {
       return new Row();
@@ -1424,7 +1430,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final wrongStyle =  new TextStyle(color:Colors.red);
     final shippingCost = _shippingMethod == null
         ? 0.0
-        : double.parse(deliveryCost).toDouble();
+        : checkedValue ? (double.parse(deliveryCost).toDouble() + double.parse(speedDeliveryCost).toDouble()):  double.parse(deliveryCost).toDouble();
 
     // get number of cents, rounded, then convert to dollars
     final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
@@ -1631,6 +1637,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         {
                                           setState(() =>
                                           showApplyCoupon = true);
+                                          setState(() =>
+                                          showSpeedDelivery = true);
                                         }
                                       },
                                   ),
@@ -1721,7 +1729,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ): new Container(),
                       showApplyCoupon ? new Container(
-                        padding: new EdgeInsets.only(bottom: 10.0),
+                        padding: new EdgeInsets.only(bottom: 5.0),
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
@@ -1734,7 +1742,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ): new Container(),
                       new Container(
-                        padding: new EdgeInsets.only(bottom: 10.0),
+                        padding: new EdgeInsets.only(bottom: 5.0),
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
@@ -1758,7 +1766,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ): new Container(),
                       _showRewardPoint ? new Container(
-                        padding: new EdgeInsets.only(bottom: 10.0),
+                        padding: new EdgeInsets.only(bottom: 5.0),
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
@@ -1779,6 +1787,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ],
                         ),
                       ),
+                      showSpeedDelivery ? new CheckboxListTile(
+                        title: new GestureDetector(
+                          child: new Text("Choose UGO Express Delivery",textAlign: TextAlign.left, style: new TextStyle(color:UgoGreen,fontWeight: FontWeight.bold)),
+                        ),
+                        value: checkedValue,
+                        onChanged: (bool value) {
+                          checkedValue ? setState(() => checkedValue = false) :setState(() => checkedValue = true) ;
+                          getNewShippingCost();
+                        },
+                      ): new Container(),
                       new Container(
                         padding: new EdgeInsets.only(bottom: 20.0),
                         child: new Column(
@@ -1813,6 +1831,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _totalRow("Cart (Including Tip)", "Sub-Total"),
                       _totalRow("Low Order Fee", "Low Order Fee"),
                       _shippingRow(),
+                      _speedDeliveryRow(),
                       _coupounCodeRow(),
                       _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax - _rewardPointTax)),
                       _totalRow("Store Credit", "Store Credit",addedAmount: shippingTax + shippingCost -_rewardPointTax),
