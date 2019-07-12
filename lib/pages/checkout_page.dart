@@ -147,6 +147,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _userEmail;
   int _maxPointUse = 0;
   bool showShippingRow = false;
+  String addrString = "";
 
   BuildContext _navContext;
 
@@ -351,6 +352,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   //To get shipping cost with respect to selected payment type
   void getNewShippingCost(){
+    if(_address1 != null  && _zip != null) {
+      setState(() => addrString = "$_address1, $_zip".replaceAll(" ", "+"));
+    } else {
+      setState(() => addrString = "");
+    }
     if(_selectedCard != null && _selectedCard != "BAMA Cash" && _selectedCard != "cod" && _selectedCard != "DD"){
       payment_method = "pp_pro";
     }else {
@@ -377,6 +383,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       params: {
         "payment_method" : payment_method,
         "speedy_fee" : checkedValue ? "yes" : "no",
+        "addrString": addrString,
         "api_call" : "1"
       },
       errorHandler: (error) {
