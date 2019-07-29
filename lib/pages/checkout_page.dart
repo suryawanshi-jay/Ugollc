@@ -58,6 +58,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String payment_method;
   String deliveryCost = '0.0';
   String speedDeliveryCost = '0.0';
+  String distanceDeliveryCost = '0.0';
   double forbiddenPrice = 0.0;
   double _min_free_shipping_amt = 0.0;
   Map<String, ShippingMethod> _shippingMethods = {};
@@ -365,7 +366,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ApiManager.request(
       OCResources.POST_NEW_SHIPPING_AMT, (json) {
         if(json != null){
-          //For cart total's percent based delivery fee
           if(_cart.productCount() > 0) {
             if(_shippingMethod.cost == 0.0){
               setState(() => deliveryCost = '0.00');
@@ -383,12 +383,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
       params: {
         "payment_method" : payment_method,
         "speedy_fee" : checkedValue ? "yes" : "no",
-        "addrString": addrString,
         "api_call" : "1"
       },
       errorHandler: (error) {
         ApiManager.defaultErrorHandler(error, context: context);
       }
+    );
+
+    ApiManager.request(
+        OCResources.GET_DISTANCE_SHIPPING_AMT, (json) {
+      if(json != null){
+        if(_cart.productCount() > 0) {
+            setState(() => distanceDeliveryCost = json["distance_delivery_fee"].toString());
+        } else {
+          setState(() => distanceDeliveryCost = 0.00.toString());
+        }
+      }
+    },
+        params: {
+          "payment_method" : payment_method,
+          "addrString": addrString,
+          "api_call" : "1"
+        },
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
     );
   }
 
@@ -1197,6 +1216,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  Row _distanceDeliveryRow() {
+    if (distanceDeliveryCost == '0.00') {
+      return new Row();
+    }
+
+    var text = "Distance Delivery Cost:\$${distanceDeliveryCost}";
+
+    return  new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new Text(text, style: new TextStyle(fontSize: 18.0))
+      ],
+    );
+  }
+
   Row _storeCreditRow() {
     if (_credits == null) {
       return new Row();
@@ -1868,6 +1902,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       _totalRow("Low Order Fee", "Low Order Fee"),
                       _shippingRow(),
                       _speedDeliveryRow(),
+                      _distanceDeliveryRow(),
                       _coupounCodeRow(),
                       _totalRow("Sales Tax", "Sales Tax", addedAmount: (shippingTax - _couponTax - _rewardPointTax)),
                       _totalRow("Store Credit", "Store Credit",addedAmount: shippingTax + shippingCost -_rewardPointTax),
