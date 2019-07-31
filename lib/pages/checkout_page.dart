@@ -149,6 +149,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int _maxPointUse = 0;
   bool showShippingRow = false;
   String addrString = "";
+  bool expressoption = false;
 
   BuildContext _navContext;
 
@@ -178,9 +179,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _getCart();
       _getCWID();
       _getCredits();
+      _showExpressOption();
     }else{
       _getGuestInfo();
       _getCart();
+      _showExpressOption();
     }
   }
 
@@ -242,6 +245,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
         }
       },
     );
+  }
+
+  _showExpressOption(){
+    ApiManager.request(
+      OCResources.GET_EXPRESS_OPTION,
+          (json) {
+        if(json!= null && json['express_option'] == 1) {
+          setState(() => expressoption = true);
+        }else{
+          setState(() => expressoption = false);
+        }
+      },
+    );
+
   }
 
   _getRewards() {
@@ -351,6 +368,40 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  void getDistanceCost() {
+    if(_address1 != null  && _zip != null) {
+     // setState(() => addrString = "$_address1, $_zip".replaceAll(" ", "+"));
+      setState(() => addrString = "$_address1, $_zip");
+
+    } else {
+      setState(() => addrString = "");
+    }
+    if(_selectedCard != null && _selectedCard != "BAMA Cash" && _selectedCard != "cod" && _selectedCard != "DD"){
+      payment_method = "pp_pro";
+    }else {
+      payment_method = _selectedCard;
+    }
+    ApiManager.request(
+        OCResources.GET_DISTANCE_SHIPPING_AMT, (json) {
+          if(json != null){
+            if(_cart.productCount() > 0) {
+              setState(() => distanceDeliveryCost = json["distance_delivery_fee"].toString());
+            } else {
+              setState(() => distanceDeliveryCost = 0.00.toString());
+            }
+          }
+        },
+        params: {
+          "payment_method" : payment_method,
+          "addrString": addrString,
+          "api_call" : "1"
+        },
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
+    );
+  }
+
   //To get shipping cost with respect to selected payment type
   void getNewShippingCost(){
     if(_address1 != null  && _zip != null) {
@@ -365,50 +416,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
     ApiManager.request(
       OCResources.POST_NEW_SHIPPING_AMT, (json) {
-        if(json != null){
-          if(_cart.productCount() > 0) {
-            if(_shippingMethod.cost == 0.0){
-              setState(() => deliveryCost = '0.00');
-            }else {
-              setState(() => deliveryCost = json["basic_fee"].toString());
-            }
-            setState(() => speedDeliveryCost = json["speedy_delivery_fee"].toString());
-            setState(() => showShippingRow = true);
+      if (json != null) {
+        if (_cart.productCount() > 0) {
+          if (_shippingMethod.cost == 0.0) {
+            setState(() => deliveryCost = '0.00');
           } else {
-            setState(() => deliveryCost = 0.00.toString());
-            setState(() => showShippingRow = false);
+            setState(() => deliveryCost = json["basic_fee"].toString());
           }
-        }
-      },
-      params: {
-        "payment_method" : payment_method,
-        "speedy_fee" : checkedValue ? "yes" : "no",
-        "api_call" : "1"
-      },
-      errorHandler: (error) {
-        ApiManager.defaultErrorHandler(error, context: context);
-      }
-    );
-
-    ApiManager.request(
-        OCResources.GET_DISTANCE_SHIPPING_AMT, (json) {
-      if(json != null){
-        if(_cart.productCount() > 0) {
-            setState(() => distanceDeliveryCost = json["distance_delivery_fee"].toString());
+          setState(() =>
+          speedDeliveryCost = json["speedy_delivery_fee"].toString());
+          setState(() => showShippingRow = true);
         } else {
-          setState(() => distanceDeliveryCost = 0.00.toString());
+          setState(() => deliveryCost = 0.00.toString());
+          setState(() => showShippingRow = false);
         }
+        getDistanceCost();
       }
     },
-        params: {
-          "payment_method" : payment_method,
-          "addrString": addrString,
-          "api_call" : "1"
-        },
-        errorHandler: (error) {
-          ApiManager.defaultErrorHandler(error, context: context);
-        }
-    );
+    params: {
+    "payment_method": payment_method,
+    "speedy_fee": checkedValue ? "yes" : "no",
+    "api_call": "1"
+    },
+    errorHandler: (error) {
+    ApiManager.defaultErrorHandler(error, context: context);
+    });
   }
 
   _logCheckout() async {
@@ -879,6 +911,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           "comment": commentText,
           "payment_id" : uniqueIdText,
           "speedy_delivery" : checkedValue ? "yes" : "no",
+          "addrString" : addrString,
           "api_call" : "1"
         },
         errorHandler: (error) {
@@ -1217,7 +1250,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Row _distanceDeliveryRow() {
-    if (distanceDeliveryCost == '0.00') {
+    if (distanceDeliveryCost == '0.0') {
       return new Row();
     }
 
@@ -1492,7 +1525,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final wrongStyle =  new TextStyle(color:Colors.red);
     final shippingCost = _shippingMethod == null
         ? 0.0
-        : checkedValue ? (double.parse(deliveryCost).toDouble() + double.parse(speedDeliveryCost).toDouble()):  double.parse(deliveryCost).toDouble();
+        : checkedValue ? (double.parse(deliveryCost).toDouble() + double.parse(speedDeliveryCost).toDouble() + double.parse(distanceDeliveryCost).toDouble()): double.parse(distanceDeliveryCost).toDouble() + double.parse(deliveryCost).toDouble();
     // get number of cents, rounded, then convert to dollars
     final shippingTax = (shippingCost * 100 * TAX_RATE).round()/100.0;
 
@@ -1597,6 +1630,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 if(_guestUser == false && updateUser == false) {
                                   _selectedAddress = null;
                                 }
+                                getDistanceCost();
                               }),
                             ),
                             showApartment ? new TextField(
@@ -1645,6 +1679,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   if(_guestUser == false && updateUser == false) {
                                     _selectedAddress = null;
                                   }
+                                  getDistanceCost();
                                 })
                             ),
                           ],
@@ -1700,6 +1735,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           showApplyCoupon = true);
                                           setState(() =>
                                           showSpeedDelivery = true);
+                                          getDistanceCost();
                                         }
                                       },
                                   ),
@@ -1848,7 +1884,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ],
                         ),
                       ),
-                      showSpeedDelivery ? new CheckboxListTile(
+                      showSpeedDelivery && expressoption ? new CheckboxListTile(
                         title: new GestureDetector(
                           child: new Text("Choose UGO Express Delivery",textAlign: TextAlign.left, style: new TextStyle(color:UgoGreen,fontWeight: FontWeight.bold)),
                         ),
@@ -1856,6 +1892,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         onChanged: (bool value) {
                           checkedValue ? setState(() => checkedValue = false) :setState(() => checkedValue = true) ;
                           getNewShippingCost();
+                          getDistanceCost();
                         },
                       ): new Container(),
                       showSpeedDelivery ? new Container(

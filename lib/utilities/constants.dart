@@ -23,7 +23,7 @@ const Color UgoGray = const Color.fromARGB(255, 151, 151, 151);
 
 const Point UGO_STORE_LOC = const Point(33.198056, -87.535080);
 const double EARTH_RADIUS = 3958.756;
-const double UGO_DELIVERY_RADIUS = 3.0;
+const double UGO_DELIVERY_RADIUS = 10.0;
 
 const String UGO_PHONE_NUMBER = "205-632-3307";
 
@@ -89,6 +89,7 @@ abstract class OCResources {
   static const POST_REFERRAL_COUPON = "POST::$OPENCART_IDENTIFIER::module/referral_coupon";
   static const POST_REFERRAL_HISTORY = "POST::$OPENCART_IDENTIFIER::module/referral_history";
   static const GET_STORE_CREDIT = "GET::$OPENCART_IDENTIFIER::cart/store_credit";
+  static const GET_EXPRESS_OPTION = "GET::$OPENCART_IDENTIFIER::checkout/express_option";
   static const POST_REWARD_POINTS = "POST::$OPENCART_IDENTIFIER::cart/reward_points";
   static const POST_REWARD_VALUE = "POST::$OPENCART_IDENTIFIER::checkout/reward_point";
   static const POST_CLEAR_REWARD = "POST::$OPENCART_IDENTIFIER::cart/clear_reward";
