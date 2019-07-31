@@ -74,7 +74,8 @@ class _ListPageState extends State<ListPage> {
   List<Widget> listRows() {
     final productWidgets = _categoryProducts.map((product) {
       return new ProductWidget(
-        product["product_id"], 
+        product["product_id"],
+        product["quantity"],
         product["name"],
         _cart,
         price: product["price"],

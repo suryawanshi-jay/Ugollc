@@ -445,6 +445,7 @@ class CategoryListRow extends StatelessWidget {
     return new Expanded(
       child: new ProductWidget(
         product.id,
+        product.quantity,
         product.name,
         cart,
         price: product.price,

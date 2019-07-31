@@ -24,6 +24,7 @@ class SearchPage extends StatelessWidget {
     final productWidgets = products.map((product) {
       return new ProductWidget(
         product.id,
+        product.quantity,
         product.name,
         cart,
         price: product.price,

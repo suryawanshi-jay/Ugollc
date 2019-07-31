@@ -215,6 +215,7 @@ class Recurring extends Object {
 
 class SimpleProduct extends Object {
   int id;
+  String quantity;
   String name;
   String description;
   String price;
@@ -225,6 +226,7 @@ class SimpleProduct extends Object {
 
   SimpleProduct.fromJSON(Map json) {
     id = json["product_id"];
+    quantity = json["quantity"];
     name = json["name"];
     description = json["description"];
     price = json["price"];
