@@ -151,6 +151,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool showShippingRow = false;
   String addrString = "";
   bool expressoption = false;
+  double store_radius = UGO_DELIVERY_RADIUS;
 
   BuildContext _navContext;
 
@@ -181,7 +182,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _getCWID();
       _getCredits();
       _showExpressOption();
+      _getStoreRadius();
     }else{
+      _getStoreRadius();
       _getGuestInfo();
       _getCart();
       _showExpressOption();
@@ -225,6 +228,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
               setState(() => _uniqueIdController.text = _cwid);
               setState(() => prefillCwid = true);
         },
+
+    );
+  }
+
+  _getStoreRadius(){
+    ApiManager.request(
+      OCResources.GET_STORE_RADIUS,
+          (json) {
+        setState(() => store_radius = double.parse(json['store_radius']));
+      },
 
     );
   }
@@ -655,7 +668,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               final double lat = location["lat"];
               final double lon = location["lng"];
               final addressPoint = new Point(lat, lon);
-              if (_deliveryDistance(addressPoint) > UGO_DELIVERY_RADIUS) {
+              if (_deliveryDistance(addressPoint) > store_radius) {
                 setState(() => _orderProcess = 0.0);
                 setState(() => _ordering = false);
                 ApiManager.defaultErrorHandler(
@@ -1447,7 +1460,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ApiManager.request(
         OCResources.DELETE_CART_PRODUCT,
             (json) async {
-          debugPrint("jsoncart:$json");
           final updatedCart = new Cart.fromJSON(json["cart"]);
           setState(() => _cart = updatedCart);
           setState(() =>_totals = _cart.totals);
@@ -1743,6 +1755,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             forbiddenCheck();
                                           }else{
                                             showPaymentWarning = false;
+                                            pay = true;
                                           }
 
                                         });
