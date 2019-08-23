@@ -75,6 +75,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   double newTotal = 0.0;
   bool _productOrder = false;
   bool checkedValue = false;
+  bool pay = true;
 
   Cart _cart;
   String _cartError;
@@ -343,7 +344,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ShippingMethod method;
       if (_shippingMethods != null && _shippingMethods.length > 0) {
         final CartTotal subTotal = _totals.where((total) => total.title == "Sub-Total").first;
-        final String clnTotal = forbiddenPrice > 0.0 ? (double.parse(subTotal.text.replaceAll(PRICE_REGEXP, "")) - forbiddenPrice).toString() : subTotal.text.replaceAll(PRICE_REGEXP, "");
+        //final String clnTotal = forbiddenPrice > 0.0 ? (double.parse(subTotal.text.replaceAll(PRICE_REGEXP, "")) - forbiddenPrice).toString() : subTotal.text.replaceAll(PRICE_REGEXP, "");
+        final String clnTotal = subTotal.text.replaceAll(PRICE_REGEXP, "");
         if ((double.parse(clnTotal) - _tipAmount) >= _min_free_shipping_amt) {
           method =
               _shippingMethods["free.free"] ?? _shippingMethods["flat.flat"];
@@ -1250,7 +1252,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Row _distanceDeliveryRow() {
-    if (distanceDeliveryCost == '0.0') {
+    if (distanceDeliveryCost == '0.0' || distanceDeliveryCost == '0' || distanceDeliveryCost == '0.00') {
       return new Row();
     }
 
@@ -1424,10 +1426,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
            if(json != null){
              setState(() => paymentWarning = json["error"]["warning"]);
              setState(() => showPaymentWarning = true);
+             setState(() => pay = false);
              if(paymentWarning.startsWith('Your')){
-               setState(() => forbiddenPrice = json["price"]);
-               _getCart();
-               _getShippingMethods();
+               //setState(() => forbiddenPrice = json["price"]);
+               setState(() => pay = true);
+               _removeForbiddenProduct(json['keys']);
              }
            }
         },
@@ -1440,6 +1443,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  void _removeForbiddenProduct(String keys){
+    ApiManager.request(
+        OCResources.DELETE_CART_PRODUCT,
+            (json) async {
+          debugPrint("jsoncart:$json");
+          final updatedCart = new Cart.fromJSON(json["cart"]);
+          setState(() => _cart = updatedCart);
+          setState(() =>_totals = _cart.totals);
+          _getShippingMethods();
+          await _analytics.logEvent(name: "remove_cart_product", parameters: {
+            "productID": keys,
+          });
+        },
+        resourceID: keys
+    );
+  }
 
   Row _coupounCodeRow() {
     if (_isCouponCodeValid == false) {
@@ -1466,7 +1485,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
      cardValid = _selectedCard != null;
      _apartmentValid = _apartmentNameValid();
      _uniqueIdValid = _cardUniqueIdValid();
-     return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid;
+     pay = _paymentMethodValid();
+     return addressValid && zipValid && cardValid && addressTypeValid && _address2Valid && cityValid && _apartmentValid && _uniqueIdValid && pay;
   }
 
   bool _apartmentNameValid() {
@@ -1484,10 +1504,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   bool _paymentMethodValid() {
-    if (showPaymentWarning == true){
-      return false;
-    } else {
+    if (pay == true){
       return true;
+    } else {
+      return false;
     }
 
   }

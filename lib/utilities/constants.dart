@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ugo_flutter/utilities/secrets.dart';
-const String API_HOST = "ugollc.com";
-//const String API_HOST = "stage.ugollc.com";
+//const String API_HOST = "ugollc.com";
+const String API_HOST = "stage.ugollc.com";
 const String apiVersion = "api/v1/";
 const String basicAuthToken = "Basic VWdvQXV0aDMyMTY1NDpSVGdPQnN0QUJ4MjN4OTgxd3BvQQ==";
 //const String PLATFORM = "ios";
@@ -23,7 +23,7 @@ const Color UgoGray = const Color.fromARGB(255, 151, 151, 151);
 
 const Point UGO_STORE_LOC = const Point(33.198056, -87.535080);
 const double EARTH_RADIUS = 3958.756;
-const double UGO_DELIVERY_RADIUS = 10.0;
+const double UGO_DELIVERY_RADIUS = 3.0;
 
 const String UGO_PHONE_NUMBER = "205-632-3307";
 
@@ -94,6 +94,7 @@ abstract class OCResources {
   static const POST_REWARD_VALUE = "POST::$OPENCART_IDENTIFIER::checkout/reward_point";
   static const POST_CLEAR_REWARD = "POST::$OPENCART_IDENTIFIER::cart/clear_reward";
   static const GET_FORBIDDEN_CHECK = "GET::$OPENCART_IDENTIFIER::checkout/forbidden_check";
+  static const DELETE_FORBIDDEN_PRODUCT = "DELETE::$OPENCART_IDENTIFIER::checkout/remove_forbidden_product";
   static const POST_NEW_SHIPPING_AMT = "POST::$OPENCART_IDENTIFIER::checkout/shipping_amount";
   static const GET_DISTANCE_SHIPPING_AMT = "GET::$OPENCART_IDENTIFIER::checkout/shipping_amount";
   static const GET_CWID = "GET::$OPENCART_IDENTIFIER::checkout/get_cwid";
