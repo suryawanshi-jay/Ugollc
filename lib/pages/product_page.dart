@@ -95,6 +95,9 @@ class _ProductPageState extends State<ProductPage> {
         ApiManager.defaultErrorHandler(error);
         setState(() => _adding = false);
         setState(() => restrictionMsg = error['errors'][0]['message']);
+        if(restrictionMsg.startsWith('Products marked with ***')) {
+          setState(() => restrictionMsg = "This product is not available in the desired quantity or not in stock! ");
+        }
         setState(() => showRestrictionMsg =true);
       },
       context: context

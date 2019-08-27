@@ -133,7 +133,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   ShippingMethod _shippingMethod;
   List<CartTotal> _totals;
   double _tipAmount = 0.0;
-  bool _guestUser;
+  bool _guestUser = false;
   String _firstname;
   String _lastname;
   String _email;
@@ -143,7 +143,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _profile;
   String guestRegCoupon;
   bool _showGuestCoupon = false;
-  double _credits;
+  double _credits = 0.0;
   bool _showRewardPoint = false;
   int _rewardTotal = 0;
   String _userEmail;
@@ -1155,13 +1155,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return new Container();
     }
 
+    if(_guestUser == true) {
+        setState(() => _credits = 0.0);
+    }
+
     final totals = _totals.where((total) => total.title == type);
 
     if ((totals == null || totals.length == 0 && type == 'Low Order Fee')) {
         return new Container();
     }
 
-    if(type == 'Store Credit' && _credits <= 0.00) {
+    if(type == 'Store Credit' && _cart.productCount() == 0)  {
+      return new Container();
+    }
+
+    if(type == 'Store Credit' && _guestUser == true)  {
       return new Container();
     }
 
@@ -1178,7 +1186,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       addedAmount = addedAmount - _rewardPointAmount  ;
     }
 
-    if(type =="Total" && _credits > 0){
+    if(type =="Total" && _credits > 0 && forbiddenPrice == 0.0 && _cart.productCount() > 0){
       addedAmount = addedAmount - _credits  ;
     }
 
@@ -1254,7 +1262,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return new Row();
     }
 
-    var text = "Speed Delivery Cost:\$${speedDeliveryCost}";
+    var text = "Express Delivery Cost:\$${speedDeliveryCost}";
 
     return  new Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1463,6 +1471,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           final updatedCart = new Cart.fromJSON(json["cart"]);
           setState(() => _cart = updatedCart);
           setState(() =>_totals = _cart.totals);
+          setState(() => forbiddenPrice = json["price"]);
           _getShippingMethods();
           await _analytics.logEvent(name: "remove_cart_product", parameters: {
             "productID": keys,
