@@ -1169,7 +1169,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return new Container();
     }
 
-    if(type == 'Store Credit' && _guestUser == true)  {
+    if(type == 'Store Credit' && (_guestUser == true || _credits == 0.0))  {
       return new Container();
     }
 
