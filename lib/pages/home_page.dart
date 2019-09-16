@@ -18,6 +18,8 @@ import 'package:ugo_flutter/pages/drawer.dart';
 import 'package:ugo_flutter/utilities/prefs_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:connectivity/connectivity.dart' as connectivity;
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -39,6 +41,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String platform = PLATFORM;
   bool isiOS = false;
   bool isAndroid = false;
+  bool netStatus = false;
 
   TabController _tabController;
 
@@ -55,33 +58,48 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
     _tabController = new TabController(length: 3, vsync: this);
     setState(() => _loading = true);
-    _startupTokenCheck();
-    _checkLoggedIn();
-    versionCheck();
-    _searchFocus = new FocusNode();
-    _searchField = new TextField(
-      focusNode: _searchFocus,
-      controller: _textController,
-      onChanged: (value) {
-        if (value.length > 2) {
-          _search(value);
-        }
-      },
-      onSubmitted: (value) => _search(value),
-      decoration: new InputDecoration(
-        prefixIcon: new Icon(Icons.search),
-        suffixIcon: new IconButton(
-          icon: new Icon(Icons.close),
-          onPressed: () => _textController.text = "",
+    _check();
+      _startupTokenCheck();
+      _checkLoggedIn();
+      versionCheck();
+      _searchFocus = new FocusNode();
+      _searchField = new TextField(
+        focusNode: _searchFocus,
+        controller: _textController,
+        onChanged: (value) {
+          if (value.length > 2) {
+            _search(value);
+          }
+        },
+        onSubmitted: (value) => _search(value),
+        decoration: new InputDecoration(
+          prefixIcon: new Icon(Icons.search),
+          suffixIcon: new IconButton(
+            icon: new Icon(Icons.close),
+            onPressed: () => _textController.text = "",
+          ),
+          labelText: 'Search',
         ),
-        labelText: 'Search',
-      ),
-    );
-    _tabController.addListener(() {
-      if (_searchFocus.hasFocus) {
-        _searchFocus.unfocus();
-      }
-    });
+      );
+      _tabController.addListener(() {
+        if (_searchFocus.hasFocus) {
+          _searchFocus.unfocus();
+        }
+      });
+
+  }
+
+  _check() async {
+    var connectivityResult = await connectivity.checkConnectivity();
+    if (connectivityResult == connectivity.ConnectivityResult.mobile) {
+        setState(()=> netStatus = true);
+    } else if (connectivityResult == connectivity.ConnectivityResult.wifi) {
+      setState(()=> netStatus = true);
+    }else {
+      debugPrint("NO CONNECTION");
+      setState(()=> _loading = false);
+      _showNoConnection();
+    }
   }
 
   _startupTokenCheck() async {
@@ -135,6 +153,48 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           "platform" :platform
       }
     );
+  }
+
+  _showNoConnection() {
+    showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      child: new Builder (builder: (BuildContext context) {
+
+        String title = "No Internet Connection!";
+        String message =
+            "It seems you're offline.Check your internet connection & try again";
+        String btnLabel = "OK";
+        return isiOS
+            ?new WillPopScope(
+            onWillPop: () {},
+            child : new CupertinoAlertDialog(
+              title: new Text(title),
+              content:new Text(message),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text(btnLabel),
+                  onPressed: () => SystemNavigator.pop(),
+                ),
+              ],
+            )
+        ):new WillPopScope(
+            onWillPop: () {},
+            child : new AlertDialog(
+              title: new Text(title),
+              content:new  Text(message),
+              actions: <Widget>[
+                new  FlatButton(
+                  child: new Text(btnLabel),
+                  onPressed: () => SystemNavigator.pop(),
+                ),
+              ],
+            )
+        );
+      }),
+    );
+
+
   }
 
    _showVersionDialog()  {
