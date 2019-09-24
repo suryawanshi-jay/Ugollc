@@ -20,6 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:connectivity/connectivity.dart' as connectivity;
 import 'package:flutter/services.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   @override
@@ -41,7 +42,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String platform = PLATFORM;
   bool isiOS = false;
   bool isAndroid = false;
-  bool netStatus = false;
+  bool netStatus = true;
+  Timer timer;
 
   TabController _tabController;
 
@@ -58,7 +60,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
     _tabController = new TabController(length: 3, vsync: this);
     setState(() => _loading = true);
-    _check();
+      _check();
       _startupTokenCheck();
       _checkLoggedIn();
       versionCheck();
@@ -89,16 +91,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   }
 
+  void dispose() {
+    timer?.cancel();
+  }
+
   _check() async {
     var connectivityResult = await connectivity.checkConnectivity();
     if (connectivityResult == connectivity.ConnectivityResult.mobile) {
         setState(()=> netStatus = true);
+        _startupTokenCheck();
+        dispose();
     } else if (connectivityResult == connectivity.ConnectivityResult.wifi) {
       setState(()=> netStatus = true);
+      _startupTokenCheck();
+      dispose();
     }else {
       debugPrint("NO CONNECTION");
       setState(()=> _loading = false);
+      setState(()=> netStatus = false);
       _showNoConnection();
+      timer =
+      new Timer.periodic(const Duration(seconds: 10), (timer) {
+        if(netStatus == false) {
+          _check();
+        }else{
+          timer.cancel();
+        }
+
+      });
     }
   }
 
@@ -174,7 +194,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               actions: <Widget>[
                 new FlatButton(
                   child: new Text(btnLabel),
-                  onPressed: () => SystemNavigator.pop(),
+                  onPressed: () =>  Navigator.of(context).pop(),
                 ),
               ],
             )
@@ -186,7 +206,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               actions: <Widget>[
                 new  FlatButton(
                   child: new Text(btnLabel),
-                  onPressed: () => SystemNavigator.pop(),
+                  onPressed: () =>  Navigator.of(context).pop(),
                 ),
               ],
             )
