@@ -1355,10 +1355,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
               setState(() => _couponTax = tempCouponTax1);
               setState(() => _couponCodeAmount = _couponCodeAmount);
             }
+            setState(() => _isCouponCodeValid = true);
           }else{
             setState(() => couponMessage = json["error"]);
+            setState(() => _isCouponCodeValid = false);
           }
-          setState(() => _isCouponCodeValid = true);
         },
         params: {
           "call_type": "api_call",

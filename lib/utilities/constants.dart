@@ -5,10 +5,10 @@ const String API_HOST = "ugollc.com";
 //const String API_HOST = "stage.ugollc.com";
 const String apiVersion = "api/v1/";
 const String basicAuthToken = "Basic VWdvQXV0aDMyMTY1NDpSVGdPQnN0QUJ4MjN4OTgxd3BvQQ==";
-const String PLATFORM = "ios";
-const String CURRENT_VERSION = "3.0.8";
-//const String PLATFORM = "android";
-//const String CURRENT_VERSION = "3.0.6";
+//const String PLATFORM = "ios";
+//const String CURRENT_VERSION = "3.0.8";
+const String PLATFORM = "android";
+const String CURRENT_VERSION = "3.0.9";
 
 const double TAX_RATE = 0.09;
 
