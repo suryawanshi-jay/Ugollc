@@ -235,7 +235,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 content:new Text(message),
                 actions: <Widget>[
                   new FlatButton(
+                      child: new Text('Later'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      }
+                  ),
+                  new FlatButton(
                     child: new Text(btnLabel),
+
                     onPressed: () => _launchURL(APP_STORE_URL),
                   ),
                 ],
