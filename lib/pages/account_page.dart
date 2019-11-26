@@ -268,7 +268,10 @@ class _AccountPageState extends State<AccountPage> with SingleTickerProviderStat
           Navigator.pop(context);
         },
         params: params,
-        resourceID: _accountAddress['address_id'].toString()
+        resourceID: _accountAddress['address_id'].toString(),
+        errorHandler: (error) {
+          ApiManager.defaultErrorHandler(error, context: context);
+        }
     );
   }
 

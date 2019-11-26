@@ -111,8 +111,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String dob;
   String gender;
   String profile;
-  int countryID;
-  int zoneID;
+  int countryID = 223;
+  int zoneID = 3613;
   int addressTypeID;
   String _uniqueId;
   String _cwid;
@@ -570,6 +570,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // POST SHIPPING ADDRESS (ENTERED -- NEW OR EXISTING?)
   _submitShippingAddress(BuildContext context) {
+
     if (_selectedAddress != null) {
       _submitExistingShippingAddress(context);
     } else {

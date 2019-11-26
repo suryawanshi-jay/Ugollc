@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       _check();
       _startupTokenCheck();
       _checkLoggedIn();
-      versionCheck();
+      //versionCheck();
       _searchFocus = new FocusNode();
       _searchField = new TextField(
         focusNode: _searchFocus,
